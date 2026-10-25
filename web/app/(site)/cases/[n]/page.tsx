@@ -49,7 +49,7 @@ export default async function CasePage({ params }: Props) {
       </div>
 
       <div className="file p-5 md:p-8 overflow-hidden">
-        <div className="absolute right-6 top-24 md:right-12 md:top-28 hidden sm:block" aria-hidden>
+        <div className="absolute! right-6 bottom-16 md:right-10 md:bottom-20 hidden sm:block" aria-hidden>
           <Stamp size={64} />
         </div>
         <div className="flex flex-wrap items-baseline justify-between gap-4 border-b-2 border-ink pb-3">
@@ -74,6 +74,7 @@ export default async function CasePage({ params }: Props) {
           <div>
             <dt className="label">Subject</dt>
             <dd className="flex flex-wrap gap-x-3">
+              {c.subjects.length === 0 ? <span className="opacity-70">no handle on record</span> : null}
               {c.subjects.map((s) => (
                 <Link key={s} href={`/persons/${s.slice(1)}`} className="underline">
                   {s}

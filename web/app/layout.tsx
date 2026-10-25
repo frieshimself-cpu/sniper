@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: { default: "C.R.I.M.E.", template: "%s · C.R.I.M.E." },
   description: "Chain Research & Investigation of Market Exploits. Cases opened. Crimes found. Convictions: 0.",
   openGraph: { siteName: "C.R.I.M.E.", type: "website" },
+  alternates: { types: { "application/atom+xml": "/feed.xml" } },
   twitter: { card: "summary_large_image" },
 };
 

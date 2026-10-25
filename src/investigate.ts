@@ -62,6 +62,8 @@ interface Watch {
 }
 
 const MIN_PUBLISH_SCORE = Number(process.env.MIN_PUBLISH_SCORE ?? 35);
+const INTERVAL_H = Number(process.env.INVESTIGATE_INTERVAL_HOURS ?? 6);
+const nextRun = () => iso(new Date(Date.now() + Math.max(0.05, INTERVAL_H) * 3_600_000));
 const iso = (d = new Date()) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
 const pad = (n: number) => String(n).padStart(4, "0");
 
@@ -269,7 +271,7 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   } else if (src.name === "live") {
     const best = await scanDiscovered(src);
     if (!best) {
-      await writeStatus({ state: "idle", last_run_at: iso(), message: `Scanned ${DISCOVER_SCAN} boosted tokens. Nothing above ${MIN_PUBLISH_SCORE}. No case.` });
+      await writeStatus({ state: "idle", last_run_at: iso(), message: `Scanned ${DISCOVER_SCAN} boosted tokens. Nothing above ${MIN_PUBLISH_SCORE}. No case.`, next_run_at: nextRun() });
       return { message: "nothing found in discovery" };
     }
     picked = { mint: best.mint, via: best.via };
@@ -280,7 +282,7 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   }
   if (!inv || inv.score < MIN_PUBLISH_SCORE) {
     const msg = inv ? `${picked.mint}: score ${inv.score}, below ${MIN_PUBLISH_SCORE}. No case.` : `${picked.mint}: token not found.`;
-    await writeStatus({ state: "idle", last_run_at: iso(), message: msg });
+    await writeStatus({ state: "idle", last_run_at: iso(), message: msg, next_run_at: nextRun() });
     return { message: msg };
   }
 
@@ -334,7 +336,7 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
     process.stderr.write(`card render failed: ${(err as Error).message}\n`);
   }
   const msg = `Case ${c.id} opened on $${c.token.symbol}: ${c.findings.length} findings, ${att.added.length} wallets attributed, ${att.leads.length} leads.`;
-  await writeStatus({ state: "idle", last_run_at: iso(), last_case: n, message: msg });
+  await writeStatus({ state: "idle", last_run_at: iso(), last_case: n, message: msg, next_run_at: nextRun() });
   process.stdout.write(msg + "\n");
   return { case: c, message: msg };
 }

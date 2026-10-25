@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, ".."),
   poweredByHeader: false,
   ...(STATIC
-    ? { output: "export", basePath, trailingSlash: true, images: { unoptimized: true } }
+    ? { output: "export", distDir: ".next-static", basePath, trailingSlash: true, images: { unoptimized: true } }
     : {
         async headers() {
           return [

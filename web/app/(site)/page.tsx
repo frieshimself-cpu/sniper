@@ -1,15 +1,28 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getStats, latestCases, getAgentStatus } from "@/lib/data";
 import { ensureTodayBallot } from "@/lib/ballot";
 import { tally } from "@/lib/store";
 import { rpcStatus } from "@/lib/solana";
-import { ago, until } from "@/lib/format";
+import { ago, until, siteUrl } from "@/lib/format";
 import { Counter } from "@/components/Counter";
 import { Pill } from "@/components/Pills";
 import { CaseCard } from "@/components/CaseCard";
 import { BallotVote } from "@/components/BallotVote";
 import { Stamp } from "@/components/Stamp";
 import { STATIC } from "@/lib/dyn";
+
+export function generateMetadata(): Metadata {
+  const latest = latestCases(1)[0];
+  const stats = getStats();
+  const description = `${stats.cases_opened} cases opened. ${stats.crimes_found} crimes found. Convictions: 0.`;
+  const img = latest ? `${siteUrl()}/cases/${latest.n}/card.png` : undefined;
+  return {
+    description,
+    openGraph: { description, images: img ? [{ url: img, width: 1200, height: 630 }] : [] },
+    twitter: { card: "summary_large_image", description, images: img ? [img] : [] },
+  };
+}
 
 export default function Home() {
   const stats = getStats();

@@ -9,6 +9,7 @@ import { getCases, getCase, getPersons, getPerson, getStats, cardPath } from "..
 import { ensureTodayBallot } from "../lib/ballot";
 import { getBallots, tally } from "../lib/store";
 import { enforceDeep } from "../lib/policy";
+import { atomFeed } from "../lib/feed";
 
 const OUT = path.join(process.cwd(), "out");
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH?.replace(/\/$/, "") ?? "";
@@ -61,4 +62,5 @@ write("api/ballot.json", {
   history: getBallots().filter((x) => x.closed).map((x) => ({ id: x.id, options: x.options, winner: x.winner, runner_up: x.runner_up, tally: tally(x), votes: Object.keys(x.votes).length })),
   static: true,
 });
+write("feed.xml", atomFeed());
 console.log(`static api: ${n} cases, ${getPersons().length} persons`);

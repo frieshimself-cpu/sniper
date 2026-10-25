@@ -176,6 +176,9 @@ test("API: stats, cases, persons, ballot are JSON and never carry the forbidden 
   }
   const stats = await (await request.get("/api/stats")).json();
   expect(stats.convictions).toBe(0);
+  const feed = await request.get("/feed.xml");
+  expect(feed.status()).toBe(200);
+  expect(await feed.text()).toContain("<feed");
   expect(stats.cases_opened).toBeGreaterThan(0);
 });
 

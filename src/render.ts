@@ -34,7 +34,7 @@ export function cardHtml(c: Case): string {
         `<li><span class="code">${esc(f.code)}</span><span class="t">${esc(f.title)}</span></li>`,
     )
     .join("");
-  const subjects = c.subjects.map((s) => esc(s)).join(" · ");
+  const subjects = c.subjects.length ? c.subjects.map((s) => esc(s)).join(" · ") : "—";
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:"IBM Plex Mono";font-weight:400;src:url("file://${monoDir}/files/ibm-plex-mono-latin-400-normal.woff2") format("woff2")}
 @font-face{font-family:"IBM Plex Mono";font-weight:500;src:url("file://${monoDir}/files/ibm-plex-mono-latin-500-normal.woff2") format("woff2")}

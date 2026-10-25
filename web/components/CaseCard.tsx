@@ -17,6 +17,7 @@ export function CaseCard({ c }: { c: Case }) {
       </div>
       <h3 className="mt-4 text-xl leading-tight">{c.headline}</h3>
       <div className="mt-3 flex flex-wrap gap-x-3 text-[11px] font-semibold uppercase tracking-[0.12em]">
+        {c.subjects.length === 0 ? <span className="opacity-60">wallets only</span> : null}
         {c.subjects.map((s) => (
           <span key={s}>{s}</span>
         ))}

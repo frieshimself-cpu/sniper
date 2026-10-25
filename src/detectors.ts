@@ -4,7 +4,7 @@
  */
 import type { Evidence, Finding, Hop, Severity } from "./types.js";
 import type { Holder, Label, Sources, TokenInfo, Transfer } from "./sources/types.js";
-import { bondingCurve, isPumpMint } from "./sources/pumpfun.js";
+import { bondingCurve, isPumpMint, isWallet } from "./sources/pumpfun.js";
 
 export interface Investigation {
   token: TokenInfo;
@@ -36,6 +36,7 @@ const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 const fmtSol = (n: number) => `${n.toFixed(n >= 100 ? 0 : 2)} SOL`;
 const pct = (x: number) => `${(x * 100).toFixed(x < 0.01 ? 2 : 0)}%`;
 const minutes = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / MIN);
+const mins = (n: number) => `${n} minute${n === 1 ? "" : "s"}`;
 
 export async function investigate(mint: string, src: Sources): Promise<Investigation | null> {
   const log: string[] = [];
@@ -120,7 +121,7 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
         title: `${bundle.length} early wallets funded from one source`,
         detail: `${bundle.length} of the first buyers received SOL from ${short(funder)} in the 24 hours before launch. ${sameSlot ? "They bought in the same slot." : "They bought within 90 seconds of launch."} Combined, ${pct(share)} of supply.`,
       });
-      score += 35 + Math.min(15, Math.round(share * 50));
+      score += 20 + Math.min(15, bundle.length) + Math.min(15, Math.round(share * 50));
       for (const w of bundle.slice(0, 5)) {
         const f = (await src.transfers(w, 60)).find((t) => t.kind === "sol" && t.from === funder && t.to === w);
         if (f) evidence.push(ev(f, "Funding transfer"));
@@ -139,7 +140,10 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
         findings.push({
           code: `F-${String(findings.length + 1).padStart(2, "0")}`,
           title: "Coordinated exit",
-          detail: `${exits.length} of the ${bundle.length} wallets sold between ${minutes(launch_at, first.at)} and ${minutes(launch_at, last.at)} minutes after launch.`,
+          detail:
+            minutes(launch_at, first.at) === minutes(launch_at, last.at)
+              ? `${exits.length} of the ${bundle.length} wallets sold ${mins(minutes(launch_at, first.at))} after launch.`
+              : `${exits.length} of the ${bundle.length} wallets sold between ${minutes(launch_at, first.at)} and ${mins(minutes(launch_at, last.at))} after launch.`,
         });
         score += 15;
         for (const t of exits.slice(0, 3)) evidence.push(ev(t, "Sell into launch volume"));
@@ -165,7 +169,7 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
       findings.push({
         code: `F-${String(findings.length + 1).padStart(2, "0")}`,
         title: "Liquidity removed",
-        detail: `${fmtSol(pull.amount)} left the pool to the deployer ${launch_at ? `${minutes(launch_at, pull.at)} minutes` : "some time"} after launch${pull.type === "WITHDRAW_LIQUIDITY" ? " in a liquidity withdrawal" : ""}.`,
+        detail: `${fmtSol(pull.amount)} left the pool to the deployer ${launch_at ? mins(minutes(launch_at, pull.at)) : "some time"} after launch${pull.type === "WITHDRAW_LIQUIDITY" ? " in a liquidity withdrawal" : ""}.`,
       });
       score += 40;
       evidence.push(ev(pull, "Liquidity removal"));
@@ -183,7 +187,7 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
       findings.push({
         code: `F-${String(findings.length + 1).padStart(2, "0")}`,
         title: "Deployer sold",
-        detail: `The deployer wallet sold ${pct(sold)} of supply across ${devSells.length} transactions${launch_at && devSells[0] ? `, the first ${minutes(launch_at, devSells.sort((a, b) => a.at.localeCompare(b.at))[0].at)} minutes after launch` : ""}.`,
+        detail: `The deployer wallet sold ${pct(sold)} of supply across ${devSells.length} transaction${devSells.length === 1 ? "" : "s"}${launch_at && devSells[0] ? `, the first ${mins(minutes(launch_at, devSells.sort((a, b) => a.at.localeCompare(b.at))[0].at))} after launch` : ""}.`,
       });
       score += 25;
       for (const t of devSells.slice(0, 2)) evidence.push(ev(t, "Deployer sell"));
@@ -201,14 +205,15 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
   }
 
   // ---- concentration ------------------------------------------------------
+  // Pools, vaults and curves are program-derived addresses; only on-curve keys count as holders.
   const holders: Holder[] = await src.holders(mint, 20).catch(() => []);
-  const top = holders.filter((h) => h.address !== pool).slice(0, 10);
+  const top = holders.filter((h) => h.address !== pool && h.address !== deployer && isWallet(h.address)).slice(0, 10);
   const conc = sum(top.map((h) => h.share));
   if (conc >= 0.4) {
     findings.push({
       code: `F-${String(findings.length + 1).padStart(2, "0")}`,
       title: "Supply concentrated",
-      detail: `The top ten non-pool holders hold ${pct(conc)} of supply.`,
+      detail: `The ten largest wallets outside the pool and the deployer hold ${pct(conc)} of supply.`,
     });
     score += 10;
     if (top[0]) evidence.push({ kind: "account", ref: top[0].address, wallet: top[0].address, amount: `${pct(top[0].share)} of supply`, at: new Date().toISOString(), note: "Largest holder" });
@@ -230,7 +235,7 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
       const out = tx
         .filter((t) => t.kind === "sol" && t.from === cur && !seen.has(t.to) && t.to !== pool && Date.parse(t.at) >= Date.parse(launch_at))
         .sort((a, b) => b.amount - a.amount)[0];
-      trail.push({ label: i === 0 ? (funder ? "funder" : "deployer") : `hop ${i}`, address: cur, amount: out ? fmtSol(out.amount) : "—" });
+      trail.push({ label: i === 0 ? (funder ? "funder" : "deployer") : `hop ${i}`, address: cur, amount: out ? fmtSol(out.amount) : "" });
       if (!out) break;
       evidence.push(ev(out, i === 0 ? "Proceeds leave" : "Hop"));
       cur = out.to;
@@ -259,6 +264,7 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
       return a !== pool && l?.type !== "cex" && l?.type !== "bridge" && l?.type !== "protocol";
     }),
   ].filter(Boolean)).slice(0, 6);
+  evidence.sort((a, b) => a.at.localeCompare(b.at));
   return { token, launch_at, pool, deployer, funder, bundle, findings, evidence: evidence.slice(0, 40), trail, score: Math.min(99, score), severity, charge, labels, principals, log };
 }
 

@@ -33,3 +33,12 @@ export function findProgramAddress(seeds: Uint8Array[], programId: string): { ad
 export function bondingCurve(mint: string): string {
   return findProgramAddress([new TextEncoder().encode("bonding-curve"), bs58.decode(mint)], PUMP_PROGRAM).address;
 }
+
+/** A plain wallet is an on-curve ed25519 key. Pools, vaults and curves are PDAs and are not. */
+export function isWallet(address: string): boolean {
+  try {
+    return onCurve(bs58.decode(address));
+  } catch {
+    return false;
+  }
+}
