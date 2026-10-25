@@ -1,0 +1,127 @@
+/**
+ * Arkham Intel API (https://api.arkm.com). Header: API-Key.
+ * We use it for labels (who is behind an address) and enriched transfers.
+ *
+ * Rules applied here, not downstream:
+ *   - a label naming a person is dropped; only a handle or an organisation survives
+ *   - an entity prediction (Arkham's ~80% tier) is never treated as confirmed
+ */
+import type { Label, Transfer } from "./types.js";
+
+const SLEEP = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+interface ArkAddr {
+  address?: string;
+  chain?: string;
+  arkhamEntity?: { id?: string; name?: string; type?: string; twitter?: string; website?: string; predicted?: boolean } | null;
+  arkhamLabel?: { name?: string; predicted?: boolean } | null;
+  predicted?: boolean;
+  isUserAddress?: boolean;
+  contract?: boolean;
+}
+
+export class Arkham {
+  private readonly key: string;
+  private readonly base: string;
+  private lastHeavy = 0;
+  constructor(key = process.env.ARKHAM_API_KEY ?? "", base = process.env.ARKHAM_API_URL ?? "https://api.arkm.com") {
+    if (!key) throw new Error("ARKHAM_API_KEY is not set");
+    this.key = key;
+    this.base = base.replace(/\/$/, "");
+  }
+
+  private async get<T>(path: string, params: Record<string, string | number> = {}, heavy = false): Promise<T | null> {
+    if (heavy) {
+      const wait = 1100 - (Date.now() - this.lastHeavy);
+      if (wait > 0) await SLEEP(wait);
+      this.lastHeavy = Date.now();
+    }
+    const u = new URL(this.base + path);
+    for (const [k, v] of Object.entries(params)) u.searchParams.set(k, String(v));
+    const r = await fetch(u, { headers: { "API-Key": this.key } });
+    if (r.status === 404) return null;
+    if (r.status === 429) {
+      await SLEEP(2000);
+      return this.get(path, params, heavy);
+    }
+    if (!r.ok) throw new Error(`arkham ${path} ${r.status}`);
+    return (await r.json()) as T;
+  }
+
+  private async post<T>(path: string, body: unknown): Promise<T | null> {
+    const wait = 1100 - (Date.now() - this.lastHeavy);
+    if (wait > 0) await SLEEP(wait);
+    this.lastHeavy = Date.now();
+    const r = await fetch(this.base + path, { method: "POST", headers: { "API-Key": this.key, "content-type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error(`arkham ${path} ${r.status}`);
+    return (await r.json()) as T;
+  }
+
+  async label(address: string): Promise<Label | null> {
+    const j = await this.get<ArkAddr>(`/intelligence/address/${address}`, { chain: "solana" });
+    return j ? toLabel(address, j) : null;
+  }
+
+  /** Up to 1000 addresses in one heavy call. Returns a map; unlabelled addresses are absent. */
+  async labels(addresses: string[]): Promise<Map<string, Label>> {
+    const out = new Map<string, Label>();
+    const uniq = [...new Set(addresses)].slice(0, 1000);
+    if (!uniq.length) return out;
+    const j = await this.post<Record<string, ArkAddr> | ArkAddr[]>("/intelligence/address/batch", { addresses: uniq, chain: "solana" });
+    if (!j) return out;
+    const entries: Array<[string, ArkAddr]> = Array.isArray(j) ? j.map((a) => [a.address ?? "", a]) : Object.entries(j);
+    for (const [addr, a] of entries) {
+      const l = toLabel(addr || a.address || "", a);
+      if (l) out.set(l.address, l);
+    }
+    return out;
+  }
+
+  /** Enriched transfers for an address on Solana, newest first. 2 credits a row. */
+  async transfers(address: string, limit = 100): Promise<Transfer[]> {
+    type Row = {
+      fromAddress?: ArkAddr;
+      toAddress?: ArkAddr;
+      tokenSymbol?: string;
+      tokenAddress?: string;
+      unitValue?: number;
+      historicalUSD?: number;
+      transactionHash?: string;
+      blockTimestamp?: string;
+    };
+    const j = await this.get<{ transfers?: Row[] }>("/transfers", { base: address, chains: "solana", limit: Math.min(limit, 500), sortKey: "time", sortDir: "desc" }, true);
+    return (j?.transfers ?? []).map((t) => ({
+      signature: t.transactionHash ?? "",
+      at: t.blockTimestamp ?? "",
+      from: t.fromAddress?.address ?? "",
+      to: t.toAddress?.address ?? "",
+      amount: t.unitValue ?? 0,
+      kind: !t.tokenAddress || t.tokenSymbol === "SOL" ? "sol" : "token",
+      mint: t.tokenAddress,
+      type: "TRANSFER",
+    }));
+  }
+}
+
+function mapType(t: string): Label["type"] {
+  const s = t.toLowerCase();
+  if (!s) return null;
+  if (/cex|exchange/.test(s)) return "cex";
+  if (/bridge/.test(s)) return "bridge";
+  if (/protocol|dex|amm|market|contract|infrastructure/.test(s)) return "protocol";
+  if (/fund|vc|dao|treasury/.test(s)) return "fund";
+  if (/individual|person|influencer|trader|whale|kol/.test(s)) return "individual";
+  return "other";
+}
+
+export function toLabel(address: string, a: ArkAddr): Label | null {
+  const ent = a.arkhamEntity ?? null;
+  const lbl = a.arkhamLabel ?? null;
+  if (!ent?.name && !lbl?.name && !ent?.twitter) return null;
+  const predicted = a.predicted === true || ent?.predicted === true || lbl?.predicted === true;
+  const type = mapType(ent?.type ?? "");
+  const handle = ent?.twitter ? "@" + ent.twitter.replace(/^@/, "").replace(/^.*\//, "").toLowerCase() : null;
+  // A person's name never leaves this function. Handles and organisations only.
+  const entity = type === "individual" || (!type && !ent?.type && handle) ? null : ent?.name ?? lbl?.name ?? null;
+  return { address, entity, handle, type, url: `https://intel.arkm.com/explorer/address/${address}`, predicted };
+}

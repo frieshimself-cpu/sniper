@@ -161,6 +161,7 @@ test("/admin asks for the password, then builds a ballot and lists disputes", as
   await page.getByRole("button", { name: "Enter" }).click();
   await expect(page.getByRole("heading", { name: "Today's ballot" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Disputes" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Attribution leads" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Build ballot/ })).toBeVisible();
   await clean(page);
   expect((await request.post("/api/admin/ballot", { data: { keys: [] } })).status()).toBe(401);

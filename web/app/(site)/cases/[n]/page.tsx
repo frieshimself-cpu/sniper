@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCase, cardUrl } from "@/lib/data";
+import { getCase, cardUrl, neighbours } from "@/lib/data";
+import { Stamp } from "@/components/Stamp";
 import { date, time, siteUrl, solscanToken } from "@/lib/format";
 import { Severity } from "@/components/Pills";
 import { EvidenceTable } from "@/components/Evidence";
@@ -32,14 +33,23 @@ export default async function CasePage({ params }: Props) {
   const n = parseN((await params).n);
   const c = n ? getCase(n) : null;
   if (!c) notFound();
+  const { prev, next } = neighbours(c.n);
 
   return (
     <article className="flex flex-col gap-8">
+      <nav aria-label="Case navigation" className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.14em]">
+        {next ? <Link href={`/cases/${next.n}`} className="underline">Newer · No. {next.id}</Link> : <span />}
+        <Link href="/cases" className="text-mute hover:text-manila">Archive</Link>
+        {prev ? <Link href={`/cases/${prev.n}`} className="underline">Older · No. {prev.id}</Link> : <span />}
+      </nav>
       <div className="file">
         <Image src={cardUrl(c.n)} alt={`Case file ${c.id}: ${c.headline}`} width={1200} height={630} priority unoptimized className="block w-full h-auto" />
       </div>
 
-      <div className="file p-5 md:p-8">
+      <div className="file p-5 md:p-8 overflow-hidden">
+        <div className="absolute right-6 top-24 md:right-12 md:top-28 hidden sm:block" aria-hidden>
+          <Stamp size={64} />
+        </div>
         <div className="flex flex-wrap items-baseline justify-between gap-4 border-b-2 border-ink pb-3">
           <span className="headline text-xl">C.R.I.M.E.</span>
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">

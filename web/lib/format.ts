@@ -15,6 +15,16 @@ export function ago(iso: string | null, now = Date.now()): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+export function until(iso: string | null, now = Date.now()): string {
+  if (!iso) return "unscheduled";
+  const s = Math.floor((Date.parse(iso) - now) / 1000);
+  if (s <= 0) return "due";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `in ${m}m`;
+  const h = Math.floor(m / 60);
+  return h < 48 ? `in ${h}h ${m % 60}m` : `in ${Math.floor(h / 24)}d`;
+}
+
 export const date = (iso: string) => iso.slice(0, 10);
 export const time = (iso: string) => iso.slice(11, 16) + "Z";
 

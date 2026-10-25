@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Candidate } from "@/lib/ballot";
 import type { BallotOption, Dispute } from "@/lib/store";
+import type { AgentStatus, Lead } from "@/lib/data";
 
 async function post(url: string, body: unknown) {
   const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -57,12 +58,16 @@ export function AdminPanel({
   threshold,
   today,
   disputes,
+  leads,
+  agent,
 }: {
   candidates: Candidate[];
   size: number;
   threshold: number;
   today: TodayView | null;
   disputes: Dispute[];
+  leads: Lead[];
+  agent: AgentStatus;
 }) {
   const router = useRouter();
   const [picked, setPicked] = useState<string[]>(today?.options.map((o) => o.key) ?? candidates.slice(0, size).map((c) => c.key));
@@ -88,6 +93,16 @@ export function AdminPanel({
     setNote(null);
     try {
       await post("/api/admin/dispute", { wallet, status });
+      router.refresh();
+    } catch (e) {
+      setNote((e as Error).message);
+    }
+  }
+
+  async function reviewLead(id: string, status: "approved" | "rejected") {
+    setNote(null);
+    try {
+      await post("/api/admin/lead", { id, status });
       router.refresh();
     } catch (e) {
       setNote((e as Error).message);
@@ -172,6 +187,68 @@ export function AdminPanel({
                           </button>
                           <button type="button" className="btn px-2 py-1 text-[10px]" onClick={() => review(d.wallet, "kept")}>
                             Source stands
+                          </button>
+                        </span>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="file p-5 md:p-6 lg:col-span-2">
+        <div className="flex items-baseline justify-between gap-4 border-b-2 border-ink pb-2">
+          <h2 className="text-xl">Attribution leads</h2>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">
+            agent {agent.state} · {agent.mode} · {leads.filter((l) => l.status === "open").length} open
+          </span>
+        </div>
+        <p className="mt-3 text-xs opacity-80">
+          Wallet-to-handle links the investigator found but could not source well enough to publish on its own. Approve writes the wallet to the
+          registry with the source shown. Reject drops it. {agent.message ? `Last run: ${agent.message}` : ""}
+        </p>
+        {leads.length === 0 ? (
+          <p className="mt-4 text-sm">None.</p>
+        ) : (
+          <div className="mt-4 overflow-x-auto -mx-5 px-5">
+            <table className="data">
+              <thead>
+                <tr>
+                  <th>Handle</th>
+                  <th>Wallet</th>
+                  <th>Tier</th>
+                  <th>Source</th>
+                  <th>Reason</th>
+                  <th>Case</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map((l) => (
+                  <tr key={l.id}>
+                    <td className="font-semibold">{l.handle}</td>
+                    <td>{l.address.slice(0, 6)}…{l.address.slice(-4)}</td>
+                    <td className="uppercase">{l.tier}</td>
+                    <td>
+                      <a href={l.source} target="_blank" rel="noopener noreferrer" className="underline">
+                        {l.source.replace(/^https?:\/\//, "").slice(0, 32)}
+                      </a>
+                    </td>
+                    <td className="whitespace-normal min-w-56">{l.reason}</td>
+                    <td>{l.case_n ? `No. ${String(l.case_n).padStart(4, "0")}` : "—"}</td>
+                    <td className="uppercase font-semibold">{l.status}</td>
+                    <td>
+                      {l.status === "open" ? (
+                        <span className="flex gap-2">
+                          <button type="button" className="btn px-2 py-1 text-[10px]" onClick={() => reviewLead(l.id, "approved")}>
+                            Approve
+                          </button>
+                          <button type="button" className="btn px-2 py-1 text-[10px]" onClick={() => reviewLead(l.id, "rejected")}>
+                            Reject
                           </button>
                         </span>
                       ) : null}

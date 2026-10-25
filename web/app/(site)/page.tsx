@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { getStats, latestCases } from "@/lib/data";
+import { getStats, latestCases, getAgentStatus } from "@/lib/data";
 import { ensureTodayBallot } from "@/lib/ballot";
 import { tally } from "@/lib/store";
 import { rpcStatus } from "@/lib/solana";
-import { ago } from "@/lib/format";
+import { ago, until } from "@/lib/format";
 import { Counter } from "@/components/Counter";
 import { Pill } from "@/components/Pills";
 import { CaseCard } from "@/components/CaseCard";
@@ -17,17 +17,22 @@ export default function Home() {
   const total = Object.values(t).reduce((a, b) => a + b, 0);
   const rpc = rpcStatus();
   const latest = latestCases(6);
+  const agent = getAgentStatus();
 
   return (
     <div className="flex flex-col gap-12 md:gap-16">
       <section className="relative">
+        <div className="absolute right-1 top-0 md:hidden" aria-hidden>
+          <Stamp size={18} blend={false} />
+        </div>
         <div className="absolute right-0 -top-2 hidden md:block" aria-hidden>
           <Stamp size={56} blend={false} />
         </div>
-        <p className="label label-dark mb-6">Chain Research &amp; Investigation of Market Exploits</p>
+        <p className="label label-dark mb-6 pr-28 md:pr-0">Chain Research &amp; Investigation of Market Exploits</p>
         <Counter initial={stats} />
         <div className="mt-8 flex flex-wrap gap-2">
-          <Pill>Agent watching</Pill>
+          <Pill red={agent.state === "error"}>Agent {agent.state === "idle" ? "watching" : agent.state}</Pill>
+          {agent.next_run_at ? <Pill>Next case {until(agent.next_run_at)}</Pill> : null}
           <Pill red={rpc === "unset"}>RPC {rpc === "ok" ? "ok" : rpc === "off" ? "check off" : "unset"}</Pill>
           <Pill>Last case {ago(stats.last_case_at)}</Pill>
           <Pill>Ballot {ballot ? "open" : "closed"}</Pill>

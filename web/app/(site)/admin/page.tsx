@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { isAdmin, adminConfigured } from "@/lib/auth";
 import { candidates, BALLOT_SIZE, scoreThreshold } from "@/lib/ballot";
 import { getDisputes, getTodayBallot, tally } from "@/lib/store";
+import { getLeads, getAgentStatus } from "@/lib/data";
 import { AdminPanel, AdminLogin } from "@/components/Admin";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
@@ -33,6 +34,8 @@ export default async function Admin() {
         threshold={scoreThreshold()}
         today={today ? { id: today.id, options: today.options, votes: Object.keys(today.votes).length, tally: tally(today) } : null}
         disputes={getDisputes()}
+        leads={getLeads()}
+        agent={getAgentStatus()}
       />
     </div>
   );

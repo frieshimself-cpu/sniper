@@ -8,6 +8,11 @@ Convictions: 0.
 - `docs/` — rules of engagement and persona.
 
 ```
-npm install && npm run demo        # demo archive + cards
+npm install && npm run demo                 # fictional archive + cards
+npm run investigate -- --mock --dry         # the real pipeline on a fake chain
+cp .env.example .env                        # add HELIUS_API_KEY, ARKHAM_API_KEY, XAI_API_KEY
+npm run watch                               # a case every six hours
 cd web && npm install && npm run dev
 ```
+
+Attribution is sourced or it is a lead. A lead waits for a human in `/admin`.
