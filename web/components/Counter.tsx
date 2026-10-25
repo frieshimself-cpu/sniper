@@ -1,5 +1,7 @@
 "use client";
 
+import { apiUrl, withBase } from "@/lib/dyn";
+
 import { useEffect, useRef, useState } from "react";
 import type { Stats } from "@/lib/data";
 
@@ -32,7 +34,7 @@ export function Counter({ initial, compact = false, poll = 20_000 }: { initial: 
     if (!poll) return;
     const id = setInterval(async () => {
       try {
-        const r = await fetch("/api/stats", { cache: "no-store" });
+        const r = await fetch(apiUrl("/api/stats"), { cache: "no-store" });
         if (r.ok) setFigures((await r.json()) as Figures);
       } catch {
         /* keep last figures */

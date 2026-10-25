@@ -23,6 +23,7 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   investigate:
@@ -67,4 +68,8 @@ jobs:
             git commit -m "Case ${N}: opened by the agent" -m "$(node -e 'console.log(require("./data/status.json").message)')"
             git pull --rebase origin "${{ github.ref_name }}"
             git push origin HEAD:"${{ github.ref_name }}"
+            # a push by GITHUB_TOKEN does not trigger other workflows; dispatch the site rebuild by hand
+            gh workflow run pages.yml --ref "${{ github.ref_name }}" || echo "pages workflow not dispatched (is Pages enabled?)"
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}

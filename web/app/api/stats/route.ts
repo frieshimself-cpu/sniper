@@ -1,9 +1,10 @@
 import { getStats } from "@/lib/data";
 import { json } from "@/lib/api";
+import { dyn } from "@/lib/dyn";
 
-export const dynamic = "force-dynamic";
 export { OPTIONS } from "@/lib/api";
 
-export function GET() {
+export async function GET() {
+  await dyn();
   return json(getStats(), { maxAge: 15 });
 }

@@ -25,6 +25,7 @@ out/case-NNNN.png    one card per case (generated)
 docs/RULES_OF_ENGAGEMENT.md   what the agent may and may not publish
 docs/PERSONA.md      how the agent talks
 web/                 the public site (Next.js). Reads the three paths above through web/lib/data.ts
+.github/workflows/   investigate.yml (a case every six hours, on GitHub), pages.yml (static site to GitHub Pages)
 ```
 
 ## Non-negotiables
@@ -66,6 +67,14 @@ npm run typecheck
 npm run policy:test
 cd web && npm install && npm run dev
 ```
+
+## Two ways to serve the site
+
+- `npm run build && npm run start` in web/: the full site, request-time data, votes, disputes, /admin.
+- `npm run build:static` in web/: a read-only export for GitHub Pages. Route handlers are set aside
+  and the API is written as .json files by `web/scripts/static-api.ts`. Clients switch on
+  `NEXT_PUBLIC_STATIC`. Never add a page that reads cookies or the query string on the server
+  without checking it still exports.
 
 ## Style
 

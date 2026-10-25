@@ -1,12 +1,15 @@
 import { getCase } from "@/lib/data";
-import { error, json } from "@/lib/api";
+import { caseParams, error, json } from "@/lib/api";
+import { dyn, withBase } from "@/lib/dyn";
 
-export const dynamic = "force-dynamic";
+export const generateStaticParams = caseParams;
+
 export { OPTIONS } from "@/lib/api";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ n: string }> }) {
+  await dyn();
   const n = Number((await params).n);
   const c = Number.isInteger(n) ? getCase(n) : null;
   if (!c) return error(404, "No such case.");
-  return json({ ...c, url: `/cases/${c.n}`, card: `/cases/${c.n}/card.png`, csv: `/cases/${c.n}/evidence.csv` });
+  return json({ ...c, url: withBase(`/cases/${c.n}`), card: withBase(`/cases/${c.n}/card.png`), csv: withBase(`/cases/${c.n}/evidence.csv`) });
 }

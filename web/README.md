@@ -106,6 +106,20 @@ The agent has its own `.env` at the repo root (see `../.env.example`): `HELIUS_A
 With `VOTE_BALANCE_CHECK=on` and no RPC or mint, `/api/vote` answers 503 and
 the ballot page says so. Nothing else degrades.
 
+## The site on GitHub Pages, no server
+
+`.github/workflows/pages.yml` builds a read-only static export of the site and publishes it
+to GitHub Pages after every case the agent opens. Enable it once: Settings, Pages, Source:
+GitHub Actions. The site then lives at `https://<owner>.github.io/<repo>/`.
+
+What the static copy cannot do: accept votes, accept disputes, or show `/admin`. Those need
+the server build below. Everything else is there: counter, archive and search, case files
+with cards and CSVs, dossiers, rules, the stamp generator, the embed, and the API as files
+(`/api/stats.json`, `/api/cases.json`, `/api/cases/1.json`, `/api/persons/<handle>.json`,
+`/api/ballot.json`).
+
+`npm run build:static` makes the same export locally into `web/out`.
+
 ## Run the agent on GitHub, no server
 
 `.github/workflows/investigate.yml` runs an investigation every six hours on GitHub's

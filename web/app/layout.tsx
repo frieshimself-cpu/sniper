@@ -5,8 +5,7 @@ import "@fontsource/ibm-plex-mono/600.css";
 import "@fontsource/ibm-plex-sans/700.css";
 import "./globals.css";
 import { siteUrl } from "@/lib/format";
-
-export const dynamic = "force-dynamic";
+import { dyn } from "@/lib/dyn";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -18,7 +17,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#0e0e10", width: "device-width", initialScale: 1 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  await dyn();
   return (
     <html lang="en">
       <body>{children}</body>

@@ -1,9 +1,13 @@
 import fs from "node:fs";
 import { cardPath } from "@/lib/data";
+import { caseParams } from "@/lib/api";
+import { dyn } from "@/lib/dyn";
 
-export const dynamic = "force-dynamic";
+export const generateStaticParams = caseParams;
+
 
 export async function GET(_req: Request, { params }: { params: Promise<{ n: string }> }) {
+  await dyn();
   const n = Number((await params).n);
   const file = Number.isInteger(n) ? cardPath(n) : null;
   if (!file) return new Response("No such card.", { status: 404 });

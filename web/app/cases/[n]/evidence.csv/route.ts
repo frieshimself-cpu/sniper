@@ -1,6 +1,9 @@
 import { getCase } from "@/lib/data";
+import { caseParams } from "@/lib/api";
+import { dyn } from "@/lib/dyn";
 
-export const dynamic = "force-dynamic";
+export const generateStaticParams = caseParams;
+
 
 const cell = (v: unknown) => {
   const s = v === undefined || v === null ? "" : String(v);
@@ -8,6 +11,7 @@ const cell = (v: unknown) => {
 };
 
 export async function GET(_req: Request, { params }: { params: Promise<{ n: string }> }) {
+  await dyn();
   const n = Number((await params).n);
   const c = Number.isInteger(n) ? getCase(n) : null;
   if (!c) return new Response("No such case.", { status: 404 });

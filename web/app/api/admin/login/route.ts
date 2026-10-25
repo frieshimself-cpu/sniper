@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { ADMIN_COOKIE, adminToken, checkPassword } from "@/lib/auth";
 import { body, error } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const b = await body<{ password?: string }>(req);

@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCase, cardUrl, neighbours } from "@/lib/data";
+import { caseParams } from "@/lib/api";
+import { apiUrl, withBase } from "@/lib/dyn";
 import { Stamp } from "@/components/Stamp";
 import { date, time, siteUrl, solscanToken } from "@/lib/format";
 import { Severity } from "@/components/Pills";
@@ -10,6 +12,8 @@ import { EvidenceTable } from "@/components/Evidence";
 import { MoneyTrail } from "@/components/MoneyTrail";
 
 type Props = { params: Promise<{ n: string }> };
+
+export const generateStaticParams = caseParams;
 
 function parseN(s: string): number | null {
   const n = Number(s);
@@ -43,7 +47,7 @@ export default async function CasePage({ params }: Props) {
         {prev ? <Link href={`/cases/${prev.n}`} className="underline">Older · No. {prev.id}</Link> : <span />}
       </nav>
       <div className="file">
-        <Image src={cardUrl(c.n)} alt={`Case file ${c.id}: ${c.headline}`} width={1200} height={630} priority unoptimized className="block w-full h-auto" />
+        <Image src={withBase(cardUrl(c.n))} alt={`Case file ${c.id}: ${c.headline}`} width={1200} height={630} priority unoptimized className="block w-full h-auto" />
       </div>
 
       <div className="file p-5 md:p-8 overflow-hidden">
@@ -113,7 +117,7 @@ export default async function CasePage({ params }: Props) {
 
         <div className="mt-10 flex items-baseline justify-between gap-4">
           <h2 className="text-xl">Evidence</h2>
-          <a href={`/cases/${c.n}/evidence.csv`} className="text-[11px] font-semibold uppercase tracking-[0.14em] underline" download>
+          <a href={withBase(`/cases/${c.n}/evidence.csv`)} className="text-[11px] font-semibold uppercase tracking-[0.14em] underline" download>
             Download CSV
           </a>
         </div>
@@ -135,11 +139,11 @@ export default async function CasePage({ params }: Props) {
 
         <div className="mt-10 flex flex-wrap justify-between gap-4 border-t border-ink pt-4 text-[11px] font-semibold uppercase tracking-[0.12em]">
           <span>
-            <Link href={`/api/cases/${c.n}`} className="underline">
+            <a href={apiUrl(`/api/cases/${c.n}`)} className="underline">
               JSON
-            </Link>{" "}
+            </a>{" "}
             ·{" "}
-            <a href={cardUrl(c.n)} className="underline" download={`crime-case-${c.id}.png`}>
+            <a href={withBase(cardUrl(c.n))} className="underline" download={`crime-case-${c.id}.png`}>
               PNG
             </a>{" "}
             ·{" "}

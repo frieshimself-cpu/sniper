@@ -1,5 +1,7 @@
 "use client";
 
+import { withBase } from "@/lib/dyn";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Candidate } from "@/lib/ballot";
@@ -7,7 +9,7 @@ import type { BallotOption, Dispute } from "@/lib/store";
 import type { AgentStatus, Lead } from "@/lib/data";
 
 async function post(url: string, body: unknown) {
-  const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const r = await fetch(withBase(url), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   const json = (await r.json().catch(() => ({}))) as { error?: string };
   if (!r.ok) throw new Error(json.error ?? `Request failed (${r.status}).`);
   return json;

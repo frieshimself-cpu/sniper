@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { enforceDeep } from "./policy";
+import { getCases, getPersons } from "./data";
+
+/** Every case number, for the static export. Also used on a server; dynamicParams stays on. */
+export const caseParams = () => getCases().map((c) => ({ n: String(c.n) }));
+export const handleParams = () => getPersons().map((p) => ({ handle: p.handle.slice(1) }));
 
 export function json(data: unknown, init: ResponseInit & { maxAge?: number } = {}) {
   const { maxAge = 0, ...rest } = init;

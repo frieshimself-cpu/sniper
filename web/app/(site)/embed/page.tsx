@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { siteUrl } from "@/lib/format";
 import { getStats } from "@/lib/data";
+import { withBase } from "@/lib/dyn";
 
 export const metadata: Metadata = { title: "Embed" };
 
@@ -15,7 +16,7 @@ export default function Embed() {
         <p className="mt-2 text-mute text-xs uppercase tracking-[0.14em]">600 × 160 · updates itself · no tracking</p>
       </div>
       <div className="overflow-x-auto">
-        <iframe src="/embed/counter" width={600} height={160} style={{ border: 0, background: "#0e0e10" }} title="C.R.I.M.E. counter preview" />
+        <iframe src={withBase("/embed/counter")} width={600} height={160} style={{ border: 0, background: "#0e0e10" }} title="C.R.I.M.E. counter preview" />
       </div>
       <section className="file p-5 md:p-8">
         <h2 className="text-xl">Snippet</h2>

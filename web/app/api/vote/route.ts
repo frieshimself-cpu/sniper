@@ -3,7 +3,6 @@ import { isBase58Pubkey, verifySigned, voteMessage } from "@/lib/sign";
 import { balanceCheckEnabled, minVoteBalance, rpcUrl, tokenBalance } from "@/lib/solana";
 import { body, error, json } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
 export { OPTIONS } from "@/lib/api";
 
 export async function POST(req: Request) {

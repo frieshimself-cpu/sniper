@@ -1,5 +1,7 @@
 "use client";
 
+import { apiUrl, STATIC, withBase } from "@/lib/dyn";
+
 import { useEffect, useState } from "react";
 import type { Ballot } from "@/lib/store";
 import { signText } from "./wallet";
@@ -22,7 +24,7 @@ export function BallotVote({ initial, compact = false }: { initial: View; compac
   useEffect(() => {
     const id = setInterval(async () => {
       try {
-        const r = await fetch("/api/ballot", { cache: "no-store" });
+        const r = await fetch(apiUrl("/api/ballot"), { cache: "no-store" });
         if (r.ok) setView((await r.json()) as View);
       } catch {
         /* keep */
@@ -40,7 +42,8 @@ export function BallotVote({ initial, compact = false }: { initial: View; compac
     setNote(null);
     try {
       const { wallet, signature } = await signText(`CRIME ballot ${b.id} vote ${option}`);
-      const r = await fetch("/api/vote", {
+      if (STATIC) throw new Error("Voting needs the full server. This copy of the site is read-only.");
+      const r = await fetch(withBase("/api/vote"), {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ ballot: b.id, option, wallet, signature }),

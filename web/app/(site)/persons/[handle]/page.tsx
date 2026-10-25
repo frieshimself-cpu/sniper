@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPerson } from "@/lib/data";
+import { handleParams } from "@/lib/api";
 import { normalizeHandle } from "@/lib/policy";
 import { date, short, solscanAccount, solscanToken } from "@/lib/format";
 import { Severity } from "@/components/Pills";
@@ -9,6 +10,8 @@ import { CaseCard } from "@/components/CaseCard";
 import { DisputeButton } from "@/components/DisputeButton";
 
 type Props = { params: Promise<{ handle: string }> };
+
+export const generateStaticParams = handleParams;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const h = normalizeHandle(decodeURIComponent((await params).handle));

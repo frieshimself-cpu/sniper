@@ -11,3 +11,5 @@ web/.data-test/
 web/.data-dev/
 web/next-env.d.ts
 web/tsconfig.tsbuildinfo
+web/out/
+web/.static-aside/

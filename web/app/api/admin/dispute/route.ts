@@ -2,7 +2,6 @@ import { isAdmin } from "@/lib/auth";
 import { getDisputes, reviewDispute } from "@/lib/store";
 import { body, error, json } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
 
 export async function GET() {
   if (!(await isAdmin())) return error(401, "Admin only.");

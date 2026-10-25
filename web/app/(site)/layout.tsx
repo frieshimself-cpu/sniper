@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Stamp } from "@/components/Stamp";
+import { apiUrl } from "@/lib/dyn";
 
 const NAV = [
   ["/cases", "Cases"],
@@ -33,7 +34,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         <div className="mx-auto max-w-6xl px-4 py-6 flex flex-wrap gap-x-6 gap-y-2 justify-between text-[11px] uppercase tracking-[0.14em] text-mute">
           <span>C.R.I.M.E. · Chain Research &amp; Investigation of Market Exploits</span>
           <span>
-            Convictions <span className="text-stamp font-semibold">0</span> · <Link href="/rules" className="hover:text-manila">Rules</Link> · <Link href="/api/stats" className="hover:text-manila">API</Link>
+            Convictions <span className="text-stamp font-semibold">0</span> · <Link href="/rules" className="hover:text-manila">Rules</Link> · <a href={apiUrl("/api/stats")} className="hover:text-manila">API</a>
           </span>
         </div>
       </footer>

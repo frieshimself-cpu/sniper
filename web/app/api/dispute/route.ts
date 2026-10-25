@@ -2,7 +2,6 @@ import { addDispute } from "@/lib/store";
 import { disputeMessage, isBase58Pubkey, verifySigned } from "@/lib/sign";
 import { body, error, json } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
 export { OPTIONS } from "@/lib/api";
 
 export async function POST(req: Request) {

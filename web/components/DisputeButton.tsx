@@ -1,5 +1,7 @@
 "use client";
 
+import { STATIC, withBase } from "@/lib/dyn";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signText } from "./wallet";
@@ -13,9 +15,10 @@ export function DisputeButton({ wallet, small = false }: { wallet: string; small
     setState("busy");
     setNote(null);
     try {
+      if (STATIC) throw new Error("Disputes need the full server. This copy of the site is read-only.");
       const signed = await signText(`CRIME dispute ${wallet}`);
       if (signed.wallet !== wallet) throw new Error("Connect the wallet in question.");
-      const r = await fetch("/api/dispute", {
+      const r = await fetch(withBase("/api/dispute"), {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ wallet, signature: signed.signature }),
