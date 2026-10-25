@@ -1,0 +1,47 @@
+# The public site on GitHub Pages: a static export of web/ rebuilt after every case.
+name: pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/determined-sagan-kc8t9v]
+    paths: ["data/**", "out/**", "fixtures/**", "web/**", ".github/workflows/pages.yml"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/configure-pages@v5
+        id: pages
+        with:
+          enablement: true
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Build placeholder
+        run: |
+          mkdir -p site
+          printf '<!doctype html><title>C.R.I.M.E.</title><body style="background:#0e0e10;color:#ece3cc;font-family:monospace;padding:40px">C.R.I.M.E. — site build pending. Convictions: 0.</body>' > site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
