@@ -38,7 +38,13 @@ const pct = (x: number) => `${(x * 100).toFixed(x < 0.01 ? 2 : 0)}%`;
 const minutes = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / MIN);
 const mins = (n: number) => `${n} minute${n === 1 ? "" : "s"}`;
 
-export async function investigate(mint: string, src: Sources): Promise<Investigation | null> {
+export interface Hints {
+  deployer?: string;
+  created_at?: string;
+  launchpad?: string;
+}
+
+export async function investigate(mint: string, src: Sources, hints: Hints = {}): Promise<Investigation | null> {
   const log: string[] = [];
   let token: TokenInfo | null = await src.token(mint);
   if (!token) {
@@ -68,20 +74,25 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
       token = { ...t0, deployer, created_at: first.at, deployer_approx: false };
     }
   }
-  // Any launchpad: the mint's own first transactions. The first fee payer is the deployer; the first
-  // large transfer of the token into a program-derived account is the pool (curve, vault or AMM).
+  // Any launchpad: the mint's own first transactions. The first fee payer is the deployer. The pool is
+  // the program-derived account the token keeps flowing out of in those first swaps.
   if (!create) {
     const mintFirst = await src.firstTransfers(mint, 100);
     const first = mintFirst[0];
     if (first) {
-      deployer = first.feePayer ?? deployer;
-      const seedTx = mintFirst.find((t) => t.kind === "token" && t.mint === mint && t.amount >= t0.supply * 0.1 && t.to && !isWallet(t.to));
-      if (seedTx) {
-        const devBuy = mintFirst.find((t) => t.signature === seedTx.signature && t.kind === "token" && t.mint === mint && t.from === seedTx.to && t.to === deployer);
-        create = devBuy ?? { ...seedTx, from: seedTx.to, to: deployer ?? "", amount: 0 };
+      const approx = mintFirst.complete === false;
+      // The feed's deployer wins only when the chain walk did not reach the start.
+      deployer = approx && hints.deployer ? hints.deployer : (first.feePayer ?? deployer);
+      const tokenTx = mintFirst.filter((t) => t.kind === "token" && t.mint === mint);
+      const counts = new Map<string, number>();
+      for (const t of tokenTx) for (const a of [t.from, t.to]) if (a && !isWallet(a)) counts.set(a, (counts.get(a) ?? 0) + 1);
+      const poolGuess = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+      if (poolGuess) {
+        create = tokenTx.find((t) => t.from === poolGuess && t.to === deployer) ?? { ...first, from: poolGuess, to: deployer ?? "", amount: 0, kind: "token", mint };
         curveFirst = mintFirst;
       }
-      token = { ...t0, deployer, created_at: first.at, deployer_approx: false };
+      token = { ...t0, deployer, created_at: first.at, deployer_approx: approx };
+      if (approx) log.push("history too deep: the deployer is the earliest reachable fee payer, not necessarily the first");
     }
   }
   const dTx = deployer ? await src.transfers(deployer, 400) : [];
@@ -95,7 +106,7 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
     .sort((a, b) => a.at.localeCompare(b.at))[0];
   const pool = create?.from ?? seed?.to ?? null;
   const launch_at = create?.at ?? seed?.at ?? token.created_at;
-  log.push(`deployer ${deployer ?? "?"} pool ${pool ?? "?"} launch ${launch_at ?? "?"}${create ? " (pump.fun create)" : ""}`);
+  log.push(`deployer ${deployer ?? "?"} pool ${pool ?? "?"} launch ${launch_at ?? "?"}${curveFirst.length && isPumpMint(mint) ? " (pump.fun curve)" : create ? " (first transactions)" : ""}`);
   if (create) {
     if (create.amount > 0) evidence.push(ev(create, "Launch, deployer's opening buy"));
     const devShare = create.amount / token.supply;

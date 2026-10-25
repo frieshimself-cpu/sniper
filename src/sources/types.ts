@@ -56,8 +56,8 @@ export interface Sources {
   token(mint: string): Promise<TokenInfo | null>;
   /** Parsed transfers touching an address, newest first. */
   transfers(address: string, limit?: number): Promise<Transfer[]>;
-  /** The oldest transfers touching an address, oldest first. */
-  firstTransfers(address: string, limit?: number): Promise<Transfer[]>;
+  /** The oldest transfers touching an address, oldest first. `complete` is false when the history was too deep to reach the start. */
+  firstTransfers(address: string, limit?: number): Promise<Transfer[] & { complete?: boolean }>;
   holders(mint: string, n?: number): Promise<Holder[]>;
   label(address: string): Promise<Label | null>;
   labels(addresses: string[]): Promise<Map<string, Label>>;

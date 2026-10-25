@@ -6,6 +6,8 @@
 export interface Candidate {
   mint: string;
   why: string;
+  /** What the feed already knows. Used to cross-check the chain, never instead of it. */
+  hints?: { deployer?: string; created_at?: string; launchpad?: string };
 }
 
 async function getJson<T>(url: string): Promise<T | null> {
@@ -18,7 +20,7 @@ async function getJson<T>(url: string): Promise<T | null> {
 }
 
 type Boost = { chainId: string; tokenAddress: string; totalAmount?: number; amount?: number };
-type JupToken = { id: string; symbol?: string; launchpad?: string | null; organicScoreLabel?: string; firstPool?: { createdAt?: string } };
+type JupToken = { id: string; symbol?: string; launchpad?: string | null; organicScoreLabel?: string; dev?: string; firstPool?: { id?: string; createdAt?: string } };
 
 const HOUR = 3_600_000;
 const MIN_AGE_H = Number(process.env.DISCOVER_MIN_AGE_HOURS ?? 1); // the first half hour is where the evidence is; let it land
@@ -33,7 +35,11 @@ async function jupiterLaunches(): Promise<Candidate[]> {
       const created = t.firstPool?.createdAt ? Date.parse(t.firstPool.createdAt) : NaN;
       const age = Date.now() - created;
       if (!t.launchpad || !Number.isFinite(age) || age < MIN_AGE_H * HOUR || age > MAX_AGE_D * 86_400_000) continue;
-      out.push({ mint: t.id, why: `trending ${window} on ${t.launchpad}${t.organicScoreLabel ? `, ${t.organicScoreLabel} organic score` : ""}` });
+      out.push({
+        mint: t.id,
+        why: `trending ${window} on ${t.launchpad}${t.organicScoreLabel ? `, ${t.organicScoreLabel} organic score` : ""}`,
+        hints: { deployer: t.dev || undefined, created_at: t.firstPool?.createdAt, launchpad: t.launchpad },
+      });
     }
   }
   return out;

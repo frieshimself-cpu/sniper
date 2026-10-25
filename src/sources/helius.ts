@@ -2,7 +2,8 @@
 import type { Holder, TokenInfo, Transfer } from "./types.js";
 
 const LAMPORTS = 1_000_000_000;
-const MIN_GAP_MS = Number(process.env.HELIUS_MIN_GAP_MS ?? 130); // ~8 requests a second
+const MIN_GAP_MS = Number(process.env.HELIUS_MIN_GAP_MS ?? 130); // ~8 RPC requests a second
+const ENHANCED_GAP_MS = Number(process.env.HELIUS_ENHANCED_GAP_MS ?? 350); // the parsed-transactions API is rate limited harder
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 interface Tx {
@@ -30,13 +31,14 @@ export class Helius {
   /** One request at a time, spaced out, retried on 429 and 5xx, each capped at 30 s. */
   private request(url: string | URL, init: RequestInit): Promise<Response> {
     const job = async () => {
+      const enhanced = String(url).includes("api.helius.xyz");
       for (let attempt = 0; ; attempt++) {
-        const gap = MIN_GAP_MS - (Date.now() - this.last);
+        const gap = (enhanced ? ENHANCED_GAP_MS : MIN_GAP_MS) - (Date.now() - this.last);
         if (gap > 0) await sleep(gap);
         this.last = Date.now();
         const r = await fetch(url, { ...init, signal: AbortSignal.timeout(30_000) });
-        if ((r.status === 429 || r.status >= 500) && attempt < 5) {
-          await sleep(500 * 2 ** attempt);
+        if ((r.status === 429 || r.status >= 500) && attempt < 8) {
+          await sleep(Math.min(30_000, 1000 * 2 ** attempt));
           continue;
         }
         return r;
@@ -159,16 +161,23 @@ export class Helius {
   }
 
   /** Oldest `limit` transactions of an address, parsed, oldest first. Signatures are cheap; parsing is batched. */
-  async firstTransfers(address: string, limit = 200, maxPages = 25): Promise<Transfer[]> {
+  async firstTransfers(address: string, limit = 200, maxPages = Number(process.env.HELIUS_MAX_SIG_PAGES ?? 200)): Promise<Transfer[] & { complete?: boolean }> {
     type Sig = { signature: string; blockTime: number | null };
     const sigs: Sig[] = [];
     let before: string | undefined;
+    let complete = false;
     for (let p = 0; p < maxPages; p++) {
       const batch = await this.call<Sig[]>("getSignaturesForAddress", [address, { limit: 1000, before }]);
-      if (!batch.length) break;
+      if (!batch.length) {
+        complete = true;
+        break;
+      }
       sigs.push(...batch);
       before = batch[batch.length - 1].signature;
-      if (batch.length < 1000) break;
+      if (batch.length < 1000) {
+        complete = true;
+        break;
+      }
     }
     const oldest = sigs.slice(-limit).reverse().map((s) => s.signature);
     const out: Transfer[] = [];
@@ -181,7 +190,7 @@ export class Helius {
       if (!r.ok) throw new Error(`helius parse ${r.status}`);
       out.push(...this.parse((await r.json()) as Tx[]));
     }
-    return out.sort((a, b) => a.at.localeCompare(b.at));
+    return Object.assign(out.sort((a, b) => a.at.localeCompare(b.at)), { complete });
   }
 
   async holders(mint: string, n = 20): Promise<Holder[]> {

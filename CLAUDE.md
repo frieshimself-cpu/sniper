@@ -46,7 +46,8 @@ web/                 the public site (Next.js). Reads the three paths above thro
 2. Chain (Helius): for a pump.fun mint the bonding curve is derived from the mint (`src/sources/pumpfun.ts`)
    and its first transaction is the launch; otherwise the earliest reachable fee payer and the pool seed.
    Then first buyers, their funders, exits, deployer sells and transfers, liquidity, holders.
-3. Detectors score what they find. Below `MIN_PUBLISH_SCORE` nothing is published.
+3. Detectors score what they find. A case needs `MIN_PUBLISH_SCORE` and two findings, or `STRONG_SCORE` alone.
+   Otherwise nothing is published.
 4. Money trail: largest SOL outflow, hop by hop, until a labelled exchange or bridge.
 5. Attribution, in this order and no further:
    - the handle's own post containing the address (Grok with X search, URL required) → registry, tier `claimed`
