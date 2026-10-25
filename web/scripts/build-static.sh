@@ -27,3 +27,4 @@ rm -rf out && mv .next-static out
 STATIC_EXPORT=1 NEXT_PUBLIC_STATIC=1 npx tsx scripts/static-api.ts
 touch out/.nojekyll
 echo "static export in web/out ($(find out -type f | wc -l) files)"
+echo "note: run \"npm run build\" again before \"npm run start\"; the export leaves its config in .next"

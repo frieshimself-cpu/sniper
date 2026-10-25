@@ -17,7 +17,7 @@ files in `.data/` (or `CRIME_STATE_DIR`). One process, one writer. Back it up.
 
 ```
 # from the repo root: real data first
-npm install && npm run demo        # needs Chromium once: npx playwright install chromium
+npm install                        # the real archive is in data/, out/ and fixtures/; npm run demo only feeds the tests
 
 cd web
 npm install
@@ -170,7 +170,7 @@ Assumes Ubuntu, Node 22, the repo at `/srv/crime`, the site on port 3000.
 
    ```
    cd /srv/crime
-   npm ci && npx playwright install --with-deps chromium && npm run demo   # or run the real agent
+   npm ci && npx playwright install --with-deps chromium   # Chromium renders the cards
    cd web
    npm ci
    cat > .env.local <<'ENV'

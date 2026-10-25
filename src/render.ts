@@ -90,7 +90,7 @@ export async function renderCards(cases: Case[], outDir: string): Promise<void> 
       await page.evaluate(() => (document as unknown as { fonts: { ready: Promise<unknown> } }).fonts.ready);
       await page.screenshot({ path: `${outDir}/${c.png}`, type: "png" });
       await unlink(html);
-      process.stdout.write(`  rendered out/${c.png}\n`);
+      process.stdout.write(`  rendered ${c.png}\n`);
     }
   } finally {
     await browser.close();

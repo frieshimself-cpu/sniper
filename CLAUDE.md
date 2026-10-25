@@ -9,7 +9,7 @@ It has opened many cases. It has secured zero convictions. It is not a court.
 ```
 src/policy.ts        enforce(): every string that leaves the agent goes through this
 src/types.ts         Case, Finding, Evidence, Registry — the shared schema
-src/demo.ts          npm run demo → data/cases.json + out/case-NNNN.png (fictional)
+src/demo.ts          npm run demo → fictional archive into web/tests/fixture (the smoke tests read it)
 src/render.ts        case card renderer (HTML → PNG, Playwright/Chromium)
 src/investigate.ts   npm run investigate → one real case from the chain
 src/schedule.ts      npm run watch → an investigation every 6 hours
@@ -59,7 +59,7 @@ web/                 the public site (Next.js). Reads the three paths above thro
 
 ```
 npm install
-npm run demo                              # fictional archive + cards (needs Chromium: npx playwright install chromium)
+npm run demo                              # fictional archive into web/tests/fixture (needs Chromium: npx playwright install chromium)
 npm run investigate -- --mock --dry       # full pipeline on a fake chain, prints the case, writes nothing
 npm run investigate -- --subject <mint>   # one real case (HELIUS_API_KEY required)
 npm run watch                             # every INVESTIGATE_INTERVAL_HOURS, forever

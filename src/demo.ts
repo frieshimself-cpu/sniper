@@ -1,6 +1,7 @@
 /**
- * npm run demo — writes a deterministic demo archive to data/cases.json and
- * renders one card per case to out/. Everything here is fictional.
+ * npm run demo — writes a deterministic, fictional archive and renders one
+ * card per case. By default into web/tests/fixture (what the smoke tests
+ * read), never over the real archive. `--into <dir>` writes elsewhere.
  */
 import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -9,7 +10,9 @@ import { enforceDeep } from "./policy.js";
 import { renderCards } from "./render.js";
 import type { Case, CasesFile, Evidence, Finding, Hop, Registry, Severity } from "./types.js";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
+const intoArg = process.argv.indexOf("--into");
+const ROOT = intoArg > -1 && process.argv[intoArg + 1] ? join(REPO, process.argv[intoArg + 1]) : join(REPO, "web/tests/fixture");
 
 // ---- deterministic prng -------------------------------------------------
 let seed = 0x5eed;
@@ -167,6 +170,7 @@ function makeCase(n: number, openedAt: Date, registry: Registry): Case {
 }
 
 async function main() {
+  await mkdir(join(ROOT, "fixtures"), { recursive: true });
   const registry = JSON.parse(await readFile(join(ROOT, "fixtures/registry.json"), "utf8")) as Registry;
   const total = 12;
   const now = new Date(Math.floor(Date.now() / 60_000) * 60_000);
@@ -179,7 +183,7 @@ async function main() {
   await mkdir(join(ROOT, "data"), { recursive: true });
   await mkdir(join(ROOT, "out"), { recursive: true });
   await writeFile(join(ROOT, "data/cases.json"), JSON.stringify(file, null, 2) + "\n");
-  process.stdout.write(`wrote data/cases.json (${cases.length} cases)\n`);
+  process.stdout.write(`wrote ${join(ROOT, "data/cases.json")} (${cases.length} cases)\n`);
   try {
     await renderCards(file.cases, join(ROOT, "out"));
   } catch (err) {
