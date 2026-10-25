@@ -1,8 +1,8 @@
 {
   "state": "idle",
   "mode": "live",
-  "last_run_at": "2026-10-25T23:02:30Z",
-  "next_run_at": "2026-10-26T05:02:30Z",
+  "last_run_at": "2026-10-25T23:14:49Z",
+  "next_run_at": "2026-10-26T05:14:49Z",
   "last_case": 3,
-  "message": "4yzkM1ts8avWd1EXDcayWWWxu8oEKVBECRAT8qNnQxXx: score 0, below 35. No case."
+  "message": "Archive pruned to 3 cases that meet the publish rule."
 }
