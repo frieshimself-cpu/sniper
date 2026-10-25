@@ -83,7 +83,7 @@ export class Helius {
         return null; // not a token
       }
     }
-    const first = /pump$/.test(mint) ? null : await this.earliest(mint);
+    const first = null as { feePayer: string; at: string; approx: boolean } | null; // the detectors derive the launch
     return {
       mint,
       symbol: asset?.content?.metadata?.symbol?.trim() || mint.slice(0, 4),

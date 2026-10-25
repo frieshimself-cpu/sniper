@@ -68,6 +68,22 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
       token = { ...t0, deployer, created_at: first.at, deployer_approx: false };
     }
   }
+  // Any launchpad: the mint's own first transactions. The first fee payer is the deployer; the first
+  // large transfer of the token into a program-derived account is the pool (curve, vault or AMM).
+  if (!create) {
+    const mintFirst = await src.firstTransfers(mint, 100);
+    const first = mintFirst[0];
+    if (first) {
+      deployer = first.feePayer ?? deployer;
+      const seedTx = mintFirst.find((t) => t.kind === "token" && t.mint === mint && t.amount >= t0.supply * 0.1 && t.to && !isWallet(t.to));
+      if (seedTx) {
+        const devBuy = mintFirst.find((t) => t.signature === seedTx.signature && t.kind === "token" && t.mint === mint && t.from === seedTx.to && t.to === deployer);
+        create = devBuy ?? { ...seedTx, from: seedTx.to, to: deployer ?? "", amount: 0 };
+        curveFirst = mintFirst;
+      }
+      token = { ...t0, deployer, created_at: first.at, deployer_approx: false };
+    }
+  }
   const dTx = deployer ? await src.transfers(deployer, 400) : [];
   if (!create) {
     create = dTx
@@ -184,12 +200,13 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
     const sold = sum(devSells.map((t) => t.amount)) / token.supply;
     const moved = sum(moves.map((t) => t.amount)) / token.supply;
     if (sold >= 0.02) {
+      const firstSellMin = launch_at && devSells[0] ? minutes(launch_at, devSells.slice().sort((a, b) => a.at.localeCompare(b.at))[0].at) : null;
       findings.push({
         code: `F-${String(findings.length + 1).padStart(2, "0")}`,
         title: "Deployer sold",
         detail: `The deployer wallet sold ${pct(sold)} of supply across ${devSells.length} transaction${devSells.length === 1 ? "" : "s"}${launch_at && devSells[0] ? `, the first ${mins(minutes(launch_at, devSells.sort((a, b) => a.at.localeCompare(b.at))[0].at))} after launch` : ""}.`,
       });
-      score += 25;
+      score += 25 + Math.min(15, Math.round(sold * 100)) + (firstSellMin !== null && firstSellMin <= 60 ? 10 : 0);
       for (const t of devSells.slice(0, 2)) evidence.push(ev(t, "Deployer sell"));
     }
     if (moved >= 0.03) {

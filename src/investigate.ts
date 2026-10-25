@@ -148,7 +148,7 @@ async function scanDiscovered(src: Sources): Promise<{ inv: Investigation; mint:
       .filter((w) => w.done && (!w.tried_at || Date.parse(w.tried_at) > cutoff))
       .map((w) => w.mint),
   );
-  const candidates = (await discover(DISCOVER_SCAN * 6)).filter((c) => !covered.has(c.mint) && !tried.has(c.mint)).slice(0, DISCOVER_SCAN);
+  const candidates = (await discover(DISCOVER_SCAN * 25)).filter((c) => !covered.has(c.mint) && !tried.has(c.mint)).slice(0, DISCOVER_SCAN);
   process.stdout.write(`discovery: ${candidates.length} candidates to scan\n`);
   let best: { inv: Investigation; mint: string; via: string } | null = null;
   scanned = candidates.length;
