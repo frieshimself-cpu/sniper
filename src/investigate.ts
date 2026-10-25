@@ -65,7 +65,7 @@ interface Watch {
 const MIN_PUBLISH_SCORE = Number(process.env.MIN_PUBLISH_SCORE ?? 35);
 const STRONG_SCORE = Number(process.env.STRONG_SCORE ?? 50);
 /** A case needs two findings, or one strong enough to stand alone. */
-export const publishable = (inv: Investigation | null): inv is Investigation =>
+export const publishable = (inv: Investigation | null): boolean =>
   !!inv && inv.score >= MIN_PUBLISH_SCORE && (inv.findings.length >= 2 || inv.score >= STRONG_SCORE);
 const INTERVAL_H = Number(process.env.INVESTIGATE_INTERVAL_HOURS ?? 6);
 const nextRun = () => iso(new Date(Date.now() + Math.max(0.05, INTERVAL_H) * 3_600_000));
@@ -162,7 +162,7 @@ async function scanDiscovered(src: Sources): Promise<{ inv: Investigation; mint:
       const inv = await runDetectors(c.mint, src, c.hints);
       for (const l of inv?.log ?? []) process.stdout.write(`  ${l}\n`);
       if (inv) process.stdout.write(`  score ${inv.score}: ${inv.findings.map((f) => f.title).join("; ") || "nothing"}\n`);
-      if (publishable(inv) && (!best || inv.score > best.inv.score)) best = { inv, mint: c.mint, via: `discovery (${c.why})` };
+      if (inv && publishable(inv) && (!best || inv.score > best.inv.score)) best = { inv, mint: c.mint, via: `discovery (${c.why})` };
     } catch (err) {
       process.stdout.write(`  failed: ${(err as Error).message}\n`);
     }
@@ -296,7 +296,7 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
     await writeStatus({ state: "idle", last_run_at: iso(), message: "Nothing to investigate." });
     return { message: "nothing to investigate" };
   }
-  if (!publishable(inv)) {
+  if (!inv || !publishable(inv)) {
     const msg = inv ? `${picked.mint}: score ${inv.score}, ${inv.findings.length} finding${inv.findings.length === 1 ? "" : "s"}. Not enough for a case.` : `${picked.mint}: token not found.`;
     await writeStatus({ state: "idle", last_run_at: iso(), message: msg, next_run_at: nextRun() });
     return { message: msg };
