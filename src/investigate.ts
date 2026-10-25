@@ -209,18 +209,22 @@ async function attribute(inv: Investigation, src: Sources, registry: Registry, c
 
 // ---- writing -------------------------------------------------------------
 function headline(inv: Investigation, subjects: string[]): string {
-  const who = subjects[0] ?? "The deployer";
   const sym = `$${inv.token.symbol}`;
   const f = inv.findings.map((x) => x.title);
+  // Name a handle only when one is on the record. Otherwise the wallet, shortened.
+  const named = (address: string | null, role: string) => (subjects[0] ? subjects[0] : address ? `${role} ${short(address)}` : role);
   if (f.some((t) => /funded from one source/.test(t))) {
     const n = inv.bundle.length;
     const exit = f.includes("Coordinated exit") ? " They sold within the half hour." : "";
+    const funderIsDeployer = inv.funder && inv.funder === inv.deployer;
+    const who = subjects[0] ?? (funderIsDeployer ? `The deployer ${short(inv.deployer!)}` : `Wallet ${short(inv.funder!)}`);
     return `${who} funded ${n} wallets before ${sym} launched. They bought in the first ninety seconds.${exit}`;
   }
   if (f.includes("Liquidity removed")) return `Liquidity for ${sym} went back to the deployer${subjects[0] ? `, ${subjects[0]}` : ""}. The chart went with it.`;
-  if (f.includes("Deployer sold")) return `The ${sym} deployer${subjects[0] ? `, ${subjects[0]},` : ""} sold into its own pool.`;
+  if (f.includes("Deployer sold")) return `The ${sym} deployer${subjects[0] ? `, ${subjects[0]},` : ` ${short(inv.deployer ?? "")}`} sold into its own pool.`;
+  if (f.includes("Deployer distributed supply")) return `The ${sym} deployer${subjects[0] ? `, ${subjects[0]},` : ""} moved supply to other wallets before anyone else could buy it.`;
   if (f.includes("Supply concentrated")) return `Ten wallets hold most of ${sym}. One of them is the deployer.`;
-  return `${who} and ${sym}. ${inv.findings.length} findings.`;
+  return `${named(inv.deployer, "Deployer")} and ${sym}. ${inv.findings.length} findings.`;
 }
 
 function narrative(inv: Investigation, subjects: string[], via: string): string[] {

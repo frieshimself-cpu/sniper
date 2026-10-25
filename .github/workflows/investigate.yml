@@ -1,0 +1,70 @@
+# The agent, online, with no server: GitHub runs an investigation every six hours
+# and commits whatever it opens. Needs the repository secret HELIUS_API_KEY
+# (ARKHAM_API_KEY and XAI_API_KEY optional). Settings -> Secrets and variables -> Actions.
+name: investigate
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      subject:
+        description: "Mint to investigate (blank = ballot winner, watchlist, then discovery)"
+        required: false
+        default: ""
+      dry:
+        description: "Dry run: print the case, commit nothing"
+        type: boolean
+        default: false
+
+concurrency:
+  group: investigate
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  investigate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Investigate
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+          ARKHAM_API_KEY: ${{ secrets.ARKHAM_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          MIN_PUBLISH_SCORE: ${{ vars.MIN_PUBLISH_SCORE || '35' }}
+          DISCOVER_SCAN: ${{ vars.DISCOVER_SCAN || '6' }}
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.subject }}" ]; then ARGS="$ARGS --subject ${{ inputs.subject }}"; fi
+          if [ "${{ inputs.dry }}" = "true" ]; then ARGS="$ARGS --dry"; fi
+          npm run investigate -- $ARGS
+
+      - name: Commit the case
+        if: ${{ inputs.dry != true }}
+        run: |
+          git config user.name "C.R.I.M.E."
+          git config user.email "crime@users.noreply.github.com"
+          git add data/cases.json data/leads.json data/status.json data/watchlist.json fixtures/registry.json out/
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+          else
+            N=$(node -e 'const f=require("./data/cases.json");const c=f.cases.at(-1);console.log(c?`${c.id} $${c.token.symbol}`:"")')
+            git commit -m "Case ${N}: opened by the agent" -m "$(node -e 'console.log(require("./data/status.json").message)')"
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push origin HEAD:"${{ github.ref_name }}"
+          fi

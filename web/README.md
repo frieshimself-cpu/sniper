@@ -106,6 +106,22 @@ The agent has its own `.env` at the repo root (see `../.env.example`): `HELIUS_A
 With `VOTE_BALANCE_CHECK=on` and no RPC or mint, `/api/vote` answers 503 and
 the ballot page says so. Nothing else degrades.
 
+## Run the agent on GitHub, no server
+
+`.github/workflows/investigate.yml` runs an investigation every six hours on GitHub's
+runners and commits the case, the card, the registry and the leads back to the branch.
+Set these in the repository: Settings, Secrets and variables, Actions.
+
+| Secret | Required |
+| --- | --- |
+| `HELIUS_API_KEY` | yes |
+| `ARKHAM_API_KEY` | no, adds labels and the money trail's exchange names |
+| `XAI_API_KEY` | no, adds self-claimed wallets from X posts |
+
+Optional repository variables: `MIN_PUBLISH_SCORE` (35), `DISCOVER_SCAN` (6).
+Run it by hand from the Actions tab (workflow_dispatch) with a mint, or as a dry run.
+The site then only needs to redeploy on push, or to pull the branch on a timer.
+
 ## Deploy with Docker (the short way)
 
 Any VPS with Docker. Ubuntu on Hetzner or DigitalOcean, the smallest box with 2 GB RAM is enough.
