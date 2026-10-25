@@ -362,7 +362,10 @@ function parseArgs(argv: string[]): RunOptions {
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   run(parseArgs(process.argv.slice(2)))
     .then((r) => {
-      if (!r.case && !/nothing|below|dry/.test(r.message)) process.exitCode = 1;
+      if (!r.case && !/nothing|below|dry/.test(r.message)) {
+        process.stderr.write(`${r.message}\n`);
+        process.exitCode = 1;
+      }
     })
     .catch(async (err) => {
       await writeStatus({ state: "error", last_run_at: iso(), message: String((err as Error).message) });
