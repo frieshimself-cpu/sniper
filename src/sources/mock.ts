@@ -36,8 +36,9 @@ export function mockSources(seedText: string, handle = "@wen_moon_wendy"): Sourc
   // funder also funded the deployer a day earlier
   txs.push({ signature: sig(), at: iso(t0 - 86_400_000), from: funder, to: deployer, amount: 25, kind: "sol", type: "TRANSFER", feePayer: funder });
   // launch: deployer seeds pool
-  txs.push({ signature: sig(), at: iso(t0), from: deployer, to: pool, amount: SUPPLY * 0.8, kind: "token", mint, type: "CREATE_POOL", feePayer: deployer });
-  txs.push({ signature: sig(), at: iso(t0), from: deployer, to: pool, amount: 40, kind: "sol", type: "CREATE_POOL", feePayer: deployer });
+  const createSig = sig();
+  txs.push({ signature: createSig, at: iso(t0), from: pool, to: deployer, amount: SUPPLY * 0.05, kind: "token", mint, type: "CREATE", feePayer: deployer });
+  txs.push({ signature: createSig, at: iso(t0), from: deployer, to: pool, amount: 2, kind: "sol", type: "CREATE", feePayer: deployer });
   // same-block bundle buys
   for (const w of bundle) {
     const s = sig();
@@ -95,6 +96,9 @@ export function mockSources(seedText: string, handle = "@wen_moon_wendy"): Sourc
     },
     async transfers(a, limit = 300) {
       return byAddr(a).slice(0, limit);
+    },
+    async firstTransfers(a, limit = 200) {
+      return byAddr(a).reverse().slice(0, limit);
     },
     async holders() {
       return holders;

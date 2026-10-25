@@ -4,6 +4,7 @@
  */
 import type { Evidence, Finding, Hop, Severity } from "./types.js";
 import type { Holder, Label, Sources, TokenInfo, Transfer } from "./sources/types.js";
+import { bondingCurve, isPumpMint } from "./sources/pumpfun.js";
 
 export interface Investigation {
   token: TokenInfo;
@@ -26,6 +27,11 @@ export interface Investigation {
 
 const MIN = 60_000;
 const uniq = <T,>(xs: T[]) => [...new Set(xs)];
+const uniqBy = <T,>(xs: T[], key: (x: T) => string) => {
+  const m = new Map<string, T>();
+  for (const x of xs) if (!m.has(key(x))) m.set(key(x), x);
+  return [...m.values()];
+};
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 const fmtSol = (n: number) => `${n.toFixed(n >= 100 ? 0 : 2)} SOL`;
 const pct = (x: number) => `${(x * 100).toFixed(x < 0.01 ? 2 : 0)}%`;
@@ -33,36 +39,67 @@ const minutes = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse
 
 export async function investigate(mint: string, src: Sources): Promise<Investigation | null> {
   const log: string[] = [];
-  const token = await src.token(mint);
+  let token: TokenInfo | null = await src.token(mint);
   if (!token) {
     log.push("token not found");
     return null;
   }
+  const t0: TokenInfo = token;
   const findings: Finding[] = [];
   const evidence: Evidence[] = [];
   let score = 0;
-  const ev = (t: Transfer, note: string): Evidence => ({ kind: "tx", ref: t.signature, wallet: t.from, amount: t.kind === "sol" ? fmtSol(t.amount) : `${Math.round(t.amount).toLocaleString("en-US")} ${token.symbol}`, at: t.at, note });
+  const ev = (t: Transfer, note: string): Evidence => ({ kind: "tx", ref: t.signature, wallet: t.from, amount: t.kind === "sol" ? fmtSol(t.amount) : `${Math.round(t.amount).toLocaleString("en-US")} ${t0.symbol}`, at: t.at, note });
 
-  // ---- launch: deployer seeds a pool with most of the supply --------------
-  const deployer = token.deployer;
+  // ---- launch ---------------------------------------------------------------
+  // pump.fun: the bonding curve is derivable from the mint. Its first transaction is the launch,
+  // tagged CREATE by Helius, paid by the deployer, with a token transfer curve -> deployer (the dev buy).
+  // Elsewhere: the earliest reachable fee payer on the mint, and most of the supply moving into one account.
+  let deployer = token.deployer;
+  let create: Transfer | undefined;
+  let curveFirst: Transfer[] = [];
+  if (isPumpMint(mint)) {
+    const curve = bondingCurve(mint);
+    curveFirst = await src.firstTransfers(curve, 200);
+    const first = curveFirst[0];
+    if (first) {
+      deployer = first.feePayer ?? deployer;
+      create = curveFirst.find((t) => t.type === "CREATE" && t.kind === "token" && t.mint === mint && t.from === curve) ?? { ...first, from: curve, to: deployer ?? "", amount: 0, kind: "token", mint };
+      token = { ...t0, deployer, created_at: first.at, deployer_approx: false };
+    }
+  }
   const dTx = deployer ? await src.transfers(deployer, 400) : [];
+  if (!create) {
+    create = dTx
+      .filter((t) => t.type === "CREATE" && t.kind === "token" && t.mint === mint && t.feePayer === deployer && t.from && t.from !== deployer)
+      .sort((a, b) => a.at.localeCompare(b.at))[0];
+  }
   const seed = dTx
-    .filter((t) => t.kind === "token" && t.mint === mint && t.from === deployer && t.amount >= token.supply * 0.2)
+    .filter((t) => t.kind === "token" && t.mint === mint && t.to !== deployer && t.amount >= token.supply * 0.2 && (t.from === deployer || t.feePayer === deployer))
     .sort((a, b) => a.at.localeCompare(b.at))[0];
-  const pool = seed?.to ?? null;
-  const launch_at = seed?.at ?? token.created_at;
-  log.push(`deployer ${deployer ?? "?"} pool ${pool ?? "?"} launch ${launch_at ?? "?"}`);
-  if (seed) evidence.push(ev(seed, "Pool seeded"));
+  const pool = create?.from ?? seed?.to ?? null;
+  const launch_at = create?.at ?? seed?.at ?? token.created_at;
+  log.push(`deployer ${deployer ?? "?"} pool ${pool ?? "?"} launch ${launch_at ?? "?"}${create ? " (pump.fun create)" : ""}`);
+  if (create) {
+    if (create.amount > 0) evidence.push(ev(create, "Launch, deployer's opening buy"));
+    const devShare = create.amount / token.supply;
+    if (devShare >= 0.05) {
+      findings.push({ code: "F-01", title: "Deployer bought at creation", detail: `The deployer wallet took ${pct(devShare)} of supply in the launch transaction.` });
+      score += 5;
+    }
+  } else if (seed) evidence.push(ev(seed, "Pool seeded"));
 
-  const poolTx = pool ? await src.transfers(pool, 600) : [];
-  const buys = poolTx.filter((t) => t.kind === "token" && t.mint === mint && t.from === pool).sort((a, b) => a.at.localeCompare(b.at));
+  // The first 200 transactions on the pool, oldest first, and the latest 300.
+  const poolFirst = curveFirst.length ? curveFirst : pool ? await src.firstTransfers(pool, 200) : [];
+  const poolLate = pool ? await src.transfers(pool, 300) : [];
+  const poolTx = uniqBy([...poolFirst, ...poolLate], (t) => `${t.signature}:${t.from}:${t.to}:${t.amount}`);
+  const buys = poolTx.filter((t) => t.kind === "token" && t.mint === mint && t.from === pool && t.to !== deployer).sort((a, b) => a.at.localeCompare(b.at));
   const sells = poolTx.filter((t) => t.kind === "token" && t.mint === mint && t.to === pool);
 
   // ---- bundle: early buyers with a common funder ---------------------------
   let funder: string | null = null;
   let bundle: string[] = [];
   if (launch_at && buys.length) {
-    const early = uniq(buys.filter((t) => Date.parse(t.at) - Date.parse(launch_at) <= 90_000).map((t) => t.to)).slice(0, 25);
+    const early = uniq(buys.filter((t) => Date.parse(t.at) - Date.parse(launch_at) <= 90_000).map((t) => t.to)).slice(0, 20);
     const funders = new Map<string, string[]>();
     for (const w of early) {
       const tx = await src.transfers(w, 60);
@@ -89,9 +126,15 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
         if (f) evidence.push(ev(f, "Funding transfer"));
       }
       for (const t of bundleBuys.slice(0, 3)) evidence.push(ev(t, "Launch buy"));
-      const exits = sells.filter((t) => bundle.includes(t.from) && minutes(launch_at, t.at) <= 30);
+      const exits: Transfer[] = [];
+      for (const w of bundle) {
+        const tx = await src.transfers(w, 60);
+        const e = tx.filter((t) => t.kind === "token" && t.mint === mint && t.from === w && t.to !== w && minutes(launch_at, t.at) <= 30).sort((a, b) => a.at.localeCompare(b.at))[0];
+        if (e) exits.push(e);
+      }
       if (exits.length >= Math.ceil(bundle.length / 2)) {
-        const first = exits.sort((a, b) => a.at.localeCompare(b.at))[0];
+        exits.sort((a, b) => a.at.localeCompare(b.at));
+        const first = exits[0];
         const last = exits[exits.length - 1];
         findings.push({
           code: `F-${String(findings.length + 1).padStart(2, "0")}`,
@@ -129,18 +172,31 @@ export async function investigate(mint: string, src: Sources): Promise<Investiga
     }
   }
 
-  // ---- deployer sells -----------------------------------------------------
+  // ---- deployer sells or distributes ------------------------------------------
   if (deployer) {
-    const devSells = sells.filter((t) => t.from === deployer);
+    const outflows = dTx.filter((t) => t.kind === "token" && t.mint === mint && t.from === deployer);
+    const devSells = outflows.filter((t) => t.type === "SWAP" || t.to === pool);
+    const moves = outflows.filter((t) => !devSells.includes(t));
     const sold = sum(devSells.map((t) => t.amount)) / token.supply;
-    if (sold >= 0.03) {
+    const moved = sum(moves.map((t) => t.amount)) / token.supply;
+    if (sold >= 0.02) {
       findings.push({
         code: `F-${String(findings.length + 1).padStart(2, "0")}`,
         title: "Deployer sold",
-        detail: `The deployer wallet sold ${pct(sold)} of supply into the pool across ${devSells.length} transactions.`,
+        detail: `The deployer wallet sold ${pct(sold)} of supply across ${devSells.length} transactions${launch_at && devSells[0] ? `, the first ${minutes(launch_at, devSells.sort((a, b) => a.at.localeCompare(b.at))[0].at)} minutes after launch` : ""}.`,
       });
       score += 25;
       for (const t of devSells.slice(0, 2)) evidence.push(ev(t, "Deployer sell"));
+    }
+    if (moved >= 0.03) {
+      const wallets = uniq(moves.map((t) => t.to));
+      findings.push({
+        code: `F-${String(findings.length + 1).padStart(2, "0")}`,
+        title: "Deployer distributed supply",
+        detail: `${pct(moved)} of supply left the deployer wallet to ${wallets.length} other wallet${wallets.length === 1 ? "" : "s"} without a swap.`,
+      });
+      score += 15;
+      for (const t of moves.slice(0, 2)) evidence.push(ev(t, "Deployer transfer out"));
     }
   }
 

@@ -101,12 +101,38 @@ Hard rules enforced in code, not by convention:
 | `CRIME_STATE_DIR` | `web/.data` | where ballots, votes and disputes are written |
 
 The agent has its own `.env` at the repo root (see `../.env.example`): `HELIUS_API_KEY`, `ARKHAM_API_KEY`, `XAI_API_KEY`,
-`INVESTIGATE_INTERVAL_HOURS`, `MIN_PUBLISH_SCORE`. The site never needs those keys. It reads what the agent writes.
+`INVESTIGATE_INTERVAL_HOURS`, `MIN_PUBLISH_SCORE`, `DISCOVER_SCAN`. The site never needs those keys. It reads what the agent writes.
 
 With `VOTE_BALANCE_CHECK=on` and no RPC or mint, `/api/vote` answers 503 and
 the ballot page says so. Nothing else degrades.
 
-## Deploy on a VPS behind nginx
+## Deploy with Docker (the short way)
+
+Any VPS with Docker. Ubuntu on Hetzner or DigitalOcean, the smallest box with 2 GB RAM is enough.
+
+```
+git clone https://github.com/frieshimself-cpu/sniper /srv/crime && cd /srv/crime
+cp .env.example .env              # HELIUS_API_KEY, ARKHAM_API_KEY, XAI_API_KEY
+cp web/.env.example web/.env.local  # SITE_URL, ADMIN_PASSWORD, CRIME_MINT, HELIUS_API_KEY
+docker compose up -d --build
+```
+
+That starts two containers from one image: `agent` (a case every six hours, cards rendered
+with the bundled Chromium) and `web` (the site on 127.0.0.1:3000). The archive, cards,
+registry and site state live in named volumes and survive rebuilds. Put TLS in front with
+the `Caddyfile` in the repo root (`apt install caddy`, edit the domain, `systemctl restart caddy`)
+or with the nginx block below.
+
+Useful afterwards:
+
+```
+docker compose logs -f agent                              # watch it work
+docker compose exec agent npm run investigate -- --subject <mint> --dry   # try a mint without publishing
+docker compose exec agent npm run investigate -- --subject <mint>         # open a case now
+git pull && docker compose up -d --build                  # update
+```
+
+## Deploy on a VPS behind nginx (without Docker)
 
 Assumes Ubuntu, Node 22, the repo at `/srv/crime`, the site on port 3000.
 

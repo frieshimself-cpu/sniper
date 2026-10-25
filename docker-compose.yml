@@ -1,0 +1,40 @@
+# docker compose up -d --build
+# Site on :3000 (put nginx or Caddy in front). Agent opens a case every six hours.
+services:
+  agent:
+    build: .
+    env_file: .env
+    environment:
+      CRIME_STATE_DIR: /srv/crime/web/.data
+    command: npm run watch
+    volumes:
+      - crime-data:/srv/crime/data
+      - crime-out:/srv/crime/out
+      - crime-registry:/srv/crime/fixtures
+      - crime-state:/srv/crime/web/.data
+    restart: unless-stopped
+
+  web:
+    build: .
+    env_file: web/.env.local
+    environment:
+      CRIME_STATE_DIR: /srv/crime/web/.data
+      PORT: "3000"
+    working_dir: /srv/crime/web
+    command: npm run start -- -p 3000
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - crime-data:/srv/crime/data
+      - crime-out:/srv/crime/out
+      - crime-registry:/srv/crime/fixtures
+      - crime-state:/srv/crime/web/.data
+    depends_on:
+      - agent
+    restart: unless-stopped
+
+volumes:
+  crime-data:
+  crime-out:
+  crime-registry:
+  crime-state:

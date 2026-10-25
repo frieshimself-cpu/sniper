@@ -1,0 +1,4 @@
+# Optional: TLS in one file. `caddy run` next to docker compose, or add a caddy service.
+crime.example {
+    reverse_proxy 127.0.0.1:3000
+}

@@ -22,6 +22,7 @@ import { renderCards } from "./render.js";
 import { investigate as runDetectors, short, type Investigation } from "./detectors.js";
 import { liveSources, liveConfigured } from "./sources/live.js";
 import { mockSources } from "./sources/mock.js";
+import { discover } from "./sources/discover.js";
 import type { Claim, Label, Sources } from "./sources/types.js";
 import type { Case, CasesFile, Registry, RegistryEntry } from "./types.js";
 
@@ -129,6 +130,37 @@ async function pickSubject(arg: string | undefined, src: Sources, registry: Regi
   return next ? { mint: next.mint, via: "watchlist" } : null;
 }
 
+const DISCOVER_SCAN = Number(process.env.DISCOVER_SCAN ?? 6);
+
+/** No ballot winner, no watchlist: scan what is paying for attention and keep the worst one. */
+async function scanDiscovered(src: Sources): Promise<{ inv: Investigation; mint: string; via: string } | null> {
+  const cases = await readJson<CasesFile>(CASES, { generated_at: "", agent: "", version: 1, cases: [] });
+  const covered = new Set(cases.cases.map((c) => c.token.mint));
+  const tried = new Set((await readJson<Watch[]>(WATCHLIST, [])).filter((w) => w.done).map((w) => w.mint));
+  const candidates = (await discover(DISCOVER_SCAN * 3)).filter((c) => !covered.has(c.mint) && !tried.has(c.mint)).slice(0, DISCOVER_SCAN);
+  let best: { inv: Investigation; mint: string; via: string } | null = null;
+  for (const c of candidates) {
+    process.stdout.write(`scan ${c.mint} (${c.why})\n`);
+    try {
+      const inv = await runDetectors(c.mint, src);
+      for (const l of inv?.log ?? []) process.stdout.write(`  ${l}\n`);
+      if (inv) process.stdout.write(`  score ${inv.score}: ${inv.findings.map((f) => f.title).join("; ") || "nothing"}\n`);
+      if (inv && inv.score >= MIN_PUBLISH_SCORE && (!best || inv.score > best.inv.score)) best = { inv, mint: c.mint, via: `discovery (${c.why})` };
+    } catch (err) {
+      process.stdout.write(`  failed: ${(err as Error).message}\n`);
+    }
+    await noteTried(c.mint);
+  }
+  return best;
+}
+
+async function noteTried(mint: string) {
+  const watch = await readJson<Watch[]>(WATCHLIST, []);
+  if (!watch.some((w) => w.mint === mint)) watch.push({ mint, note: "scanned", done: true });
+  else for (const w of watch) if (w.mint === mint) w.done = true;
+  await writeJson(WATCHLIST, watch);
+}
+
 // ---- attribution ---------------------------------------------------------
 interface Attribution {
   registry: Registry;
@@ -223,16 +255,25 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   const registry = await readJson<Registry>(REGISTRY, { updated_at: "", entries: [] });
   await writeStatus({ state: "running", mode: src.name, message: "" });
 
-  const picked = await pickSubject(opts.subject, src, registry);
-  if (!picked) {
-    await writeStatus({ state: "idle", last_run_at: iso(), message: "Nothing to investigate. Ballot has no new winner and the watchlist is empty." });
+  let picked = await pickSubject(opts.subject, src, registry);
+  let inv: Investigation | null = null;
+  if (picked) {
+    process.stdout.write(`subject ${picked.mint} via ${picked.via}\n`);
+    inv = await runDetectors(picked.mint, src);
+    for (const l of inv?.log ?? []) process.stdout.write(`  ${l}\n`);
+    await markWatchlist(picked.mint, undefined);
+  } else if (src.name === "live") {
+    const best = await scanDiscovered(src);
+    if (!best) {
+      await writeStatus({ state: "idle", last_run_at: iso(), message: `Scanned ${DISCOVER_SCAN} boosted tokens. Nothing above ${MIN_PUBLISH_SCORE}. No case.` });
+      return { message: "nothing found in discovery" };
+    }
+    picked = { mint: best.mint, via: best.via };
+    inv = best.inv;
+  } else {
+    await writeStatus({ state: "idle", last_run_at: iso(), message: "Nothing to investigate." });
     return { message: "nothing to investigate" };
   }
-  process.stdout.write(`subject ${picked.mint} via ${picked.via}\n`);
-
-  const inv = await runDetectors(picked.mint, src);
-  for (const l of inv?.log ?? []) process.stdout.write(`  ${l}\n`);
-  await markWatchlist(picked.mint, undefined);
   if (!inv || inv.score < MIN_PUBLISH_SCORE) {
     const msg = inv ? `${picked.mint}: score ${inv.score}, below ${MIN_PUBLISH_SCORE}. No case.` : `${picked.mint}: token not found.`;
     await writeStatus({ state: "idle", last_run_at: iso(), message: msg });

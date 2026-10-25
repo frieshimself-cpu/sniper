@@ -14,7 +14,8 @@ src/render.ts        case card renderer (HTML → PNG, Playwright/Chromium)
 src/investigate.ts   npm run investigate → one real case from the chain
 src/schedule.ts      npm run watch → an investigation every 6 hours
 src/detectors.ts     what the agent looks for (bundles, exits, LP pulls, dev sells, concentration)
-src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (X posts), mock.ts (fake chain for tests)
+src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (X posts), discover.ts (DexScreener boosts),
+                     pumpfun.ts (bonding curve PDA), mock.ts (fake chain for tests)
 data/leads.json      attribution the agent could not source well enough; reviewed in /admin
 data/status.json     last run, next run, what happened
 data/watchlist.json  mints to investigate when the ballot has no new winner
@@ -39,8 +40,11 @@ web/                 the public site (Next.js). Reads the three paths above thro
 
 ## How a case gets opened
 
-1. Subject: yesterday's ballot winner, else the next mint in `data/watchlist.json`, else `--subject`.
-2. Chain (Helius): deployer, pool, launch, first buyers, their funders, sells, liquidity, holders.
+1. Subject: `--subject`, else yesterday's ballot winner, else the next mint in `data/watchlist.json`,
+   else scan `DISCOVER_SCAN` tokens paying for DexScreener boosts and keep the worst one.
+2. Chain (Helius): for a pump.fun mint the bonding curve is derived from the mint (`src/sources/pumpfun.ts`)
+   and its first transaction is the launch; otherwise the earliest reachable fee payer and the pool seed.
+   Then first buyers, their funders, exits, deployer sells and transfers, liquidity, holders.
 3. Detectors score what they find. Below `MIN_PUBLISH_SCORE` nothing is published.
 4. Money trail: largest SOL outflow, hop by hop, until a labelled exchange or bridge.
 5. Attribution, in this order and no further:

@@ -17,6 +17,7 @@ export function liveSources(): Sources {
     name: "live",
     token: (m) => memo(`t:${m}`, () => helius.token(m)),
     transfers: (a, limit) => memo(`x:${a}:${limit}`, () => helius.transfers(a, limit)),
+    firstTransfers: (a, limit) => memo(`f:${a}:${limit}`, () => helius.firstTransfers(a, limit)),
     holders: (m, n) => memo(`h:${m}:${n}`, () => helius.holders(m, n)),
     label: (a) => memo(`l:${a}`, () => (arkham ? arkham.label(a).catch(() => null) : Promise.resolve(null))),
     labels: (as) => (arkham ? arkham.labels(as).catch(() => new Map()) : Promise.resolve(new Map())),
