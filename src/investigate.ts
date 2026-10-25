@@ -59,6 +59,7 @@ interface Watch {
   note?: string;
   done?: boolean;
   case_n?: number;
+  tried_at?: string;
 }
 
 const MIN_PUBLISH_SCORE = Number(process.env.MIN_PUBLISH_SCORE ?? 35);
@@ -133,14 +134,24 @@ async function pickSubject(arg: string | undefined, src: Sources, registry: Regi
 }
 
 const DISCOVER_SCAN = Number(process.env.DISCOVER_SCAN ?? 6);
+const RESCAN_DAYS = Number(process.env.RESCAN_DAYS ?? 3);
+let scanned = 0;
 
 /** No ballot winner, no watchlist: scan what is paying for attention and keep the worst one. */
 async function scanDiscovered(src: Sources): Promise<{ inv: Investigation; mint: string; via: string } | null> {
   const cases = await readJson<CasesFile>(CASES, { generated_at: "", agent: "", version: 1, cases: [] });
   const covered = new Set(cases.cases.map((c) => c.token.mint));
-  const tried = new Set((await readJson<Watch[]>(WATCHLIST, [])).filter((w) => w.done).map((w) => w.mint));
-  const candidates = (await discover(DISCOVER_SCAN * 3)).filter((c) => !covered.has(c.mint) && !tried.has(c.mint)).slice(0, DISCOVER_SCAN);
+  // A scanned token is left alone for RESCAN_DAYS, then it may come round again.
+  const cutoff = Date.now() - RESCAN_DAYS * 86_400_000;
+  const tried = new Set(
+    (await readJson<Watch[]>(WATCHLIST, []))
+      .filter((w) => w.done && (!w.tried_at || Date.parse(w.tried_at) > cutoff))
+      .map((w) => w.mint),
+  );
+  const candidates = (await discover(DISCOVER_SCAN * 6)).filter((c) => !covered.has(c.mint) && !tried.has(c.mint)).slice(0, DISCOVER_SCAN);
+  process.stdout.write(`discovery: ${candidates.length} candidates to scan\n`);
   let best: { inv: Investigation; mint: string; via: string } | null = null;
+  scanned = candidates.length;
   for (const c of candidates) {
     process.stdout.write(`scan ${c.mint} (${c.why})\n`);
     try {
@@ -158,8 +169,9 @@ async function scanDiscovered(src: Sources): Promise<{ inv: Investigation; mint:
 
 async function noteTried(mint: string) {
   const watch = await readJson<Watch[]>(WATCHLIST, []);
-  if (!watch.some((w) => w.mint === mint)) watch.push({ mint, note: "scanned", done: true });
-  else for (const w of watch) if (w.mint === mint) w.done = true;
+  const now = iso();
+  if (!watch.some((w) => w.mint === mint)) watch.push({ mint, note: "scanned", done: true, tried_at: now });
+  else for (const w of watch) if (w.mint === mint) Object.assign(w, { done: true, tried_at: now });
   await writeJson(WATCHLIST, watch);
 }
 
@@ -271,7 +283,7 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   } else if (src.name === "live") {
     const best = await scanDiscovered(src);
     if (!best) {
-      await writeStatus({ state: "idle", last_run_at: iso(), message: `Scanned ${DISCOVER_SCAN} boosted tokens. Nothing above ${MIN_PUBLISH_SCORE}. No case.`, next_run_at: nextRun() });
+      await writeStatus({ state: "idle", last_run_at: iso(), message: `Scanned ${scanned} boosted tokens. Nothing above ${MIN_PUBLISH_SCORE}. No case.`, next_run_at: nextRun() });
       return { message: "nothing found in discovery" };
     }
     picked = { mint: best.mint, via: best.via };
