@@ -124,7 +124,7 @@ export function AdminPanel({
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{today ? `${today.id} · ${today.votes} votes` : "not built"}</span>
         </div>
         <p className="mt-3 text-xs opacity-80">
-          Pick {size}. Eligible: tokens with score at or above {threshold}, and registry handles. Nothing that was on a ballot in the last 30 days.
+          Pick up to {size}, at least 2. Eligible: tokens with score at or above {threshold}, and registry handles. Nothing that was on a ballot in the last 30 days.
           Yesterday&apos;s runner-up is carried.
         </p>
         {locked ? <p className="mt-2 text-xs text-stamp">Votes are in. Today&apos;s ballot is locked.</p> : null}
@@ -145,7 +145,7 @@ export function AdminPanel({
           {candidates.length === 0 ? <li className="text-sm">No eligible subjects.</li> : null}
         </ul>
         <div className="mt-4 flex items-center gap-4">
-          <button type="button" className="btn btn-solid" disabled={locked || picked.length !== size} onClick={build}>
+          <button type="button" className="btn btn-solid" disabled={locked || picked.length < 2 || picked.length > size} onClick={build}>
             Build ballot ({picked.length}/{size})
           </button>
           {today ? (

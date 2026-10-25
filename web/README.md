@@ -97,7 +97,7 @@ Hard rules enforced in code, not by convention:
 | `HELIUS_API_KEY` | unset | builds `https://mainnet.helius-rpc.com/?api-key=...` |
 | `SOLANA_RPC_URL` | unset | full RPC URL. Overrides `HELIUS_API_KEY` |
 | `VOTE_BALANCE_CHECK` | `on` | `off` skips the balance check. Dev and demo only |
-| `BALLOT_SCORE_THRESHOLD` | `60` | a token is eligible for the ballot at or above this case score |
+| `BALLOT_SCORE_THRESHOLD` | `40` | a token is eligible for the ballot at or above this case score |
 | `CRIME_STATE_DIR` | `web/.data` | where ballots, votes and disputes are written |
 
 The agent has its own `.env` at the repo root (see `../.env.example`): `HELIUS_API_KEY`, `ARKHAM_API_KEY`, `XAI_API_KEY`,

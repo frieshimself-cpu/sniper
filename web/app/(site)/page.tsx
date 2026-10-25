@@ -57,7 +57,7 @@ export default function Home() {
       <section className="grid gap-8 lg:grid-cols-5">
         <div className="file p-5 lg:col-span-2 self-start">
           <h2 className="text-2xl">Today&apos;s ballot</h2>
-          <p className="mt-1 mb-5 text-xs opacity-70">Four subjects. One wallet, one vote. The winner is the next case.</p>
+          <p className="mt-1 mb-5 text-xs opacity-70">Up to four subjects. One wallet, one vote. The winner is the next case.</p>
           <BallotVote initial={{ ballot, tally: t, total }} compact />
           <Link href="/ballot" className="mt-5 inline-block text-[11px] font-semibold uppercase tracking-[0.14em] underline">
             Full ballot and history

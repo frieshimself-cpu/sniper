@@ -5,11 +5,12 @@
 import { eligibleSubjects } from "./data";
 import { carryOver, getTodayBallot, recentlyBalloted, setBallot, todayId, type Ballot, type BallotOption } from "./store";
 
-export const BALLOT_SIZE = 4;
+export const BALLOT_SIZE = 4; // at most
+export const BALLOT_MIN = 2; // at least, or there is no ballot
 
 export function scoreThreshold(): number {
-  const n = Number(process.env.BALLOT_SCORE_THRESHOLD ?? 60);
-  return Number.isFinite(n) ? n : 60;
+  const n = Number(process.env.BALLOT_SCORE_THRESHOLD ?? 40);
+  return Number.isFinite(n) ? n : 40;
 }
 
 export interface Candidate extends BallotOption {
@@ -57,7 +58,7 @@ export function buildBallot(keys?: string[]): Ballot {
   } else {
     options = autoPick();
   }
-  if (options.length !== BALLOT_SIZE) throw new Error(`A ballot has ${BALLOT_SIZE} options.`);
+  if (options.length < BALLOT_MIN || options.length > BALLOT_SIZE) throw new Error(`A ballot has ${BALLOT_MIN} to ${BALLOT_SIZE} options.`);
   const carried = all.find((c) => c.carried && options.some((o) => o.key === c.key))?.key;
   return setBallot(todayId(), options, carried);
 }
