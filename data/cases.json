@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-25T22:44:51Z",
+  "generated_at": "2026-10-25T23:00:57Z",
   "agent": "C.R.I.M.E.",
   "version": 1,
   "cases": [
@@ -329,6 +329,127 @@
         "Convictions: 0."
       ],
       "png": "case-0002.png"
+    },
+    {
+      "n": 3,
+      "id": "0003",
+      "opened_at": "2026-10-25T23:00:57Z",
+      "status": "open",
+      "severity": "medium",
+      "score": 42,
+      "token": {
+        "symbol": "CWORM",
+        "name": "Crypto Worm",
+        "mint": "65V31DT6xGVXY8axRu2QzNf1U7u6ZuQ77sRoBGYYpump"
+      },
+      "subjects": [],
+      "headline": "The $CWORM deployer Aupq…278s sold into its own pool.",
+      "charge": "Deployer sold",
+      "findings": [
+        {
+          "code": "F-01",
+          "title": "Deployer sold",
+          "detail": "The deployer wallet sold 7% of supply across 84 transactions, the first 58 minutes after launch."
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "tx",
+          "ref": "4yLZ5wtywwa8H7qX3FpyXTsrY817aY6bW2oaspxjqZQuRtySXHdD5FcETnfykucBWvEFknQVV5At8VAiJsrTD1XP",
+          "wallet": "AupqmU1b4VBwCM4mX1xUK5QSWv6c2irMv4bhnpy6278s",
+          "amount": "1,503,645 CWORM",
+          "at": "2025-07-22T18:19:52.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "2n7Cmp1aGw7jaJYvw7QYtXpDiVpXuVunVpiVXCBY1Bd7QKdj82dnvoq1gc2pLtkTdq5ZvfMTMiUSYkk9mbyuZdAn",
+          "wallet": "AupqmU1b4VBwCM4mX1xUK5QSWv6c2irMv4bhnpy6278s",
+          "amount": "643,956 CWORM",
+          "at": "2025-07-22T18:20:55.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "59iRtx4taUiH473SH2yFaGRDbzp8Z8eGyGR8n2ifXTEopfgqzyU1sP6WWG5mdT1R8BavWex6FAjjk2mWwkS56fUo",
+          "wallet": "AupqmU1b4VBwCM4mX1xUK5QSWv6c2irMv4bhnpy6278s",
+          "amount": "0.07 SOL",
+          "at": "2025-07-23T21:28:52.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "3y823ePB7yxjj4VbRGhsNuTpwYnAxCFR8JVd4zkFo4AQCUquB6tG4ExEUC7PpZGKCPhGifbiZAFeK7RvHij19wHP",
+          "wallet": "CT3ZqPpuH7upndnHVH36uHzw2hwdJWGCrsv8tCiPy6vW",
+          "amount": "8.68 SOL",
+          "at": "2026-09-11T18:22:56.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "2EX4kpZdB747jn4JH5qLHJCBi4sXC9VcCzeXLzpniwQtCx8GXTp6Q6pBR4hGhMg5XufhVjSnC729PWnsX2mgxLRd",
+          "wallet": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+          "amount": "14.85 SOL",
+          "at": "2026-10-25T22:53:03.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "5dVPLXN5oYgbj5DoCaZrA4D4fqfubGEbYcyRQ2jYtgznuR7W8h3vCwbCdA5BeaxZouoUcJeZUdGpwofgwdX7ju5Y",
+          "wallet": "H5BDQ3djy8bkwFmKe3Zovj4AgBVTyQHdhHgPgPKcXcdF",
+          "amount": "14.85 SOL",
+          "at": "2026-10-25T22:53:13.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "4i9tXfy1kRe9gHjn4GJM3cp7zFbaDMghGhVFWCez6Z86AZ8f1RXMCPdTJPY8DxM7ZVwmhm5uw5rAdi1pYTDRyN2S",
+          "wallet": "6LY1JzAFVZsP2a2xKrtU6znQMQ5h4i7tocWdgrkZzkzF",
+          "amount": "210 SOL",
+          "at": "2026-10-25T22:57:53.000Z",
+          "note": "Hop"
+        }
+      ],
+      "money_trail": [
+        {
+          "label": "deployer",
+          "address": "AupqmU1b4VBwCM4mX1xUK5QSWv6c2irMv4bhnpy6278s",
+          "amount": "0.07 SOL"
+        },
+        {
+          "label": "hop 1",
+          "address": "CT3ZqPpuH7upndnHVH36uHzw2hwdJWGCrsv8tCiPy6vW",
+          "amount": "8.68 SOL"
+        },
+        {
+          "label": "hop 2",
+          "address": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+          "amount": "14.85 SOL"
+        },
+        {
+          "label": "hop 3",
+          "address": "H5BDQ3djy8bkwFmKe3Zovj4AgBVTyQHdhHgPgPKcXcdF",
+          "amount": "14.85 SOL"
+        },
+        {
+          "label": "hop 4",
+          "address": "6LY1JzAFVZsP2a2xKrtU6znQMQ5h4i7tocWdgrkZzkzF",
+          "amount": "210 SOL"
+        },
+        {
+          "label": "hop 5",
+          "address": "CpKbp261qGhwxZpHXSMyYGNpNrpCCaz24MuUe8FNhd6q",
+          "amount": ""
+        }
+      ],
+      "narrative": [
+        "$CWORM (Crypto Worm) was picked by discovery (boosted, 10 boosts). The pool opened 2025-07-22 17:21Z.",
+        "The deployer wallet sold 7% of supply across 84 transactions, the first 58 minutes after launch.",
+        "0.07 SOL left deployer Aupq…278s after launch. The trail ends at hop 5 CpKb…hd6q.",
+        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
+        "Convictions: 0."
+      ],
+      "png": "case-0003.png"
     }
   ]
 }
