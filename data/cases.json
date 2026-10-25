@@ -1,110 +1,176 @@
 {
-  "generated_at": "2026-10-23T02:38:00Z",
-  "agent": "C.R.I.M.E. demo",
+  "generated_at": "2026-10-25T22:44:51Z",
+  "agent": "C.R.I.M.E.",
   "version": 1,
   "cases": [
     {
       "n": 1,
       "id": "0001",
-      "opened_at": "2026-10-10T17:38:00Z",
-      "status": "closed",
-      "severity": "critical",
-      "score": 97,
+      "opened_at": "2026-10-25T22:42:42Z",
+      "status": "open",
+      "severity": "high",
+      "score": 67,
       "token": {
-        "symbol": "GLORP",
-        "name": "Glorp Protocol",
-        "mint": "X7vXUd7PP94Y64tzkzaA4gnSjfTRzLBZfWvN1q1N18mS"
+        "symbol": "Chunkee",
+        "name": "Chunkee the Manatee",
+        "mint": "GkrpmRvhNdyubgHfqW5f58kfvkBtF6TbmwQEtHGnpump"
       },
-      "subjects": [
-        "@wen_moon_wendy"
-      ],
-      "headline": "@wen_moon_wendy funded 14 wallets before $GLORP launched. They bought in the same block.",
-      "charge": "Pre-funded bundle at launch",
+      "subjects": [],
+      "headline": "Wallet ABNL…muyf funded 3 wallets before $Chunkee launched. They bought in the first ninety seconds. They sold within the half hour.",
+      "charge": "Early wallets funded from one source",
       "findings": [
         {
           "code": "F-01",
-          "title": "Fourteen wallets funded from one source",
-          "detail": "All fourteen received 2.0 SOL from the same wallet within 90 seconds, twelve minutes before the mint."
+          "title": "3 early wallets funded from one source",
+          "detail": "3 of the first buyers received SOL from ABNL…muyf in the 24 hours before launch. They bought in the same slot. Combined, 7% of supply."
         },
         {
           "code": "F-02",
-          "title": "Same-block buys",
-          "detail": "All fourteen wallets bought in the launch block. Combined, 38% of supply."
+          "title": "Coordinated exit",
+          "detail": "3 of the 3 wallets sold 1 minute after launch."
         },
         {
           "code": "F-03",
-          "title": "Coordinated exit",
-          "detail": "Sells began nine minutes after launch and completed within four minutes."
+          "title": "Deployer sold",
+          "detail": "The deployer wallet sold 6% of supply across 44 transactions, the first 1 minute after launch."
         }
       ],
       "evidence": [
         {
           "kind": "tx",
-          "ref": "hWy2aaPGScL2Ng6NmUxeGqgpfc3DkE6E4cfzFhW3guPnwev33cLoMC1zowgCSuCHc3NbakWuVMbkUFfnnV5gFsPg",
-          "wallet": "WeNm00nWnDy4xW7vU1tZ5cB9nM2sE8aG3fJ6rT4yK1pQ",
-          "amount": "679.97 SOL",
-          "at": "2026-10-10T11:44:40Z",
-          "note": "Launch-block buy"
+          "ref": "4imtz2E7T2pCyvLdbPZj1YzYe7WBSHBdFki9tUpKaMkqmsdmVFx3dTTBZNbNvv1zFezLscAo2H1Y1mSnpYHEVSqn",
+          "wallet": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
+          "amount": "0.18 SOL",
+          "at": "2026-10-24T23:09:40.000Z",
+          "note": "Funding transfer"
         },
         {
           "kind": "tx",
-          "ref": "228k51vJtAfamLtKvTCYyQtEouGcMHCqk7AKE6EAMbLosFpR9AEPSgVDyPFYxwWg35Fg8zyA9eZptwo1WVieJMKt",
-          "wallet": "YAkNKYyr6DtiTFVoeT9WX25nnhn33WWZLwTnCH3KFjDU",
-          "amount": "806.40 SOL",
-          "at": "2026-10-10T11:47:09Z",
-          "note": "Sell into peak"
+          "ref": "dLHEYfrTxoB8UdJK9AZXzRVyBMT83us5NapP6fz7T2tvuR65rDRNJo6bvtkhD3s68o6PyyP4w2shCVrv9AbX11P",
+          "wallet": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
+          "amount": "0.18 SOL",
+          "at": "2026-10-24T23:13:21.000Z",
+          "note": "Funding transfer"
         },
         {
           "kind": "tx",
-          "ref": "6p1VNeZHwK2sxcUpchdxu9fBCajy6TsypY3uRNJUvDDCiErTU274PiEqtGBdp4dHxKiwhvgzbBYqjo7osKCtMexe",
-          "wallet": "s6K7RdSCibtf42RRsWS4NyJoxVF1m2Z6Hbs1JaNmmxqZ",
-          "amount": "538.72 SOL",
-          "at": "2026-10-10T12:00:05Z",
-          "note": "LP removal"
+          "ref": "2U66j7in3gdAtjExbP7y7P3uDRn11aEVrqVyxJZiNBY28o7gESA15Kh7f7KpFa6hKte9AY4F4UW3mbr4ipbm43EG",
+          "wallet": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
+          "amount": "0.18 SOL",
+          "at": "2026-10-24T23:25:27.000Z",
+          "note": "Funding transfer"
         },
         {
           "kind": "tx",
-          "ref": "58KzcST2gCG7zdnm327rAXjDeBihRntHwHfStQVpYh5rX5mMifQxy1Q1CSLGjbEaT7eH3RbweA938TJeFt5CMFgu",
-          "wallet": "iFPJu9Cf1qBYGA21DhxCStPpyBTWa4WQcVcGfc8HktHe",
-          "amount": "591.88 SOL",
-          "at": "2026-10-10T12:06:55Z",
-          "note": "Hop to intermediate"
+          "ref": "5NvakgZtTBEFMzJygVvuPQGYsHfBBLb3gzcbyxUPpHe6FBQqi6QukmdbsKgcqCEZsjmkVSa64ucWqYoqqNKHGWzu",
+          "wallet": "43eJQvDbyhgjfVjMbn4eMhSQeBhnrwFeZrx2rkP1yJdR",
+          "amount": "1,058,707 Chunkee",
+          "at": "2026-10-25T00:19:34.000Z",
+          "note": "Launch, deployer's opening buy"
         },
         {
-          "kind": "account",
-          "ref": "jEfo3sJjpUWDBKb2hXT38cFG34PAJCbFapDgLz7YiS69",
-          "wallet": "jEfo3sJjpUWDBKb2hXT38cFG34PAJCbFapDgLz7YiS69",
-          "amount": "481.54 SOL",
-          "at": "2026-10-10T12:10:19Z",
-          "note": "Bridge deposit"
+          "kind": "tx",
+          "ref": "4s1v1feyUfKD4GspRBkPCPRfF91CNudDgXfncNfwULFAzj24gy76f6y1ywXxfSDK6qAPQ4aS3rHY3wKzn16aBe86",
+          "wallet": "43eJQvDbyhgjfVjMbn4eMhSQeBhnrwFeZrx2rkP1yJdR",
+          "amount": "44,205,196 Chunkee",
+          "at": "2026-10-25T00:19:34.000Z",
+          "note": "Launch buy"
+        },
+        {
+          "kind": "tx",
+          "ref": "4s1v1feyUfKD4GspRBkPCPRfF91CNudDgXfncNfwULFAzj24gy76f6y1ywXxfSDK6qAPQ4aS3rHY3wKzn16aBe86",
+          "wallet": "43eJQvDbyhgjfVjMbn4eMhSQeBhnrwFeZrx2rkP1yJdR",
+          "amount": "22,679,954 Chunkee",
+          "at": "2026-10-25T00:19:34.000Z",
+          "note": "Launch buy"
+        },
+        {
+          "kind": "tx",
+          "ref": "5MjXBQWGoW1avhZ9Nr6K1D99Tmg1NoftPp5F3GKkjUfXG1cXhmcuYxC6iRMDrdf4kA5BvpMy1cBQgK5PZAm3h4ij",
+          "wallet": "43eJQvDbyhgjfVjMbn4eMhSQeBhnrwFeZrx2rkP1yJdR",
+          "amount": "3,169,625 Chunkee",
+          "at": "2026-10-25T00:19:34.000Z",
+          "note": "Launch buy"
+        },
+        {
+          "kind": "tx",
+          "ref": "53rC17YYQF946J3qgk9qJVfhw1q3p7XC1Dg8Qretav4fAU9yQoBGzTHCJCwKbPiFYyiUpAr8miXzNgjP9mnzsipS",
+          "wallet": "4a6RAiXSef4yZrz18DmpxtnfD338G1nFinNdseU1bHgM",
+          "amount": "45,660 Chunkee",
+          "at": "2026-10-25T00:20:08.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "4AG5sS3K6pvP4pnTpoRGYMhVgmPa9nv9oiG9yYfUXTx57EFEU9t1PxL4j1ovhiouLoW1PKn7H7gcPiVVHBTMiaNx",
+          "wallet": "CPHkWDEXHC251UHYm5gERR31AQhN2LuotzvageyZjmGx",
+          "amount": "31,012 Chunkee",
+          "at": "2026-10-25T00:20:17.000Z",
+          "note": "Sell into launch volume"
+        },
+        {
+          "kind": "tx",
+          "ref": "372CsZz6szbxauSNB63FAkKeNrbfZz7nmdT4kFNZvFD7zLwKzGFPXU7JY8uG6o2yiASDBXVnENK9tU529Zfju6DV",
+          "wallet": "FUt7xm8GSfi3Vra6yESbSk4WgnkyR2pqmqXzH6sLy5qz",
+          "amount": "17,477 Chunkee",
+          "at": "2026-10-25T00:20:20.000Z",
+          "note": "Sell into launch volume"
+        },
+        {
+          "kind": "tx",
+          "ref": "4d2sQ6gNjU1QG4XaSoCAZJBvtLqHQuQry5YK81K6dnLfBggeSmiXSUMnnGtBvfrsUxtEa6ZCf6dC5d7NYkHMhx7h",
+          "wallet": "7q4UFfn4Fk3bvxctD5HdEimkz4VKnK7ioZb1nhq2cniR",
+          "amount": "2,306 Chunkee",
+          "at": "2026-10-25T00:20:31.000Z",
+          "note": "Sell into launch volume"
+        },
+        {
+          "kind": "tx",
+          "ref": "28N1As1m7kjnYu2zmQxf1Wd82aSUNq1Wt2AqfYrKw1KXdpkBTXiQBDL169GQtiEM4Qucj9gLvNxRT481xobw8MGU",
+          "wallet": "4a6RAiXSef4yZrz18DmpxtnfD338G1nFinNdseU1bHgM",
+          "amount": "1,476,739 Chunkee",
+          "at": "2026-10-25T00:26:22.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "3yWeba8Kx1dBtw2GGEsxBBtvZN9igQ4w7VLu3Z4mi6j3Vn5xrWsxM2Xc2wRavvND5w64tiBEYgQvZVNJExcHmQpm",
+          "wallet": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
+          "amount": "376 SOL",
+          "at": "2026-10-25T18:33:57.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "2PQzVHyUzdfG4WTUjwA1NDvYg6oZRnB8FeoEJ2qZ9ybZGNQp5gzAPkuTTZg8cosHB3JitNB7B9B6AZqMZkTy22Q7",
+          "wallet": "HnPMuiaryZrsBX6hKUjGCB1UuHA5kSj2HsKLiVNQhp9V",
+          "amount": "411 SOL",
+          "at": "2026-10-25T18:52:56.000Z",
+          "note": "Hop"
         }
       ],
       "money_trail": [
         {
-          "label": "deployer",
-          "address": "WeNm00nWnDy4xW7vU1tZ5cB9nM2sE8aG3fJ6rT4yK1pQ",
-          "amount": "763 SOL"
+          "label": "funder",
+          "address": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
+          "amount": "376 SOL"
         },
         {
           "label": "hop 1",
-          "address": "WinKsrbjSJhjjovnrssTCyvuxjYc3WHNwqL9PyGNpPaS",
-          "amount": "685 SOL"
+          "address": "HnPMuiaryZrsBX6hKUjGCB1UuHA5kSj2HsKLiVNQhp9V",
+          "amount": "411 SOL"
         },
         {
           "label": "hop 2",
-          "address": "LhjRunLjWzhpF8Nso6amNUAtX8vUStCNi4a5EBgYo4BQ",
-          "amount": "644 SOL"
-        },
-        {
-          "label": "bridge",
-          "address": "XSPKcswwqZZFhuhJcjZPyf3bDWiHxqYquUvEHzJGJvTZ",
-          "amount": "595 SOL"
+          "address": "6D1AVtDyfTokxWrtf4D2q34c3hJk8Gv5SeCLB1zc8s6c",
+          "amount": ""
         }
       ],
       "narrative": [
-        "@wen_moon_wendy is on the record for $GLORP (Glorp Protocol). The case was opened on 2026-10-10 after the agent flagged pre-funded bundle at launch.",
-        "All fourteen received 2.0 SOL from the same wallet within 90 seconds, twelve minutes before the mint. All fourteen wallets bought in the launch block. Combined, 38% of supply. Sells began nine minutes after launch and completed within four minutes.",
-        "763 SOL left the first wallet. 595 SOL arrived at the last one, labelled bridge. Everything in between is in the money trail.",
+        "$Chunkee (Chunkee the Manatee) was picked by discovery (top boosted, 100 boosts). The pool opened 2026-10-25 00:19Z.",
+        "3 of the first buyers received SOL from ABNL…muyf in the 24 hours before launch. They bought in the same slot. Combined, 7% of supply. 3 of the 3 wallets sold 1 minute after launch. The deployer wallet sold 6% of supply across 44 transactions, the first 1 minute after launch.",
+        "376 SOL left funder ABNL…muyf after launch. The trail ends at hop 2 6D1A…8s6c.",
+        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
         "Convictions: 0."
       ],
       "png": "case-0001.png"
@@ -112,1344 +178,157 @@
     {
       "n": 2,
       "id": "0002",
-      "opened_at": "2026-10-10T04:38:00Z",
-      "status": "closed",
+      "opened_at": "2026-10-25T22:44:51Z",
+      "status": "open",
       "severity": "medium",
       "score": 45,
       "token": {
-        "symbol": "WAGMIFY",
-        "name": "Wagmify",
-        "mint": "rp2jPznHoMdfqGU8EAwT26sDzKDQKFrPNqiSc3NRM7Hr"
+        "symbol": "GATO",
+        "name": "GTA6CAT",
+        "mint": "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump"
       },
-      "subjects": [
-        "@rug_rachel",
-        "@bundle_bob"
-      ],
-      "headline": "$WAGMIFY did 2.1M in volume on its first day. 1.7M of it was @rug_rachel trading with @rug_rachel.",
-      "charge": "Wash volume",
+      "subjects": [],
+      "headline": "The $GATO deployer 5MVn…BLJm sold into its own pool.",
+      "charge": "Deployer bought at creation",
       "findings": [
         {
           "code": "F-01",
-          "title": "Circular transfers",
-          "detail": "Three wallets passed the same tokens between each other 412 times."
+          "title": "Deployer bought at creation",
+          "detail": "The deployer wallet took 15% of supply in the launch transaction."
         },
         {
           "code": "F-02",
-          "title": "Volume to holders ratio",
-          "detail": "Reported volume was 61x the value held by non-linked wallets."
+          "title": "Deployer sold",
+          "detail": "The deployer wallet sold 5% of supply across 3 transactions, the first 27 minutes after launch."
+        },
+        {
+          "code": "F-03",
+          "title": "Deployer distributed supply",
+          "detail": "6% of supply left the deployer wallet to 11 other wallets without a swap."
         }
       ],
       "evidence": [
         {
           "kind": "tx",
-          "ref": "FETvN7uQpU9dybC4BJkcRir9CgVKdrarCCUbDtwH5NX29duYwExWFNbDyapaGVZ7jVYPz4SBC7yVnAXGYt1iCm4H",
-          "wallet": "utqkzkA5hpqpQmsw1pEudnBoPzvQh4SyMqt8JXCywRvH",
-          "amount": "270.81 SOL",
-          "at": "2026-10-09T06:50:39Z",
-          "note": "Sell into peak"
+          "ref": "2JgEbYj5FDbmsijgSqpJ5prYX1yazkGyeifwM43eyEZ5Qw2CuUQXgXdSVTcLtu3bUiC3vRF6264ZNMB2WwC4n8ud",
+          "wallet": "6cuBZ4JurfWF1aEMfJkSbGPh33N6d1zQLfDsE9hE8pR2",
+          "amount": "151,660,777 GATO",
+          "at": "2026-08-25T12:25:53.000Z",
+          "note": "Launch, deployer's opening buy"
         },
         {
           "kind": "tx",
-          "ref": "XtPEReo4FDxwQG6MPNzvhoVrVyYnfDMAUUFT5xxUpknTQNknAzzc6KgVw6NiBSoyJ4MhuXcYK7TizFM88ZtngShH",
-          "wallet": "in4TJKugqJZ1xNzM5ooAwqabYjDAeCREao7d3EJ4mKTg",
-          "amount": "216.89 SOL",
-          "at": "2026-10-09T06:58:05Z",
-          "note": "LP removal"
+          "ref": "2M9PddcJvBCa9maCNx1vrp2Su2upRkkqLZrAJ6yiceRK22b2HD6g3r6Bapsi84LkYNpbtVJEEQzEvTaZbbnGqpL9",
+          "wallet": "5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm",
+          "amount": "50,000,000 GATO",
+          "at": "2026-08-25T12:53:17.000Z",
+          "note": "Deployer sell"
         },
         {
           "kind": "tx",
-          "ref": "jcSp17BWz9vtYb8yf7Nq8Fny1HX1JCvaSAuU9cgyn6wAXHbxNKKfc89GvR8X2z8T9YQseyWwcDgmsnhcmPovRMk7",
-          "wallet": "H6sCfadvtM5T7wT3Zd9QFc6bWp4HDBAMyQtvNQueRgvM",
-          "amount": "779.79 SOL",
-          "at": "2026-10-09T07:10:11Z",
-          "note": "Hop to intermediate"
+          "ref": "VAdTkYHACEeScAG6tJpAyA2HPJNAB7erfukcre2xZrsnrkuqVAt1prRe5VSpSyGd4bqiJ5MXNZG9hJfx6U1UqG9",
+          "wallet": "5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm",
+          "amount": "140,000 GATO",
+          "at": "2026-08-27T21:06:38.000Z",
+          "note": "Deployer sell"
         },
         {
           "kind": "tx",
-          "ref": "JMUgD9HiQU8DV17qPwic7dGQxKRrenePLoHVbaAaPv4hXwExB9UGgpvxpQtrmie7rzEnXC4ZbGJEjtuvTYbgmFau",
-          "wallet": "jFq66YSWWz9eh8gJSktUo2KaYAWM1gyB6WiCbZ5bXik4",
-          "amount": "296.93 SOL",
-          "at": "2026-10-09T07:20:26Z",
-          "note": "Bridge deposit"
+          "ref": "2ShhFaXrR4Ygvbw2xQdteraqebUy17NW7n9WFr8TaPk6RRWKUAcpP24ygqfmh9EnNPupmipFCn6YBCPoLjLdTg2f",
+          "wallet": "BB81cC1cS1DGBqyEPGHNnhPFQ3YWdfJWQ3JGuruuNZhv",
+          "amount": "21.00 SOL",
+          "at": "2026-10-21T01:03:59.000Z",
+          "note": "Hop"
         },
         {
           "kind": "tx",
-          "ref": "nUzMVxHqMB2wbR6T2LkQLDXShFRMKq85vVH4j97KfNyNGZwvWx34zLb28vqfqS2rvhH3hM6mmpTbfn3RKyTq51YW",
-          "wallet": "M7e4fnYFdEi1TiCNKxDvELhoS4zFFqvUNZJdAFNxgaaS",
-          "amount": "264.52 SOL",
-          "at": "2026-10-09T07:26:55Z",
-          "note": "Circular transfer"
+          "ref": "t196rhrnLDJTYWsmZepTS4c8u3uLEV3My3NB6kRFFRCpN8thd47duu46ZdCtk7xo3N9U8rS2SLac85Hhac8jvVQ",
+          "wallet": "FcYBdKzh1Pjh26MJTrFpu1QrCcuG34GyBjJe7pTQBXs3",
+          "amount": "58.00 SOL",
+          "at": "2026-10-22T20:10:17.000Z",
+          "note": "Hop"
         },
         {
-          "kind": "account",
-          "ref": "JBVQt3GCotScThXRPXCLm28RfM6xbFedkDSDZqo3eu14",
-          "wallet": "JBVQt3GCotScThXRPXCLm28RfM6xbFedkDSDZqo3eu14",
-          "amount": "413.40 SOL",
-          "at": "2026-10-09T07:39:11Z",
-          "note": "Pre-post accumulation"
+          "kind": "tx",
+          "ref": "3iPoxnvNMFiMbBNKZ2NRdsnKntxS3YjaYWw44i9tATY8BqisUj3DY9BUdu45GJYPPYiu7F4ijc2Zt9362VDy3mJv",
+          "wallet": "HhGS6tZMxcNb4JdfeMcvr8yiaFDYNGyfT17ix7pM1iC9",
+          "amount": "17.60 SOL",
+          "at": "2026-10-22T20:41:16.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "ZVeCZJkjSn4xohiP9o7LeLiz3LoHWu3RtPVLd4vVSJXWVrv5rYqddrA887HL5pntkMXB27gti16wWkfwG6ptGKJ",
+          "wallet": "5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm",
+          "amount": "100 SOL",
+          "at": "2026-10-23T16:00:58.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "26dqN4BcfSdncX3CeCwzfwu7ja8tsiRMPvqxkavCCY2aweDwNf4LxF6LKcjgrpxnAHt4QFhvnb7ZQCiwAuhQ6gXA",
+          "wallet": "EPtmLUzuQK3TPEcW6xbVjGCLiT3JCBjSTNBt2bwynSZx",
+          "amount": "23.00 SOL",
+          "at": "2026-10-24T19:26:43.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "5phipZD3bG8SE1GdNWTn7RNvpBop57uVruwvCqfrUkmpzUdssf1Nx7QS2srevENKNmtB5s8PuiskKiWPPGaT8EW",
+          "wallet": "5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm",
+          "amount": "5,000,000 GATO",
+          "at": "2026-10-25T22:10:50.000Z",
+          "note": "Deployer transfer out"
+        },
+        {
+          "kind": "tx",
+          "ref": "3Jk3qSaqLuTEszHWg3nsVPatn7rKxjUcN7Q9XER7DLpP93KtW1eM1JZ7K4bSZTxVG1ZV2vy6WcgC6aNrshZMkdXw",
+          "wallet": "5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm",
+          "amount": "5,000,000 GATO",
+          "at": "2026-10-25T22:16:25.000Z",
+          "note": "Deployer transfer out"
         }
       ],
       "money_trail": [
         {
           "label": "deployer",
-          "address": "5KU99rPvHSEQWWeWY4cTWruopsLGJXTcwvSgPmBfFQda",
-          "amount": "1618 SOL"
+          "address": "5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm",
+          "amount": "100 SOL"
         },
         {
           "label": "hop 1",
-          "address": "WN6R2pNFvuYvUD3vPSeXfLXaQF2FSpc5cimZgaLsenXH",
-          "amount": "1558 SOL"
+          "address": "FcYBdKzh1Pjh26MJTrFpu1QrCcuG34GyBjJe7pTQBXs3",
+          "amount": "58.00 SOL"
         },
         {
-          "label": "cex deposit",
-          "address": "znnz3yQ8s6ac4yBWb1adUN1YJg1UfwBC4QrEjWbAhbi8",
-          "amount": "1367 SOL"
+          "label": "hop 2",
+          "address": "EPtmLUzuQK3TPEcW6xbVjGCLiT3JCBjSTNBt2bwynSZx",
+          "amount": "23.00 SOL"
+        },
+        {
+          "label": "hop 3",
+          "address": "HhGS6tZMxcNb4JdfeMcvr8yiaFDYNGyfT17ix7pM1iC9",
+          "amount": "17.60 SOL"
+        },
+        {
+          "label": "hop 4",
+          "address": "BB81cC1cS1DGBqyEPGHNnhPFQ3YWdfJWQ3JGuruuNZhv",
+          "amount": "21.00 SOL"
+        },
+        {
+          "label": "hop 5",
+          "address": "9DfuscfG2prLcTvLokgf2aMxwrJdFgnSuZfzoScPmx46",
+          "amount": ""
         }
       ],
       "narrative": [
-        "@rug_rachel is on the record for $WAGMIFY (Wagmify). The case was opened on 2026-10-10 after the agent flagged wash volume.",
-        "Three wallets passed the same tokens between each other 412 times. Reported volume was 61x the value held by non-linked wallets.",
-        "1618 SOL left the first wallet. 1367 SOL arrived at the last one, labelled cex deposit. Everything in between is in the money trail.",
+        "$GATO (GTA6CAT) was picked by discovery (top boosted, 100 boosts). The pool opened 2026-08-25 12:25Z.",
+        "The deployer wallet took 15% of supply in the launch transaction. The deployer wallet sold 5% of supply across 3 transactions, the first 27 minutes after launch. 6% of supply left the deployer wallet to 11 other wallets without a swap.",
+        "100 SOL left deployer 5MVn…BLJm after launch. The trail ends at hop 5 9Dfu…mx46.",
+        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
         "Convictions: 0."
       ],
       "png": "case-0002.png"
-    },
-    {
-      "n": 3,
-      "id": "0003",
-      "opened_at": "2026-10-13T17:38:00Z",
-      "status": "open",
-      "severity": "critical",
-      "score": 92,
-      "token": {
-        "symbol": "SNIFF",
-        "name": "Sniff Finance",
-        "mint": "tzPX54Y1Z5Q8gKTkKwg6paw1qFTqjbrASvtZMr6zbznW"
-      },
-      "subjects": [
-        "@sniperbot_ceo"
-      ],
-      "headline": "Liquidity for $SNIFF was removed at 03:12. @sniperbot_ceo posted \"still here\" at 03:40.",
-      "charge": "Liquidity pulled",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "LP tokens never burned",
-          "detail": "The deployer kept the LP tokens despite the launch post saying otherwise."
-        },
-        {
-          "code": "F-02",
-          "title": "Removal in one transaction",
-          "detail": "All pooled SOL left the pool in a single instruction."
-        },
-        {
-          "code": "F-03",
-          "title": "Proceeds bridged within the hour",
-          "detail": "The SOL moved through two hops to a bridge deposit address."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "7qyyfdkz94afCzBqvFnYZmunLhjr5n6guHMu6pWNiKKv47XJSacZRH5uLPRumLNsY7gLSaJ6kBJ4J6rwdNDh5eQq",
-          "wallet": "SnIpErB0t5cE0xW9vU2tZ8cB3nM6sE1aG4fJ7rT5yK2p",
-          "amount": "108.09 SOL",
-          "at": "2026-10-12T15:43:15Z",
-          "note": "LP removal"
-        },
-        {
-          "kind": "tx",
-          "ref": "37HwJXc3Zf2mjvdxuv5tBCfs5QXwSdfMM9trUhw4aEZYhQDwax7fKHEgoKRfPhugYb3vjwuTzJ2D9yTVVRF6Grok",
-          "wallet": "gbZxZCoCjy3nwtyvDk7eqGjVBqEXxUSRXjZ1vjjue9HT",
-          "amount": "397.19 SOL",
-          "at": "2026-10-12T15:54:14Z",
-          "note": "Hop to intermediate"
-        },
-        {
-          "kind": "tx",
-          "ref": "ngvZSJosTVxL7NHHhR36NSPeUu8RTMd5xZtGtyPUgSGQXeBmchf2qX7EHF1jH51DhDKk2KV1VEkiZ8iD6RUyVXAE",
-          "wallet": "KRTdi8FzaA6CvP4uPLG25xAATAWqyPy1wBi6MBMHnyR2",
-          "amount": "244.79 SOL",
-          "at": "2026-10-12T15:57:26Z",
-          "note": "Bridge deposit"
-        },
-        {
-          "kind": "tx",
-          "ref": "N5h5LmSRnyuUHTxVgGwAH7TA5dQ6SZp4CXXea637fQpui9BhUL7qtSFqJZhGmeAz3vLhJsqX1JMD9h3w5L8D4Ave",
-          "wallet": "suMmJN4ZzQL31THFYMXFqRcVW1Xmepi8tQpU2nYLkP5E",
-          "amount": "560.62 SOL",
-          "at": "2026-10-12T16:03:57Z",
-          "note": "Circular transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "dwKNaotFmp45nsRVHZfPqdpjTvgaA2c5Uh9mSwcDrQj6TFMhuqDhdZ25TxZKMch29ye8oyEUxtwnLBb1qotvqUPS",
-          "wallet": "wnrQLzU63qr8b5g351gztVAopsUDhZLbACLFZocNwcrm",
-          "amount": "885.86 SOL",
-          "at": "2026-10-12T16:13:46Z",
-          "note": "Pre-post accumulation"
-        },
-        {
-          "kind": "tx",
-          "ref": "Bt2NfYqpiVMRE8NbqaWRnHJwxQnEGB5wwbNgynAEntC8ZowKZmC4zioSnQnV4ME1cpoa28nnP23mw7XthZBXvXn1",
-          "wallet": "wp7csa3bf1mhQ7SiLU9esXHM7Nt1uab2TSbCqtoBLkJL",
-          "amount": "471.13 SOL",
-          "at": "2026-10-12T16:14:51Z",
-          "note": "Allocation split"
-        },
-        {
-          "kind": "tx",
-          "ref": "T7scqY3iaqjARS7h1g7f9fsesdvudLFtvhhCbDgzF7k6NcVE383fj4fb46ARZdHzxPhax7CYB6vaYrZuyJovW8Am",
-          "wallet": "zW2x7xJjoGi4rUoFR2K5394Fgk2FC7in3RErhSwehuNJ",
-          "amount": "764.66 SOL",
-          "at": "2026-10-12T16:17:37Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "ztkEcPXYQDLnW5wfEXS2WkVFbZ7dQFdek7YATnugUsCqjaAhoRG9EuWtVotyYV5eXiAbrTwfndzJcHbVV3B5kXuT",
-          "wallet": "EFKy19XX7C89qaywuJxGLEpKJpoFRnv1AfCRwsWNbVeD",
-          "amount": "882.38 SOL",
-          "at": "2026-10-12T16:20:43Z",
-          "note": "Launch-block buy"
-        },
-        {
-          "kind": "account",
-          "ref": "weDWXEQHgYoufV6DCs74MRtiBeK2SX4qdCRBmgoWv4y9",
-          "wallet": "weDWXEQHgYoufV6DCs74MRtiBeK2SX4qdCRBmgoWv4y9",
-          "amount": "512.97 SOL",
-          "at": "2026-10-12T16:35:19Z",
-          "note": "Sell into peak"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "SnIpErB0t5cE0xW9vU2tZ8cB3nM6sE1aG4fJ7rT5yK2p",
-          "amount": "1655 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "4289uDrMyQ7GdiKtffLqAgQFCTB8QAGYtb7LawGx1m4V",
-          "amount": "1563 SOL"
-        },
-        {
-          "label": "cex deposit",
-          "address": "noBDDnrj2R3SJQqS34CNcNjSPojp29pVkB86orB2Hjxy",
-          "amount": "1383 SOL"
-        }
-      ],
-      "narrative": [
-        "@sniperbot_ceo is on the record for $SNIFF (Sniff Finance). The case was opened on 2026-10-13 after the agent flagged liquidity pulled.",
-        "The deployer kept the LP tokens despite the launch post saying otherwise. All pooled SOL left the pool in a single instruction. The SOL moved through two hops to a bridge deposit address.",
-        "1655 SOL left the first wallet. 1383 SOL arrived at the last one, labelled cex deposit. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0003.png"
-    },
-    {
-      "n": 4,
-      "id": "0004",
-      "opened_at": "2026-10-18T10:38:00Z",
-      "status": "open",
-      "severity": "medium",
-      "score": 50,
-      "token": {
-        "symbol": "BONKLET",
-        "name": "Bonklet",
-        "mint": "dq3YcYcXrkUdKR8oDmASrmbbtLmXaWuJLDzhiGqzB3dW"
-      },
-      "subjects": [
-        "@kol_kevin"
-      ],
-      "headline": "@kol_kevin called $BONKLET a \"generational entry\". @kol_kevin sold the top 22 minutes later.",
-      "charge": "Shill and sell",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "Position opened before the post",
-          "detail": "The linked wallet bought 4.2% of supply 31 minutes before the post went up."
-        },
-        {
-          "code": "F-02",
-          "title": "Sold into the post",
-          "detail": "Sells began at the volume peak that followed the post."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "zyAQm4DXRFxLd1BzGcHEQLteAkaCpSjhWrpFUbD4Fe7NGjRdxPbyknrxpC8BKK4HRbxxXucyjc6ZoNSLftWPDFUi",
-          "wallet": "KoLkEv1n3xW8vU5tZ7cB2nM9sE4aG1fJ8rT6yK3pQ5wR",
-          "amount": "319.06 SOL",
-          "at": "2026-10-18T07:38:24Z",
-          "note": "Hop to intermediate"
-        },
-        {
-          "kind": "tx",
-          "ref": "JFfoFGcw2x6rS8uUXd2tcttSVJrK3w3NFDQuLAub9RcqCcQKcQKAM9AEk3P6cswA8s8F2pgUZpgpBspL6pFGqYU6",
-          "wallet": "XzC9BMFGhBsttLoZi5Cj6izxjXJZk8LCx9H4kWriR6Ad",
-          "amount": "726.85 SOL",
-          "at": "2026-10-18T07:41:57Z",
-          "note": "Bridge deposit"
-        },
-        {
-          "kind": "tx",
-          "ref": "ew2dLSCMzXNB9WkGSFzBQc43PmxaXVWiCdi5nisNRnGiNV1mmPjofwgw3g4LwcCPx6hCXsRT5qhzZJNqkiKDj1sK",
-          "wallet": "XK4P5rJsssKTKYDmU1gZVMTbKvjzsw4q44wiaYkKX39B",
-          "amount": "150.55 SOL",
-          "at": "2026-10-18T07:50:02Z",
-          "note": "Circular transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "SzxGcZGUvm2cr3qycgUuQfgsGAnqfoPRdPZbw4rabUfvaQyXPxzFM8zRbNV81wcxoDwUCMBcUmdpPUppiJzhvGyF",
-          "wallet": "Zvg1q4zzkU9LkLJDbrYqQsRBdRez7wX7RingzLBqfmis",
-          "amount": "796.62 SOL",
-          "at": "2026-10-18T08:04:45Z",
-          "note": "Pre-post accumulation"
-        },
-        {
-          "kind": "tx",
-          "ref": "m658jr77jw9m5UG5yT3SMEpCHx6ZpbqwxFzduH7Y6tJLoKevsxU5WKz77fFfjiuL7VSJo9m46JzFXkDA4sAg35Ri",
-          "wallet": "XvecUY2oxYTcymn2LLDGoazTWjXYjufgfvT41Tc2pvja",
-          "amount": "223.48 SOL",
-          "at": "2026-10-18T08:08:12Z",
-          "note": "Allocation split"
-        },
-        {
-          "kind": "tx",
-          "ref": "3FiVvg3zSz9mE8mREaFpJiHouFEKyC5oz1mvMwo6kxdxxkd7mpEzv5mThTPK3YjrV9JQyb9fAdap8izenDxw3AAZ",
-          "wallet": "DyqryKucfyBSwKkqV3zZ4CZVLx3RGEDKGPnT6t2gnBZK",
-          "amount": "572.63 SOL",
-          "at": "2026-10-18T08:21:25Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "account",
-          "ref": "ufHSXtw4Ls1SQXw6gKRfmXzEWRayRkeLLAyzBmnFNBHo",
-          "wallet": "ufHSXtw4Ls1SQXw6gKRfmXzEWRayRkeLLAyzBmnFNBHo",
-          "amount": "445.41 SOL",
-          "at": "2026-10-18T08:27:36Z",
-          "note": "Launch-block buy"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "KoLkEv1n3xW8vU5tZ7cB2nM9sE4aG1fJ8rT6yK3pQ5wR",
-          "amount": "2384 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "e8SizyZ83nDKyPzAsa39yZ4Mdv5nHYQfwMaCSih5QeFv",
-          "amount": "2116 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "8WxQaanPF3DJC92JpHJMUZzCosUzzL2wAZNqaXvtd8aH",
-          "amount": "2043 SOL"
-        },
-        {
-          "label": "cex deposit",
-          "address": "ssXNUKNDKG5nxyVLiy3oGtX6tcbjdcd51EeywKNn4FdQ",
-          "amount": "1816 SOL"
-        }
-      ],
-      "narrative": [
-        "@kol_kevin is on the record for $BONKLET (Bonklet). The case was opened on 2026-10-18 after the agent flagged shill and sell.",
-        "The linked wallet bought 4.2% of supply 31 minutes before the post went up. Sells began at the volume peak that followed the post.",
-        "2384 SOL left the first wallet. 1816 SOL arrived at the last one, labelled cex deposit. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0004.png"
-    },
-    {
-      "n": 5,
-      "id": "0005",
-      "opened_at": "2026-10-13T11:38:00Z",
-      "status": "open",
-      "severity": "high",
-      "score": 72,
-      "token": {
-        "symbol": "YOLOX",
-        "name": "YoloX",
-        "mint": "ZLjMuPhtsdrvkx8fZcHU3tccHkBgRUN4FcoAVxxHSX4H"
-      },
-      "subjects": [
-        "@larp_capital",
-        "@kol_kevin"
-      ],
-      "headline": "The $YOLOX dev allocation was \"locked for a year\". It moved on day three.",
-      "charge": "Dev wallet dump",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "No lock contract",
-          "detail": "The allocation sat in a plain wallet. There was never a lock."
-        },
-        {
-          "code": "F-02",
-          "title": "Split and sold",
-          "detail": "The allocation went to six wallets, each of which sold over two hours."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "X9VpK2TdYfF9Gz6nfFBJyYaVH8qbtkQFJ4fouLif5sc6uPx4jcEFNAkU96dWPFjcE9eP4sFREHwKZULExzygZZ1W",
-          "wallet": "LaRpC4p1tAL9xW2vU8tZ3cB6nM1sE5aG7fJ4rT2yK9pQ",
-          "amount": "439.32 SOL",
-          "at": "2026-10-12T14:47:47Z",
-          "note": "Bridge deposit"
-        },
-        {
-          "kind": "tx",
-          "ref": "JzBePorucGKwDnvq5GBgemvdtWiBKjZq6wx2G542M287nHDfaS9DK5L2MuAuxMTAZANwaBHbRhiDByFn94DXTQAC",
-          "wallet": "pdthUKvm294enTe4FhA8vjPCXyYHG4i8TgddYGbeUYCf",
-          "amount": "432.80 SOL",
-          "at": "2026-10-12T14:55:32Z",
-          "note": "Circular transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "cb1JHM3Rs1sh5QZydJzfiVUinjjUqeBo3QpYvg6FhGuEpc9htZgJnGt2SVsc68vjxmDpmfFSLhmA6uoVwhN2Uyej",
-          "wallet": "CwHXpVLBKhDKmHrfZ4F6HvKw4RKcVBjZ9yP8UTWkFto7",
-          "amount": "151.40 SOL",
-          "at": "2026-10-12T15:06:18Z",
-          "note": "Pre-post accumulation"
-        },
-        {
-          "kind": "tx",
-          "ref": "qLqLuaJrVutxvMo2dr73piGC2St4ucPK9QjLjybX8UrvefxLHgZeB5DM3MuU95Xx6ain2NTJ4J25VsctJ5wM8Tet",
-          "wallet": "MsjEAR1ReuBXj45Dubv21UEzNaZjX253AEuuyP9HfujS",
-          "amount": "213.83 SOL",
-          "at": "2026-10-12T15:08:57Z",
-          "note": "Allocation split"
-        },
-        {
-          "kind": "tx",
-          "ref": "G65btf23TT9kK3smm5zbwkZNMjr7A8gsLmMiACy91gpnWEJnDheCnv4xUX6s2CdJfZjEx8W4gx9VMoCbSX7BymHA",
-          "wallet": "zb9pHSy3xpEghwLgvTNugkPtD2zgKvkGZWLydriwExDf",
-          "amount": "664.36 SOL",
-          "at": "2026-10-12T15:10:09Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "v8EtiRusGkD68L48wPHVGeBunsz9RLv5sSzNWMqDugL8F3dpNUWTfstX5NBusM9pE4iL5RhLbv5hYNvx2Pda1GRy",
-          "wallet": "VAU93nTUt5jZD7XE33ssoTQgGmyzz6HLk76AmkBAm8F5",
-          "amount": "409.97 SOL",
-          "at": "2026-10-12T15:13:16Z",
-          "note": "Launch-block buy"
-        },
-        {
-          "kind": "account",
-          "ref": "ao3iVkQ8quARNZ5ug42Yxbd26mcoT84sCqSBVmSwriFL",
-          "wallet": "ao3iVkQ8quARNZ5ug42Yxbd26mcoT84sCqSBVmSwriFL",
-          "amount": "272.42 SOL",
-          "at": "2026-10-12T15:17:43Z",
-          "note": "Sell into peak"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "LaRpC4p1tAL9xW2vU8tZ3cB6nM1sE5aG7fJ4rT2yK9pQ",
-          "amount": "340 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "pkZpoJu651wSMJUcnfHWRwN4HRsvZagPyFszuytPhPcF",
-          "amount": "309 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "avtksBp1vukC5RJvhkerizRuHcRkxAo85CYUwLCswMHo",
-          "amount": "289 SOL"
-        },
-        {
-          "label": "cex deposit",
-          "address": "FTWdpZNHSGT69NmQozLU2V5R61Ki3yUyuGb2i81B6iKP",
-          "amount": "256 SOL"
-        }
-      ],
-      "narrative": [
-        "@larp_capital is on the record for $YOLOX (YoloX). The case was opened on 2026-10-13 after the agent flagged dev wallet dump.",
-        "The allocation sat in a plain wallet. There was never a lock. The allocation went to six wallets, each of which sold over two hours.",
-        "340 SOL left the first wallet. 256 SOL arrived at the last one, labelled cex deposit. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0005.png"
-    },
-    {
-      "n": 6,
-      "id": "0006",
-      "opened_at": "2026-10-14T08:38:00Z",
-      "status": "open",
-      "severity": "low",
-      "score": 24,
-      "token": {
-        "symbol": "RUGGLE",
-        "name": "Ruggle",
-        "mint": "515aZWGRBaVhXFuJhNWA6inJgC1pvmhJYJPAsKPArJvC"
-      },
-      "subjects": [
-        "@bundle_bob",
-        "@wen_moon_wendy"
-      ],
-      "headline": "@bundle_bob bought $RUGGLE 400 ms after the pool opened. From the pool creator's funding wallet.",
-      "charge": "Sniper bot front-run",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "Funding link",
-          "detail": "The sniping wallet was funded by the wallet that funded the pool creator."
-        },
-        {
-          "code": "F-02",
-          "title": "Sub-second entry",
-          "detail": "First buy landed in the same slot as the pool initialisation."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "9v2nmh4qqZvbkmeESaNAASU4u69WMDbSykSddwyPf8GwJhSvTqkFd4kfwyvM6of5VwVapsrSk78bQ12eU3WuuGmj",
-          "wallet": "BuNdLeB0b7xW4vU9tZ2cB5nM8sE3aG6fJ1rT7yK4pQ2w",
-          "amount": "741.06 SOL",
-          "at": "2026-10-14T01:47:11Z",
-          "note": "Circular transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "R8SsGD4o5NcvqnrtBiFdSKmdwiHB2sqkG4zHMuJnqNf9MkWKat7VBvJDCUSZLvADrbT3JhE3JJCbsYQByJvFsPfB",
-          "wallet": "MWz8MKg3hrUNuvg6jrz221gasMP9DaVtvqpSiDMyFGkq",
-          "amount": "704.19 SOL",
-          "at": "2026-10-14T01:48:52Z",
-          "note": "Pre-post accumulation"
-        },
-        {
-          "kind": "tx",
-          "ref": "r6onbAm36VqnXJwVLYJ2HXUJJvdj1WjpRQWAaR8CPE2xzKanFrwssRHmXXf8e7CAQdjAZiUcdEys8g8BdXE7tczE",
-          "wallet": "Tm5LUtxtsCYtKRVVxvfXaxDddL5aabxFi2FffEa1eU1X",
-          "amount": "400.18 SOL",
-          "at": "2026-10-14T01:59:26Z",
-          "note": "Allocation split"
-        },
-        {
-          "kind": "tx",
-          "ref": "iWxjepz3tdA2wY8VZSaqfnG49U5MLraQQw3hi1HJYCM4dvsyPT6HZDwH9tfpw8gR7RAHwJM2XJvwevYx3no4pB2V",
-          "wallet": "fwzxf1f93H99fArew6X84aBo43A3yzutnVtcih18gGjx",
-          "amount": "411.93 SOL",
-          "at": "2026-10-14T02:03:54Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "R6Y2a7nxoPqoamLjw1bR2YwQbXeBeLBEudw3D1u7SasATQ6yXgMQez51mtNhQYZo76qTRouT4PdwBN8s7YTjZord",
-          "wallet": "3CwtTudBuXp9htnFbyCN9sPVgPyKRGBchXmQ22AwBCfW",
-          "amount": "274.68 SOL",
-          "at": "2026-10-14T02:10:22Z",
-          "note": "Launch-block buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "WggGgQEumQaD1fE4XKfW13raBPqo1wmW2CgbY22n9H77ztp1ywrrZ9AuKrQehfbXSwHGGyyo7E342BWnLa3Phxh9",
-          "wallet": "zwWmeDWVTxBLJQdZ2kkDKUhM3wXzPLkb7GnxbK8hj7H3",
-          "amount": "90.85 SOL",
-          "at": "2026-10-14T02:15:33Z",
-          "note": "Sell into peak"
-        },
-        {
-          "kind": "account",
-          "ref": "rKUrfbTotaDaNakQzf2vvvdtULdmkeU3KYmWRXNr3qFj",
-          "wallet": "rKUrfbTotaDaNakQzf2vvvdtULdmkeU3KYmWRXNr3qFj",
-          "amount": "144.66 SOL",
-          "at": "2026-10-14T02:25:44Z",
-          "note": "LP removal"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "BuNdLeB0b7xW4vU9tZ2cB5nM8sE3aG6fJ1rT7yK4pQ2w",
-          "amount": "1794 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "nyE56YaEBMBWgs8Hshakb1ZChmkgrbw3BR5G7L3KabP7",
-          "amount": "1621 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "xZ8Kp8RF2Hiz19cXXo1GLN7GZFFyPPSxcHvAYJ2Tnx8g",
-          "amount": "1453 SOL"
-        },
-        {
-          "label": "bridge",
-          "address": "GpNn4GHYRMYfiRcbXbwnvEiueGS2SEieHHnde8Y2g4TR",
-          "amount": "1424 SOL"
-        }
-      ],
-      "narrative": [
-        "@bundle_bob is on the record for $RUGGLE (Ruggle). The case was opened on 2026-10-14 after the agent flagged sniper bot front-run.",
-        "The sniping wallet was funded by the wallet that funded the pool creator. First buy landed in the same slot as the pool initialisation.",
-        "1794 SOL left the first wallet. 1424 SOL arrived at the last one, labelled bridge. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0006.png"
-    },
-    {
-      "n": 7,
-      "id": "0007",
-      "opened_at": "2026-10-19T18:38:00Z",
-      "status": "open",
-      "severity": "critical",
-      "score": 95,
-      "token": {
-        "symbol": "DUSTCOIN",
-        "name": "Dust",
-        "mint": "pC7Ke1T3zQJYknGxqKaUJRsXhdWW5RnoGu16jopHNWcq"
-      },
-      "subjects": [
-        "@deployer_dan"
-      ],
-      "headline": "@deployer_dan funded 14 wallets before $DUSTCOIN launched. They bought in the same block.",
-      "charge": "Pre-funded bundle at launch",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "Fourteen wallets funded from one source",
-          "detail": "All fourteen received 2.0 SOL from the same wallet within 90 seconds, twelve minutes before the mint."
-        },
-        {
-          "code": "F-02",
-          "title": "Same-block buys",
-          "detail": "All fourteen wallets bought in the launch block. Combined, 38% of supply."
-        },
-        {
-          "code": "F-03",
-          "title": "Coordinated exit",
-          "detail": "Sells began nine minutes after launch and completed within four minutes."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "wj1TJN5BkDuUg8d9YDfmpErYMLUmADcLbLnv6wZYKA38J7ieMrszeCk94p2nohoYPsryJXAcuqptCgbLzAKf7W5p",
-          "wallet": "DnDpLy3rHq8kWv2xU6tZcB1nM4sE9aG7fJ5rT8yK2pQw",
-          "amount": "16.84 SOL",
-          "at": "2026-10-19T12:47:11Z",
-          "note": "Pre-post accumulation"
-        },
-        {
-          "kind": "tx",
-          "ref": "ig3Rc5Rwn63SuNMsCWNHhdaiewv4c7y1svfH8VFXZtvHYBDhT1ARu5TjqdVjmVdFuzMGxXnuUc5cXnbQec5Tqfsw",
-          "wallet": "hFwKD2FAhgJTHLetnSvD4MY7PdjQScDx2MdpUt8qCpon",
-          "amount": "665.72 SOL",
-          "at": "2026-10-19T12:48:07Z",
-          "note": "Allocation split"
-        },
-        {
-          "kind": "tx",
-          "ref": "D4eGZyT8aachVFGSybSn7onXvQoQBrPjY9AKPm5FsKeiydsBXaYbuGAsB54iB7h6f5rCT5wuaT1b6wf75TLtyMUs",
-          "wallet": "YyvCJ8zCrbk35jfjayeh8uqV5HCEuT6SjrA5WNgxnSKz",
-          "amount": "543.60 SOL",
-          "at": "2026-10-19T12:50:18Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "GPSQLAmi9U5JNNTGWKkTAT1q5G87EwvDKjjv4A74oBE8FsqoFNvgnFpBxhYhihAECYURXvg3tHDDqwiuJd3uZDwt",
-          "wallet": "MA1uaH6iWCKrCpK8Cogv6qBsJWCxPz8u7xE8LEqZxr1X",
-          "amount": "342.49 SOL",
-          "at": "2026-10-19T13:02:00Z",
-          "note": "Launch-block buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "9QDRkqEmfWAx9daeQXSywVNNvrJZHiszVaauVJTM5tvKjKwX2MsCNyDbapJjshZrzuXbmRy48jiJMQtnmyftz4mf",
-          "wallet": "z9VbPP1zbfpHbG2wxTbkkHmZhKQevsRyu83ntR9i3z7B",
-          "amount": "127.76 SOL",
-          "at": "2026-10-19T13:11:43Z",
-          "note": "Sell into peak"
-        },
-        {
-          "kind": "tx",
-          "ref": "dPNqXT6rNNtDXxf8sTy1Q2MNzZ1dWu68gozus5t32byEBBanKgqn721WgeYF6ZXvRfDThMnZeEZVgx6Lk1MxPaaQ",
-          "wallet": "DJjzXSdakyhtFJPaLt1itPoKtPn3VhQfWF5oC6RdNDwr",
-          "amount": "104.95 SOL",
-          "at": "2026-10-19T13:23:22Z",
-          "note": "LP removal"
-        },
-        {
-          "kind": "tx",
-          "ref": "S7Phx68mDRCb2DDz7uVR17gEaVnpzHQthdFnnCJykooFr4TshyY6r6NrJ77A9fcpRatQQqmhSFCJrQPkQz37LhJo",
-          "wallet": "95ss76kiURQSY5cvrFHNTEaydsupPTTy6nuoLeJf14GU",
-          "amount": "721.03 SOL",
-          "at": "2026-10-19T13:23:46Z",
-          "note": "Hop to intermediate"
-        },
-        {
-          "kind": "account",
-          "ref": "R3x5jueRNXfQZYTM2g5EBBhpMRspfpsYPEd2apsWSXbR",
-          "wallet": "R3x5jueRNXfQZYTM2g5EBBhpMRspfpsYPEd2apsWSXbR",
-          "amount": "439.22 SOL",
-          "at": "2026-10-19T13:38:26Z",
-          "note": "Bridge deposit"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "DnDpLy3rHq8kWv2xU6tZcB1nM4sE9aG7fJ5rT8yK2pQw",
-          "amount": "1925 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "RywWYFbu3z4YVnUncdN4K2CbBsRi3c4J6HdU7kSEnq5D",
-          "amount": "1656 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "sAXHRyPXaoKGLL8GQnh5UaYSPsnACWcvFgsUmB2dHsYE",
-          "amount": "1540 SOL"
-        },
-        {
-          "label": "hop 3",
-          "address": "DNMNiDU265yZnyK3xCRNMXq8UYcg3nQ7TbGhidCSg2Rt",
-          "amount": "1336 SOL"
-        },
-        {
-          "label": "cex deposit",
-          "address": "99VSc3BCAvHZ3cG3FKYDfBhrxRBmBbJrH5gHZNRDDCxg",
-          "amount": "1233 SOL"
-        }
-      ],
-      "narrative": [
-        "@deployer_dan is on the record for $DUSTCOIN (Dust). The case was opened on 2026-10-19 after the agent flagged pre-funded bundle at launch.",
-        "All fourteen received 2.0 SOL from the same wallet within 90 seconds, twelve minutes before the mint. All fourteen wallets bought in the launch block. Combined, 38% of supply. Sells began nine minutes after launch and completed within four minutes.",
-        "1925 SOL left the first wallet. 1233 SOL arrived at the last one, labelled cex deposit. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0007.png"
-    },
-    {
-      "n": 8,
-      "id": "0008",
-      "opened_at": "2026-10-20T14:38:00Z",
-      "status": "open",
-      "severity": "medium",
-      "score": 45,
-      "token": {
-        "symbol": "PUMPKIN",
-        "name": "Pumpkin Spice",
-        "mint": "DNdq2xUK6eWq8hWGLVTJqW7p1rckhVAum9LugRPzLWHQ"
-      },
-      "subjects": [
-        "@wen_moon_wendy",
-        "@rug_rachel"
-      ],
-      "headline": "$PUMPKIN did 2.1M in volume on its first day. 1.7M of it was @wen_moon_wendy trading with @wen_moon_wendy.",
-      "charge": "Wash volume",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "Circular transfers",
-          "detail": "Three wallets passed the same tokens between each other 412 times."
-        },
-        {
-          "code": "F-02",
-          "title": "Volume to holders ratio",
-          "detail": "Reported volume was 61x the value held by non-linked wallets."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "9QTaPuLP495nt7WkVWHZKUAA9bAL5WZh9nYeRMWedLzPaFvBdVc6oQ7uYL8mWEnGwavQxG2AwZAa7XSUWa8ZMSoo",
-          "wallet": "WeNm00nWnDy4xW7vU1tZ5cB9nM2sE8aG3fJ6rT4yK1pQ",
-          "amount": "584.92 SOL",
-          "at": "2026-10-19T16:42:04Z",
-          "note": "Allocation split"
-        },
-        {
-          "kind": "tx",
-          "ref": "caXLSWShRatBHKFfgrQ4fqLmkLsg4UtsNzLJDZvmjAKGtjqAKxLkW3Gmj4m8b2eSPpMMpSiFp8LfebKFoHm2Zbyp",
-          "wallet": "dCmmapiDQvj5k3P3P5BvYjTVoLyrebsyJrEh2kT7c7UB",
-          "amount": "97.69 SOL",
-          "at": "2026-10-19T16:46:36Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "vkfbXohREPmLFcu2dpTMKLRNP1wobx4VZYE3LdRds3MjhwftejxAMnD7U6ZoRRg3tNpETTowtbtWarrX5WHvkeQg",
-          "wallet": "bBurN76J8KtjQU75LodtGxyDgZbRiTegTtAWpbv49pJJ",
-          "amount": "211.40 SOL",
-          "at": "2026-10-19T16:48:55Z",
-          "note": "Launch-block buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "mFmJftGw1tAFCXp8rRQrF1y7dQH9PzkSQNjFKCAEzgpZsfUNP8UYNgSWndiQaR3kSGosRwGwqK6dWDwJmTmSeqVY",
-          "wallet": "LHARywUgADAVX4p3RL3fFxAZBB1Weg6SukPtwxoEvK9m",
-          "amount": "533.41 SOL",
-          "at": "2026-10-19T17:02:22Z",
-          "note": "Sell into peak"
-        },
-        {
-          "kind": "tx",
-          "ref": "RzA1PV6w4jEcGFJQMLDvKijRoCJrhVCT8uAmGQ8yhkeSTACvXNkzyDq9eddbuNDqeTGVxmsb6ysA1dUtT5YSra7T",
-          "wallet": "pd6eCNFcuDD6sB9xQCZrtfG5vi5xvsbbFaxVAxp2xjsZ",
-          "amount": "609.44 SOL",
-          "at": "2026-10-19T17:10:29Z",
-          "note": "LP removal"
-        },
-        {
-          "kind": "tx",
-          "ref": "wyh5xXAW4KxAmZCF7bjJ6hweepF3sTunhnvK9CuMb1rW6QMGz8Sjya6XwABLwKrVLFY5CnSkdVbmfsM8hCV11hcp",
-          "wallet": "8tv8dEvm2ox5k6jZ2XdtTGWyH4tvPppfZ8Yi89WtSbMD",
-          "amount": "300.42 SOL",
-          "at": "2026-10-19T17:18:09Z",
-          "note": "Hop to intermediate"
-        },
-        {
-          "kind": "tx",
-          "ref": "UCNGYTKRY2nXMoRMS2BU42UQ8tYL7B4dCBxRsp8ww3HYctUmg5V4Hhbj8ecMf5ke6tNCKn4LV45MerXU4uTCZZu3",
-          "wallet": "iH1tYofaQLsbC5UjR8FgRUkEbfLxhvHZ7q7x8YE8Yeh3",
-          "amount": "661.47 SOL",
-          "at": "2026-10-19T17:30:19Z",
-          "note": "Bridge deposit"
-        },
-        {
-          "kind": "tx",
-          "ref": "dQd964fg6chZaiDx346g3ZJZQBgupm8YuQBZTdBodV5e93X7CJtz1xgTmfpNiJPPpiisuHuLDJoEzLs2an1n2LS9",
-          "wallet": "ioGRnTvyybJR7aiMekUwER4yuznBEZh1r2yt75azD3yH",
-          "amount": "331.59 SOL",
-          "at": "2026-10-19T17:35:34Z",
-          "note": "Circular transfer"
-        },
-        {
-          "kind": "account",
-          "ref": "kQrNgcmFrjWDshMfnU7BxSTouMGSCD694VNpbdEtUjd1",
-          "wallet": "kQrNgcmFrjWDshMfnU7BxSTouMGSCD694VNpbdEtUjd1",
-          "amount": "91.47 SOL",
-          "at": "2026-10-19T17:39:50Z",
-          "note": "Pre-post accumulation"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "WeNm00nWnDy4xW7vU1tZ5cB9nM2sE8aG3fJ6rT4yK1pQ",
-          "amount": "2075 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "c4jLrSsTHrwTDzTKMTod57finp8fKKVMzb7hdwGM1aYo",
-          "amount": "1914 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "Tc9Hcayn1uYPEtxipubAvj6GGN7WwYRMYYY3MjXXFBLm",
-          "amount": "1739 SOL"
-        },
-        {
-          "label": "cex deposit",
-          "address": "L8wPPdNtV6ybDvEqjEiWApqo2My5ceFYkBbNqCTrygD4",
-          "amount": "1533 SOL"
-        }
-      ],
-      "narrative": [
-        "@wen_moon_wendy is on the record for $PUMPKIN (Pumpkin Spice). The case was opened on 2026-10-20 after the agent flagged wash volume.",
-        "Three wallets passed the same tokens between each other 412 times. Reported volume was 61x the value held by non-linked wallets.",
-        "2075 SOL left the first wallet. 1533 SOL arrived at the last one, labelled cex deposit. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0008.png"
-    },
-    {
-      "n": 9,
-      "id": "0009",
-      "opened_at": "2026-10-19T02:38:00Z",
-      "status": "open",
-      "severity": "critical",
-      "score": 90,
-      "token": {
-        "symbol": "MOONTAX",
-        "name": "Moon Tax",
-        "mint": "E1TYKFV7vYgBKe6C2R4RKPAZQajip8imnxLEWqCVWwAy"
-      },
-      "subjects": [
-        "@rug_rachel",
-        "@bundle_bob"
-      ],
-      "headline": "Liquidity for $MOONTAX was removed at 03:12. @rug_rachel posted \"still here\" at 03:40.",
-      "charge": "Liquidity pulled",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "LP tokens never burned",
-          "detail": "The deployer kept the LP tokens despite the launch post saying otherwise."
-        },
-        {
-          "code": "F-02",
-          "title": "Removal in one transaction",
-          "detail": "All pooled SOL left the pool in a single instruction."
-        },
-        {
-          "code": "F-03",
-          "title": "Proceeds bridged within the hour",
-          "detail": "The SOL moved through two hops to a bridge deposit address."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "WtStRn5ZATCfACK9xoBrkuKAPKFN1fzSt2YLxkEFDCrf4hivuenGyUL1LcT1q31DcUw1UyJ3vUhYR6vW3guF7zah",
-          "wallet": "zYu6MtShPScQRZaqxJuLKynDa99CDi1GkE7vMmX1dRxT",
-          "amount": "369.11 SOL",
-          "at": "2026-10-18T06:43:23Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "Cr7zyk63QaQMk2z83z1PufZXr6Hsq9GLn8CsdofvrNTKmaXLqsHzMnCugfT2AqfpXWD97nNfKS8RXoxDAqAf9v6T",
-          "wallet": "fJekXCdozjm4hk72dLrq3mM8Yjh3zRPqcw7Jz2Y2uNaC",
-          "amount": "405.92 SOL",
-          "at": "2026-10-18T06:44:08Z",
-          "note": "Launch-block buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "k4MXkja8SP5c8ytzr7Qx1DARUpfV7pinNjv8iZCd3u6Swv5W378AssUaninojiJX5rPqtryLYEpC9NmkpebEz7CS",
-          "wallet": "3mMvLG8gaNg82bJqqr1Ma6MFx6SNW6jZNGnkASRQoirz",
-          "amount": "122.51 SOL",
-          "at": "2026-10-18T06:50:35Z",
-          "note": "Sell into peak"
-        },
-        {
-          "kind": "tx",
-          "ref": "q9MHHcoy896gvqy6jobDMZ6Ew77NgeLVazmqTwMapJZW2uuSHhNPzjSnHQUgGgGhSX5xS56SHH4RGcNvbwHsuTBm",
-          "wallet": "3PosDm33kjBJ4rocDu7oCzcKUdP7Bd3sYEpiYsW8kSWz",
-          "amount": "499.86 SOL",
-          "at": "2026-10-18T06:59:42Z",
-          "note": "LP removal"
-        },
-        {
-          "kind": "tx",
-          "ref": "zuMu6CLFeK2vcAjdiuz4tSCuXry7CmjyrGiDpizXYuwWGzm8XTAShxgNf8P4ofKRDgBaZikG4YcvYfZbrpxcqgeU",
-          "wallet": "GRLmuSbjyPW53pAs2BfAoNVcURCNpsunKgjGU4ZwWqCw",
-          "amount": "389.42 SOL",
-          "at": "2026-10-18T07:00:29Z",
-          "note": "Hop to intermediate"
-        },
-        {
-          "kind": "tx",
-          "ref": "QgUcXRMJqaGC8BpJGKPm2P1C8MEEANf6EabQamBNwJjNf2ynC5qMFtSkjL1Souzitfr3sgckV1bpwciruKeDLwon",
-          "wallet": "5YaoaYAoBa8ea74sXm48wRJedLv455tMEARH3k7nnLPG",
-          "amount": "467.96 SOL",
-          "at": "2026-10-18T07:04:04Z",
-          "note": "Bridge deposit"
-        },
-        {
-          "kind": "account",
-          "ref": "bJ4Gh2Fis8yPKVyFS7ZwDvkae12RNCw4Bo8ckXtWGZSj",
-          "wallet": "bJ4Gh2Fis8yPKVyFS7ZwDvkae12RNCw4Bo8ckXtWGZSj",
-          "amount": "848.18 SOL",
-          "at": "2026-10-18T07:07:22Z",
-          "note": "Circular transfer"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "kAVVz5K6pnYHa13DjVfd1yfCxAPLuJ435Z8vexnbcE4Y",
-          "amount": "1198 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "eZnXRrPc2t36FKdk5k3vMAFZR6LJR7TsEyubf79zqzry",
-          "amount": "1111 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "5qZ9XDfenEANyEKUWPmv6eT4L5bF8pp1HnVDQQR2k9tK",
-          "amount": "1031 SOL"
-        },
-        {
-          "label": "bridge",
-          "address": "WaXmsp7YwH9zzDdBqxkjCKDzwmya4rnUFniPSENm4dSw",
-          "amount": "913 SOL"
-        }
-      ],
-      "narrative": [
-        "@rug_rachel is on the record for $MOONTAX (Moon Tax). The case was opened on 2026-10-19 after the agent flagged liquidity pulled.",
-        "The deployer kept the LP tokens despite the launch post saying otherwise. All pooled SOL left the pool in a single instruction. The SOL moved through two hops to a bridge deposit address.",
-        "1198 SOL left the first wallet. 913 SOL arrived at the last one, labelled bridge. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0009.png"
-    },
-    {
-      "n": 10,
-      "id": "0010",
-      "opened_at": "2026-10-20T00:38:00Z",
-      "status": "open",
-      "severity": "medium",
-      "score": 53,
-      "token": {
-        "symbol": "LARPY",
-        "name": "Larpy",
-        "mint": "mzTUMyqF3jWfsdTS5JCab3jE7aqnBCExn2sHigKy9T6Q"
-      },
-      "subjects": [
-        "@sniperbot_ceo"
-      ],
-      "headline": "@sniperbot_ceo called $LARPY a \"generational entry\". @sniperbot_ceo sold the top 22 minutes later.",
-      "charge": "Shill and sell",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "Position opened before the post",
-          "detail": "The linked wallet bought 4.2% of supply 31 minutes before the post went up."
-        },
-        {
-          "code": "F-02",
-          "title": "Sold into the post",
-          "detail": "Sells began at the volume peak that followed the post."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "ZcsfX6iDCL3S44yBJqdM6icLGja47v6CirsTCH7vGGrao3CTXaNeckDAyB3zdD4j3WzTuadp8KREBZqSkgFDcK2z",
-          "wallet": "SnIpErB0t5cE0xW9vU2tZ8cB3nM6sE1aG4fJ7rT5yK2p",
-          "amount": "766.93 SOL",
-          "at": "2026-10-19T07:43:51Z",
-          "note": "Launch-block buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "Kc9bzViPSpu8RCfk9Ky7Uhcp4EYRBC5CpXwE6XBWEsmfPAEJ8hnJGzznR36UdRozdi7umdCDEfLc8wAwHQhRL1of",
-          "wallet": "8V5i89YoXrKwBChsmxyDBLDXTfsKqSMj1nqSwDo8QoRB",
-          "amount": "469.20 SOL",
-          "at": "2026-10-19T07:45:39Z",
-          "note": "Sell into peak"
-        },
-        {
-          "kind": "tx",
-          "ref": "q2dS5g2qT5wJkD1eFth18F6qbq4zZiqc9w9fj1kMwVJcg8QbHf2kMXTdd7j8Fd9z8F4GvKDWrT6V7SMf7b6nFYrh",
-          "wallet": "SvHcYa5SEJuf5XELfaXfcrE2QrxCnRUnSXg3jFmXJViH",
-          "amount": "776.12 SOL",
-          "at": "2026-10-19T07:56:55Z",
-          "note": "LP removal"
-        },
-        {
-          "kind": "tx",
-          "ref": "rm2BtCw18nxwSnTZgwZ6QutyPPqtZJwGTG3HEHkykveJkrmMMd8zMNkxyuQSMWh1SxERpUSu1U1VE7cfzjSYSRuA",
-          "wallet": "TPbaWZjzjA58M8T2WPRHBPacBH1sXYk5ftrDJzJdVEKA",
-          "amount": "616.17 SOL",
-          "at": "2026-10-19T08:04:02Z",
-          "note": "Hop to intermediate"
-        },
-        {
-          "kind": "tx",
-          "ref": "85N949cghuHT2pfzsR8oyu3DooUdBRdCvqCxhjySojXm7GGLQ1zH6wAafwb7r6rXYJmvPwE3gN9N7WYE5JnkaaZa",
-          "wallet": "4scMn7uHwWDBzuHY1P21j34Gpf4KfJBzawzt1HB292gb",
-          "amount": "851.88 SOL",
-          "at": "2026-10-19T08:09:04Z",
-          "note": "Bridge deposit"
-        },
-        {
-          "kind": "tx",
-          "ref": "uVzUEgJ4QnDdo2X6wgH6BLzvBRW4uX2tiqgfYSe9kgSsZ4HbAreJcons3tmqk4QRVzmwWyjMiv8AVVHpVK39sgDh",
-          "wallet": "URrFGxzMeKSSyz7ShEk1WSp8S91BxzqQsruGf6YTXgux",
-          "amount": "766.42 SOL",
-          "at": "2026-10-19T08:16:55Z",
-          "note": "Circular transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "WoEcQAJYuA6AUpM233x3dzacXbG71yoXbN6zp4bQ3exxnjxhekyjmvzi1jj6geS1HFAuZgTwVpogBAzR3PAL6eCj",
-          "wallet": "yZdHs1paCF7mJryyA3XBJdyL8HTcEkcZyuHPqmJCT2qR",
-          "amount": "690.97 SOL",
-          "at": "2026-10-19T08:20:47Z",
-          "note": "Pre-post accumulation"
-        },
-        {
-          "kind": "account",
-          "ref": "As99bvLu3w5pMKr5GzaVpuNtoDngtYLauEFSsLZm6cjP",
-          "wallet": "As99bvLu3w5pMKr5GzaVpuNtoDngtYLauEFSsLZm6cjP",
-          "amount": "60.39 SOL",
-          "at": "2026-10-19T08:29:37Z",
-          "note": "Allocation split"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "SnIpErB0t5cE0xW9vU2tZ8cB3nM6sE1aG4fJ7rT5yK2p",
-          "amount": "1225 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "Kf1zfCT4s1NkhT1VeymoeD9eLoYANbu56DogibobY2Rw",
-          "amount": "1067 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "4Z7GBT7iuMdmhpYnJZgs9q2PPbvuEX998bmJrUAnUrLj",
-          "amount": "1032 SOL"
-        },
-        {
-          "label": "hop 3",
-          "address": "spYMMk8YZ6fPBPSTPChxXRafNMycuVYG43khFEdKbsL6",
-          "amount": "890 SOL"
-        },
-        {
-          "label": "bridge",
-          "address": "bm6eB1LcbiKFWrnTsqiUrCEhWW3ynKSJzjnZ1P1DQ87f",
-          "amount": "781 SOL"
-        }
-      ],
-      "narrative": [
-        "@sniperbot_ceo is on the record for $LARPY (Larpy). The case was opened on 2026-10-20 after the agent flagged shill and sell.",
-        "The linked wallet bought 4.2% of supply 31 minutes before the post went up. Sells began at the volume peak that followed the post.",
-        "1225 SOL left the first wallet. 781 SOL arrived at the last one, labelled bridge. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0010.png"
-    },
-    {
-      "n": 11,
-      "id": "0011",
-      "opened_at": "2026-10-21T21:38:00Z",
-      "status": "open",
-      "severity": "high",
-      "score": 77,
-      "token": {
-        "symbol": "FOMOTRON",
-        "name": "Fomotron",
-        "mint": "hBp8NVp8StC2WiX4ipXpAnSSt1xcEuGEDYg9mALaATnk"
-      },
-      "subjects": [
-        "@kol_kevin"
-      ],
-      "headline": "The $FOMOTRON dev allocation was \"locked for a year\". It moved on day three.",
-      "charge": "Dev wallet dump",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "No lock contract",
-          "detail": "The allocation sat in a plain wallet. There was never a lock."
-        },
-        {
-          "code": "F-02",
-          "title": "Split and sold",
-          "detail": "The allocation went to six wallets, each of which sold over two hours."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "xjQnTEQK6TgHc8KGSRZQXymv61xXRQ8F47WoYchKk39F7uhUpoKmR7ovsS7uRA65UcHz6BXdTDLSuw6MxMFyykFf",
-          "wallet": "KoLkEv1n3xW8vU5tZ7cB2nM9sE4aG1fJ8rT6yK3pQ5wR",
-          "amount": "388.76 SOL",
-          "at": "2026-10-21T11:43:38Z",
-          "note": "Sell into peak"
-        },
-        {
-          "kind": "tx",
-          "ref": "caCMXgHZMeLnK7xhVf68ZSUBQD2dnNm8YuFdZwXBqfUPZxML31AuaH73aQoRKv7QLjpuY6fRS8vfRpvEf6D56hae",
-          "wallet": "HArX9x8pnjXAvNBoUwpdPaiSCTBQoXtu2adquPg9d93x",
-          "amount": "254.93 SOL",
-          "at": "2026-10-21T11:44:56Z",
-          "note": "LP removal"
-        },
-        {
-          "kind": "tx",
-          "ref": "eGeV5BYceE1SWPZxdS9vEkiVnhaoKJmvE1QUj169JZECiGSgSjx1VYU1JoywQShpjjXLyg1YgCkL5tAPzhJbinvn",
-          "wallet": "hf2aD5BaBtrMyPoNv8UYYwz7AKVVfm4whVwmYoEs1tku",
-          "amount": "430.50 SOL",
-          "at": "2026-10-21T11:57:00Z",
-          "note": "Hop to intermediate"
-        },
-        {
-          "kind": "tx",
-          "ref": "w9dCvX16pR4g8NSeuNRdrfxdTucXmkhXaVDjK9LhFX1xod9TbGV84KkWrVVYw2Yu9vv8qEHZZh4bYfbd85Uq6VEZ",
-          "wallet": "9Hoz4Co26yuJRokyFGPjNdRWHHbEUoKgqQ7VRgeWApcp",
-          "amount": "777.01 SOL",
-          "at": "2026-10-21T11:58:15Z",
-          "note": "Bridge deposit"
-        },
-        {
-          "kind": "account",
-          "ref": "YfZsbjfuJf8VkeeozWk8LuRW8DEdFhVLb2rH5GZHxKwQ",
-          "wallet": "YfZsbjfuJf8VkeeozWk8LuRW8DEdFhVLb2rH5GZHxKwQ",
-          "amount": "683.89 SOL",
-          "at": "2026-10-21T12:06:22Z",
-          "note": "Circular transfer"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "KoLkEv1n3xW8vU5tZ7cB2nM9sE4aG1fJ8rT6yK3pQ5wR",
-          "amount": "1856 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "aDAiDXCgPRWZoeNLoh4XEaEY4xYcjMcC99dnmcV1QrNY",
-          "amount": "1816 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "B7nyH3wPVh6bHvbqb1EU2q2x6sWHKFSz7EARuaF3rdG9",
-          "amount": "1714 SOL"
-        },
-        {
-          "label": "hop 3",
-          "address": "3vmMuPignvwSVrNWqnUE7fAz7aiLu6CLD58irRm8xc6k",
-          "amount": "1622 SOL"
-        },
-        {
-          "label": "cold",
-          "address": "QtRRdXxrHnsCfmHxDtiyDcRZQ4z4wiEPjQy2bNicsZ7W",
-          "amount": "1569 SOL"
-        }
-      ],
-      "narrative": [
-        "@kol_kevin is on the record for $FOMOTRON (Fomotron). The case was opened on 2026-10-21 after the agent flagged dev wallet dump.",
-        "The allocation sat in a plain wallet. There was never a lock. The allocation went to six wallets, each of which sold over two hours.",
-        "1856 SOL left the first wallet. 1569 SOL arrived at the last one, labelled cold. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0011.png"
-    },
-    {
-      "n": 12,
-      "id": "0012",
-      "opened_at": "2026-10-23T02:38:00Z",
-      "status": "open",
-      "severity": "medium",
-      "score": 51,
-      "token": {
-        "symbol": "HODLR",
-        "name": "Hodlr Industries",
-        "mint": "FQNfEaDiWgYwXJXFKrizx4SCNiGdyiESw9K8qFEfJU6u"
-      },
-      "subjects": [
-        "@larp_capital",
-        "@kol_kevin"
-      ],
-      "headline": "@larp_capital bought $HODLR 400 ms after the pool opened. From the pool creator's funding wallet.",
-      "charge": "Sniper bot front-run",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "Funding link",
-          "detail": "The sniping wallet was funded by the wallet that funded the pool creator."
-        },
-        {
-          "code": "F-02",
-          "title": "Sub-second entry",
-          "detail": "First buy landed in the same slot as the pool initialisation."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "3zEGSecy11gWpZ98R42HJ6kFK1D1fuwhq3BjJPWbPaet43dpFocrrZ4UtbEAwT2uVCGaUEN2bQmo4EuNL6kATAKF",
-          "wallet": "LaRpC4p1tAL9xW2vU8tZ3cB6nM1sE5aG7fJ4rT2yK9pQ",
-          "amount": "690.32 SOL",
-          "at": "2026-10-22T00:51:16Z",
-          "note": "LP removal"
-        },
-        {
-          "kind": "tx",
-          "ref": "Zu3J214rS1GoHsimajE4ZsAQzamwdsMaTPm1gUFi54CdTDBbsF5qnprfx7ePjyLSN134EQWmzKNJZFr9JYDsEqW1",
-          "wallet": "obhyJs944APexsR34tUWeNBk3DVa2PVu2JmNfuMLAY2L",
-          "amount": "531.81 SOL",
-          "at": "2026-10-22T01:05:53Z",
-          "note": "Hop to intermediate"
-        },
-        {
-          "kind": "tx",
-          "ref": "BseZUQNeui5Vueq3vr5dRCWH1U1h3jTaSwQNzXQUTFoKEUHuqxe1t58qv8MQ4pLHDzAidpjxVihDyXb3TEnzVP3h",
-          "wallet": "fhpJpLaNpTvcuy8Jj6hoscUpjpVK7rSXKKfqaEmZyrZ6",
-          "amount": "528.04 SOL",
-          "at": "2026-10-22T01:17:59Z",
-          "note": "Bridge deposit"
-        },
-        {
-          "kind": "tx",
-          "ref": "t71nED8cVyE1Ct8jWuMfjqVxxWMWTRnjCxdKCRB5qoSNaJq5sDkexCvKGhQ4BnZSaxCeXWJdmG2tLRDY1U1umdWb",
-          "wallet": "Zdv3fv8cu2QXkgCjiHv1ZgwQ7hfES9K92Jt1RFP7r4Yx",
-          "amount": "874.33 SOL",
-          "at": "2026-10-22T01:20:06Z",
-          "note": "Circular transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "8h6guFobvZKPFwhtCeMz65CABPgZX1NFUQmnJASJ4GYwdWtbdrZhLs3nZqJcgbzH4gZsG4ZtcinpCF63um2DrYno",
-          "wallet": "mZQ8EV9RjHrN7yYaSYVKG4S24C9ZCMNdqdeyXG1Nkijq",
-          "amount": "312.70 SOL",
-          "at": "2026-10-22T01:23:08Z",
-          "note": "Pre-post accumulation"
-        },
-        {
-          "kind": "tx",
-          "ref": "NLodQC81sBhREcXxsxaS2TVRwbrmpos5uGRmbwDwNpU318NNXTXgeWxPjihJue1MyxGveFWfdasxg7WxtKMAtqi1",
-          "wallet": "tu3WJEaCb1WreUwc11MPSS9VicK3uxZhfejyR5ZtWcHE",
-          "amount": "174.62 SOL",
-          "at": "2026-10-22T01:36:06Z",
-          "note": "Allocation split"
-        },
-        {
-          "kind": "account",
-          "ref": "yCctZPuXjAwQCqUP3j3SDFbByZ86yUyYm7fw1yMHHL9V",
-          "wallet": "yCctZPuXjAwQCqUP3j3SDFbByZ86yUyYm7fw1yMHHL9V",
-          "amount": "611.84 SOL",
-          "at": "2026-10-22T01:44:35Z",
-          "note": "Funding transfer"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "LaRpC4p1tAL9xW2vU8tZ3cB6nM1sE5aG7fJ4rT2yK9pQ",
-          "amount": "1360 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "YoZKtR7HqF8fGUe2UuMHHhQUYMP6DJM3iyTNFHXjg77q",
-          "amount": "1301 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "tnSr2ofGvsZ18PhNSdgaUXEr2WgNW2XoK8FHphqi7aRo",
-          "amount": "1225 SOL"
-        },
-        {
-          "label": "hop 3",
-          "address": "RZuwaRCRsaUwKWivAUtqidT84LkheK6enyDstw5eXdV7",
-          "amount": "1149 SOL"
-        },
-        {
-          "label": "cex deposit",
-          "address": "315PnyVaDZVEBsozjA9ne2kVTL1fEYL4zBGpz361AArx",
-          "amount": "1000 SOL"
-        }
-      ],
-      "narrative": [
-        "@larp_capital is on the record for $HODLR (Hodlr Industries). The case was opened on 2026-10-23 after the agent flagged sniper bot front-run.",
-        "The sniping wallet was funded by the wallet that funded the pool creator. First buy landed in the same slot as the pool initialisation.",
-        "1360 SOL left the first wallet. 1000 SOL arrived at the last one, labelled cex deposit. Everything in between is in the money trail.",
-        "Convictions: 0."
-      ],
-      "png": "case-0012.png"
     }
   ]
 }
