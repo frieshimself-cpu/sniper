@@ -1,10 +1,8 @@
 import { getPerson } from "@/lib/data";
-import { error, handleParams, json } from "@/lib/api";
+import { error, json } from "@/lib/api";
 import { dyn, withBase } from "@/lib/dyn";
 
-export const generateStaticParams = handleParams;
 
-export { OPTIONS } from "@/lib/api";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ handle: string }> }) {
   await dyn();

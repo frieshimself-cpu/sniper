@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCase, cardUrl, neighbours } from "@/lib/data";
-import { caseParams } from "@/lib/api";
 import { apiUrl, withBase } from "@/lib/dyn";
 import { Stamp } from "@/components/Stamp";
 import { date, time, siteUrl, solscanToken } from "@/lib/format";
@@ -13,7 +12,6 @@ import { MoneyTrail } from "@/components/MoneyTrail";
 
 type Props = { params: Promise<{ n: string }> };
 
-export const generateStaticParams = caseParams;
 
 function parseN(s: string): number | null {
   const n = Number(s);
@@ -95,6 +93,19 @@ export default async function CasePage({ params }: Props) {
               <a href={solscanToken(c.token.mint)} target="_blank" rel="noopener noreferrer" className="underline">
                 {c.token.mint}
               </a>
+              <span className="ml-3 text-[11px] font-semibold uppercase tracking-[0.12em] whitespace-nowrap">
+                <a href={`https://dexscreener.com/solana/${c.token.mint}`} target="_blank" rel="noopener noreferrer" className="underline">
+                  Chart
+                </a>
+                {/pump$/.test(c.token.mint) ? (
+                  <>
+                    {" · "}
+                    <a href={`https://pump.fun/coin/${c.token.mint}`} target="_blank" rel="noopener noreferrer" className="underline">
+                      pump.fun
+                    </a>
+                  </>
+                ) : null}
+              </span>
             </dd>
           </div>
         </dl>
@@ -149,7 +160,16 @@ export default async function CasePage({ params }: Props) {
             ·{" "}
             <Link href="/rules#dispute" className="underline">
               Dispute
-            </Link>
+            </Link>{" "}
+            ·{" "}
+            <a
+              href={`https://x.com/intent/post?text=${encodeURIComponent(`${c.headline}\n\nC.R.I.M.E. case ${c.id}. Convictions: 0.`)}&url=${encodeURIComponent(`${siteUrl()}/cases/${c.n}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Post
+            </a>
           </span>
           <span className="text-stamp">Convictions 0</span>
         </div>

@@ -2,7 +2,6 @@ import { searchCases } from "@/lib/data";
 import { json } from "@/lib/api";
 import { dyn, STATIC, withBase } from "@/lib/dyn";
 
-export { OPTIONS } from "@/lib/api";
 
 export async function GET(req: Request) {
   await dyn();

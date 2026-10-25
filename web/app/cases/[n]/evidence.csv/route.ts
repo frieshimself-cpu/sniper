@@ -1,8 +1,6 @@
 import { getCase } from "@/lib/data";
-import { caseParams } from "@/lib/api";
 import { dyn } from "@/lib/dyn";
 
-export const generateStaticParams = caseParams;
 
 
 const cell = (v: unknown) => {

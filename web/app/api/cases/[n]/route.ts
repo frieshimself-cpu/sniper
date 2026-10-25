@@ -1,10 +1,8 @@
 import { getCase } from "@/lib/data";
-import { caseParams, error, json } from "@/lib/api";
+import { error, json } from "@/lib/api";
 import { dyn, withBase } from "@/lib/dyn";
 
-export const generateStaticParams = caseParams;
 
-export { OPTIONS } from "@/lib/api";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ n: string }> }) {
   await dyn();

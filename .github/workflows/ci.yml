@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+    branches: [claude/determined-sagan-kc8t9v]
+    paths-ignore: ["data/**", "out/**", "fixtures/**"]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run policy:test
+      - run: npm run investigate -- --mock --dry --subject MockMint1111111111111111111111111111111111 > /dev/null
+      - run: cd web && npm ci
+      - run: cd web && npm run typecheck
+      - run: cd web && npm run build
+      - run: cd web && npx playwright install --with-deps chromium
+      - run: cd web && npm test
+      - run: cd web && npm run build:static

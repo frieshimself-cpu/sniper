@@ -19,6 +19,7 @@ export default defineConfig({
       ADMIN_PASSWORD: "smoke-test",
       VOTE_BALANCE_CHECK: "off",
       CRIME_STATE_DIR: ".data-test",
+      CRIME_AGENT_ROOT: "tests/fixture",
       SITE_URL: "http://127.0.0.1:3111",
     },
   },

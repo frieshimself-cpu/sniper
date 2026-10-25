@@ -9,6 +9,7 @@ import { Pill } from "@/components/Pills";
 import { CaseCard } from "@/components/CaseCard";
 import { BallotVote } from "@/components/BallotVote";
 import { Stamp } from "@/components/Stamp";
+import { STATIC } from "@/lib/dyn";
 
 export default function Home() {
   const stats = getStats();
@@ -33,7 +34,7 @@ export default function Home() {
         <div className="mt-8 flex flex-wrap gap-2">
           <Pill red={agent.state === "error"}>Agent {agent.state === "idle" ? "watching" : agent.state}</Pill>
           {agent.next_run_at ? <Pill>Next case {until(agent.next_run_at)}</Pill> : null}
-          <Pill red={rpc === "unset"}>RPC {rpc === "ok" ? "ok" : rpc === "off" ? "check off" : "unset"}</Pill>
+          {STATIC ? <Pill>Read-only copy</Pill> : <Pill red={rpc === "unset"}>RPC {rpc === "ok" ? "ok" : rpc === "off" ? "check off" : "unset"}</Pill>}
           <Pill>Last case {ago(stats.last_case_at)}</Pill>
           <Pill>Ballot {ballot ? "open" : "closed"}</Pill>
           <Pill red>Convictions 0</Pill>
@@ -56,11 +57,15 @@ export default function Home() {
               Archive
             </Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {latest.map((c) => (
-              <CaseCard key={c.n} c={c} />
-            ))}
-          </div>
+          {latest.length === 0 ? (
+            <p className="text-mute">No cases yet. The agent is watching.</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {latest.map((c) => (
+                <CaseCard key={c.n} c={c} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>

@@ -14,7 +14,8 @@ import { hiddenWallets } from "./store";
 import type { Case, CasesFile, Registry, RegistryEntry, RegistryWallet, Severity } from "./types";
 import { SEVERITIES } from "./types";
 
-export const AGENT_ROOT = path.resolve(process.cwd(), "..");
+// CRIME_AGENT_ROOT points the site at another agent directory (the smoke tests use a demo snapshot).
+export const AGENT_ROOT = path.resolve(process.cwd(), process.env.CRIME_AGENT_ROOT?.trim() || "..");
 const CASES_PATH = path.join(AGENT_ROOT, "data", "cases.json");
 const REGISTRY_PATH = path.join(AGENT_ROOT, "fixtures", "registry.json");
 const OUT_DIR = path.join(AGENT_ROOT, "out");

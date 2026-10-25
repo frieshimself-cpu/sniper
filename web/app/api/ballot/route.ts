@@ -3,7 +3,6 @@ import { getBallots, tally } from "@/lib/store";
 import { json } from "@/lib/api";
 import { dyn, STATIC } from "@/lib/dyn";
 
-export { OPTIONS } from "@/lib/api";
 
 export async function GET(req: Request) {
   await dyn();

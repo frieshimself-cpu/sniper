@@ -1,9 +1,7 @@
 import fs from "node:fs";
 import { cardPath } from "@/lib/data";
-import { caseParams } from "@/lib/api";
 import { dyn } from "@/lib/dyn";
 
-export const generateStaticParams = caseParams;
 
 
 export async function GET(_req: Request, { params }: { params: Promise<{ n: string }> }) {

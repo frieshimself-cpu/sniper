@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { enforceDeep } from "./policy";
 import { getCases, getPersons } from "./data";
 
-/** Every case number, for the static export. Also used on a server; dynamicParams stays on. */
+/** Params for the static export. On a server nothing is prerendered: every request reads the files. */
 export const caseParams = () => getCases().map((c) => ({ n: String(c.n) }));
 export const handleParams = () => getPersons().map((p) => ({ handle: p.handle.slice(1) }));
 
