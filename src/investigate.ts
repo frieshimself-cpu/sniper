@@ -239,7 +239,14 @@ function headline(inv: Investigation, subjects: string[]): string {
     return `${who} funded ${n} wallets before ${sym} launched. They bought in the first ninety seconds.${exit}`;
   }
   if (f.includes("Liquidity removed")) return `Liquidity for ${sym} went back to the deployer${subjects[0] ? `, ${subjects[0]}` : ""}. The chart went with it.`;
-  if (f.includes("Deployer sold")) return `The ${sym} deployer${subjects[0] ? `, ${subjects[0]},` : ` ${short(inv.deployer ?? "")}`} sold into its own pool.`;
+  if (f.includes("Deployer sold")) {
+    const who = `The ${sym} deployer${subjects[0] ? `, ${subjects[0]},` : ` ${short(inv.deployer ?? "")}`}`;
+    const sold = inv.dev_sold_share !== undefined ? `${Math.round(inv.dev_sold_share * 100)}% of supply` : "into its own pool";
+    const when = inv.dev_first_sell_min === null || inv.dev_first_sell_min === undefined ? "" : inv.dev_first_sell_min <= 0 ? " within a minute of launch" : inv.dev_first_sell_min < 120 ? ` ${inv.dev_first_sell_min} minutes after launch` : ` ${Math.round(inv.dev_first_sell_min / 60)} hours after launch`;
+    const bought = inv.dev_buy_share !== undefined && inv.dev_buy_share >= 0.05 ? ` It had taken ${Math.round(inv.dev_buy_share * 100)}% at creation.` : "";
+    const moved = f.includes("Deployer distributed supply") ? " More went out to other wallets without a swap." : "";
+    return `${who} sold ${sold}${when}.${bought}${moved}`;
+  }
   if (f.includes("Deployer distributed supply")) return `The ${sym} deployer${subjects[0] ? `, ${subjects[0]},` : ""} moved supply to other wallets before anyone else could buy it.`;
   if (f.includes("Supply concentrated")) return `Ten wallets hold most of ${sym}. One of them is the deployer.`;
   return `${named(inv.deployer, "Deployer")} and ${sym}. ${inv.findings.length} findings.`;

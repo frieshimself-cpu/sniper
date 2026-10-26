@@ -26,6 +26,10 @@ export interface Investigation {
   /** wallets whose identity matters for the headline: deployer, funder */
   principals: string[];
   log: string[];
+  /** numbers the headline can use */
+  dev_sold_share?: number;
+  dev_first_sell_min?: number | null;
+  dev_buy_share?: number;
 }
 
 const MIN = 60_000;
@@ -58,6 +62,9 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
   const findings: Finding[] = [];
   const evidence: Evidence[] = [];
   let score = 0;
+  let devSoldShare: number | undefined;
+  let devFirstSellMin: number | null | undefined;
+  let devBuyShare: number | undefined;
   const ev = (t: Transfer, note: string): Evidence => ({ kind: "tx", ref: t.signature, wallet: t.from, amount: t.kind === "sol" ? fmtSol(t.amount) : `${Math.round(t.amount).toLocaleString("en-US")} ${t0.symbol}`, at: t.at, note });
 
   // ---- launch ---------------------------------------------------------------
@@ -117,6 +124,7 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
   if (create) {
     if (create.amount > 0) evidence.push(ev(create, "Launch, deployer's opening buy"));
     const devShare = create.amount / token.supply;
+    devBuyShare = devShare;
     if (devShare >= 0.05) {
       findings.push({ code: "F-01", title: "Deployer bought at creation", detail: `The deployer wallet took ${pct(devShare)} of supply in the launch transaction.` });
       score += 5;
@@ -226,6 +234,8 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
     const moved = sum(moves.map((t) => t.amount)) / token.supply;
     if (sold >= 0.02) {
       const firstSellMin = launch_at && devSells[0] ? minutes(launch_at, devSells.slice().sort((a, b) => a.at.localeCompare(b.at))[0].at) : null;
+      devSoldShare = sold;
+      devFirstSellMin = firstSellMin;
       findings.push({
         code: `F-${String(findings.length + 1).padStart(2, "0")}`,
         title: "Deployer sold",
@@ -312,7 +322,7 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
     }),
   ].filter(Boolean)).slice(0, 6);
   evidence.sort((a, b) => a.at.localeCompare(b.at));
-  return { token, launch_at, pool, deployer, funder, bundle, findings, evidence: evidence.slice(0, 40), trail, score: Math.min(99, score), severity, charge, labels, principals, log };
+  return { token, launch_at, pool, deployer, funder, bundle, findings, evidence: evidence.slice(0, 40), trail, score: Math.min(99, score), severity, charge, labels, principals, log, dev_sold_share: devSoldShare, dev_first_sell_min: devFirstSellMin, dev_buy_share: devBuyShare };
 }
 
 export const short = (a: string, n = 4) => (a.length > n * 2 + 1 ? `${a.slice(0, n)}…${a.slice(-n)}` : a);
