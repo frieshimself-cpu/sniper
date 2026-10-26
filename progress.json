@@ -3,7 +3,7 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:54:59Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:12:41Z",
+  "updated_at": "2026-10-26T17:12:57Z",
   "steps": [
     {
       "at": "2026-10-26T16:55:01Z",
@@ -199,12 +199,42 @@
       "at": "2026-10-26T17:12:20Z",
       "phase": "record",
       "text": "2,220 of 2,258 posts read, back to 2020-06-11"
+    },
+    {
+      "at": "2026-10-26T17:12:43Z",
+      "phase": "record",
+      "text": "2,258 of 2,258 posts read, back to 2019-09-01. The whole record."
+    },
+    {
+      "at": "2026-10-26T17:12:43Z",
+      "phase": "record",
+      "text": "2258 posts read, back to 2019-09-01. Typing every one: shill, holding, LP locked, sold, launch, wallet"
+    },
+    {
+      "at": "2026-10-26T17:12:43Z",
+      "phase": "record",
+      "text": "typed: 5 shill, 2 wallet"
+    },
+    {
+      "at": "2026-10-26T17:12:43Z",
+      "phase": "record",
+      "text": "7 claims about tokens in the posts"
+    },
+    {
+      "at": "2026-10-26T17:12:43Z",
+      "phase": "wallets",
+      "text": "13 wallets on the record, 1 claimed by the handle itself"
+    },
+    {
+      "at": "2026-10-26T17:12:57Z",
+      "phase": "wallets",
+      "text": "2yu3…mBMC (claimed): 1,891 transactions read, 1821 swaps, 46 launches; 564 SOL in, 611 SOL out"
     }
   ],
   "wallets": [
     {
       "address": "2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC",
-      "tier": "probable"
+      "tier": "claimed"
     },
     {
       "address": "Gs5FHwYLrDBmCmiv5VhBLCvyiBmBYfcPedZDqR88GYeX",
@@ -257,204 +287,211 @@
   ],
   "posts": [
     {
-      "at": "2019-09-01T06:23:11.000Z",
-      "text": "@FortniteGame IS THE TOURNEY AT 8 OR 11 FOR WEST",
-      "url": "https://x.com/kimchi1x/status/1168046627803680768"
+      "at": "2024-11-16T21:01:00.000Z",
+      "text": "@404flipped $memetic",
+      "url": "https://x.com/kimchi1x/status/1857891642382102855",
+      "type": "shill"
     },
     {
-      "at": "2019-11-03T18:56:20.000Z",
-      "text": "@akarifn_ @bobadawn @CxLy__ i’m a fragger. controller #102 solo cup #51 fncs week 4 semis #27 friday nite fn #50 semis fncs warmup",
-      "url": "https://x.com/kimchi1x/status/1191066596585795584"
+      "at": "2024-11-12T05:03:29.000Z",
+      "text": "@memeticink @KangaBit @Kasumi152_ai J73VLpgUiWxooiTwbQyae7h5e29kGrC5RqrbicW2pump isn't this super interesting?",
+      "url": "https://x.com/kimchi1x/status/1856201125231530145",
+      "type": "wallet"
     },
     {
-      "at": "2019-11-08T22:59:31.000Z",
-      "text": "@phoxNA this is for trios. on the squads official rules, it doesnt state a time frame you need to hit champs to play.",
-      "url": "https://x.com/kimchi1x/status/1192939736588898304"
+      "at": "2024-09-27T23:21:46.000Z",
+      "text": "@idrawline good thing $UMI runs the trenches https://t.co/JAJojFltOs",
+      "url": "https://x.com/kimchi1x/status/1839807675909218324",
+      "type": "shill"
     },
     {
-      "at": "2019-11-11T22:23:22.000Z",
-      "text": "@Brecci 27 friday nite fortnite 51 fncs week 4 semis (teammates dropped 0 kills in finals while i had 7) 52 fncs warmup semis 102 contender solo cup 198 champion solo cup instagram",
-      "url": "https://x.com/kimchi1x/status/1194017802757144576"
+      "at": "2024-09-06T00:58:38.000Z",
+      "text": "@pattyice $KOL",
+      "url": "https://x.com/kimchi1x/status/1831859519779184708",
+      "type": "shill"
     },
     {
-      "at": "2019-12-31T03:04:54.000Z",
-      "text": "@slo_thy moonwalker",
-      "url": "https://x.com/kimchi1x/status/1211845657759084545"
+      "at": "2024-04-28T17:39:04.000Z",
+      "text": "@RyseEth 2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC",
+      "url": "https://x.com/kimchi1x/status/1784638477386273048",
+      "type": "wallet"
     },
     {
-      "at": "2020-01-18T00:27:46.000Z",
-      "text": "@Nuqlofn let me try out",
-      "url": "https://x.com/kimchi1x/status/1218329093885714433"
+      "at": "2024-04-10T22:49:31.000Z",
+      "text": "@blknoiz06 $SD https://t.co/TkiB2TceBx",
+      "url": "https://x.com/kimchi1x/status/1778193622099472757",
+      "type": "shill"
     },
     {
-      "at": "2020-01-18T21:57:55.000Z",
-      "text": "@WestPracCord @tinymon1_ DMS",
-      "url": "https://x.com/kimchi1x/status/1218653774077517825"
+      "at": "2024-04-10T00:02:19.000Z",
+      "text": "@shadow $shadow",
+      "url": "https://x.com/kimchi1x/status/1777849554416845240",
+      "type": "shill"
     },
     {
-      "at": "2020-03-23T06:00:18.000Z",
-      "text": "@Re6ks @drewofn @fearedcn dont dodge",
-      "url": "https://x.com/kimchi1x/status/1241967992600014848"
+      "at": "2026-10-20T23:00:21.000Z",
+      "text": "october 2026 vlog in bio https://t.co/V3q7d7c8p7",
+      "url": "https://x.com/kimchi1x/status/2112680346789765599"
     },
     {
-      "at": "2020-03-23T06:39:02.000Z",
-      "text": "@Re6ks shit on all 4 of you in zone wars so i could care less. sweating your nuts off to prove what lol that you can win in no money competitions. you need spots to win wagers you ",
-      "url": "https://x.com/kimchi1x/status/1241977737708834816"
+      "at": "2026-10-15T20:43:04.000Z",
+      "text": "https://t.co/G3GLwsKq13",
+      "url": "https://x.com/kimchi1x/status/2110833862297440706"
     },
     {
-      "at": "2020-03-23T06:53:40.000Z",
-      "text": "@Re6ks @Priimefn @fearedcn @cyrzrs yea buddy have a ego for making semis lol. in the first 30 min you were on game 8 lmao your dogshit. controller for what? place in the cup this w",
-      "url": "https://x.com/kimchi1x/status/1241981421440270337"
+      "at": "2026-07-22T22:00:14.000Z",
+      "text": "https://t.co/RIdF7JOSn1",
+      "url": "https://x.com/kimchi1x/status/2080050311725756531"
     },
     {
-      "at": "2020-03-23T07:53:32.000Z",
-      "text": "@Re6ks yay your good at creative like lmao",
-      "url": "https://x.com/kimchi1x/status/1241996486931410945"
+      "at": "2026-04-29T21:35:15.000Z",
+      "text": "https://t.co/RLSUgQo89c",
+      "url": "https://x.com/kimchi1x/status/2049603442772177052"
     },
     {
-      "at": "2020-04-20T23:02:39.000Z",
-      "text": "@AssauIt @HaanzeR ong",
-      "url": "https://x.com/kimchi1x/status/1252372134019489793"
+      "at": "2026-04-24T02:50:58.000Z",
+      "text": "@orangie @StratosphereVIP @MacnBTC good work my boy",
+      "url": "https://x.com/kimchi1x/status/2047508570187387327"
     },
     {
-      "at": "2020-04-29T06:53:02.000Z",
-      "text": "@acroqt ME!!!",
-      "url": "https://x.com/kimchi1x/status/1255389614363336704"
+      "at": "2026-02-24T21:44:34.000Z",
+      "text": "https://t.co/R9ANQv3HV0",
+      "url": "https://x.com/kimchi1x/status/2026412965633863780"
     },
     {
-      "at": "2020-04-29T07:01:52.000Z",
-      "text": "@acroqt shit at nothing",
-      "url": "https://x.com/kimchi1x/status/1255391834530091009"
+      "at": "2026-01-23T03:40:33.000Z",
+      "text": "@0xRiver8 @LILUZIVERT you're missing 2 cylinders",
+      "url": "https://x.com/kimchi1x/status/2014543753781117130"
     },
     {
-      "at": "2020-05-18T04:01:31.000Z",
-      "text": "@qtsalt LETS GOOO",
-      "url": "https://x.com/kimchi1x/status/1262231820420014081"
+      "at": "2025-12-20T05:17:39.000Z",
+      "text": "@CookerFlips @shufflecom @PastelAlpha https://t.co/qm2ElNuLtt",
+      "url": "https://x.com/kimchi1x/status/2002246999547252772"
     },
     {
-      "at": "2020-05-19T03:19:25.000Z",
-      "text": "@Kiwiz clayton",
-      "url": "https://x.com/kimchi1x/status/1262583611930230787"
+      "at": "2025-11-21T22:48:40.000Z",
+      "text": "https://t.co/B9oRxVU0Zb",
+      "url": "https://x.com/kimchi1x/status/1992002248126411232"
     },
     {
-      "at": "2020-05-22T08:37:19.000Z",
-      "text": "@Re6ks @tyro_fn @MenaceYoutube 40th",
-      "url": "https://x.com/kimchi1x/status/1263750778210009088"
+      "at": "2025-11-17T00:41:10.000Z",
+      "text": "@Quanterty 😏",
+      "url": "https://x.com/kimchi1x/status/1990218622212686057"
     },
     {
-      "at": "2020-05-25T03:10:48.000Z",
-      "text": "@urels_ nah",
-      "url": "https://x.com/kimchi1x/status/1264755770182086658"
+      "at": "2025-11-16T00:50:47.000Z",
+      "text": "@iboughtdips @NachSOL @Quanterty he laughing thru the pain?",
+      "url": "https://x.com/kimchi1x/status/1989858655391596592"
     },
     {
-      "at": "2020-05-25T03:21:10.000Z",
-      "text": "@MenaceYoutube i guess you can say i uh carry hard 😈",
-      "url": "https://x.com/kimchi1x/status/1264758381111197696"
+      "at": "2025-10-22T17:35:57.000Z",
+      "text": "@orangie @gu8ap oh that weak ass bullshit?",
+      "url": "https://x.com/kimchi1x/status/1981051914772238633"
     },
     {
-      "at": "2020-05-26T01:25:34.000Z",
-      "text": "@Priimefn @MenaceYoutube @Re6ks @tyro_fn @stormicfn quit talking to us your so weird",
-      "url": "https://x.com/kimchi1x/status/1265091675136778240"
+      "at": "2025-10-07T22:29:09.000Z",
+      "text": "@CookerFlips @Peterclevar1 https://t.co/AFqGLhOnYm",
+      "url": "https://x.com/kimchi1x/status/1975689882510237884"
     },
     {
-      "at": "2020-05-26T01:30:44.000Z",
-      "text": "@Re6ks all of them",
-      "url": "https://x.com/kimchi1x/status/1265092976973209600"
+      "at": "2025-10-01T04:10:20.000Z",
+      "text": "@Quanterty @cz_binance no more monkey business https://t.co/KTSzPnCNDK",
+      "url": "https://x.com/kimchi1x/status/1973239031657009384"
     },
     {
-      "at": "2020-05-26T02:43:46.000Z",
-      "text": "@mateocactus all of them",
-      "url": "https://x.com/kimchi1x/status/1265111355050221568"
+      "at": "2025-09-30T16:49:19.000Z",
+      "text": "@cz_binance @ellazhang516 @tonkongz https://t.co/xaJufkW7cX",
+      "url": "https://x.com/kimchi1x/status/1973067648905732322"
     },
     {
-      "at": "2020-05-26T23:58:28.000Z",
-      "text": "@fearedcn shut up",
-      "url": "https://x.com/kimchi1x/status/1265432146576998401"
+      "at": "2025-09-29T18:28:36.000Z",
+      "text": "@cz_binance @joshcrypts_1 you can put it on my tab once aster starts to go up",
+      "url": "https://x.com/kimchi1x/status/1972730244235923916"
     },
     {
-      "at": "2020-05-28T06:02:35.000Z",
-      "text": "@qtsalt babyidiot",
-      "url": "https://x.com/kimchi1x/status/1265886163828568064"
+      "at": "2025-09-28T23:02:28.000Z",
+      "text": "@MarcellxMarcell @Quanterty i know we would, but would @404flipped?",
+      "url": "https://x.com/kimchi1x/status/1972436775479206096"
     },
     {
-      "at": "2020-05-28T06:31:53.000Z",
-      "text": "@MenaceYoutube i heard sT is full of magic",
-      "url": "https://x.com/kimchi1x/status/1265893539990265857"
+      "at": "2025-09-28T21:24:36.000Z",
+      "text": "@Quanterty @0xuberM https://t.co/bTLZPQgUEK",
+      "url": "https://x.com/kimchi1x/status/1972412149030097277"
     },
     {
-      "at": "2020-05-28T08:06:23.000Z",
-      "text": "@Re6ks never that lol. if you wanna chill tho lmk",
-      "url": "https://x.com/kimchi1x/status/1265917319638773761"
+      "at": "2025-09-28T02:14:02.000Z",
+      "text": "@Quanterty https://t.co/dm9S38NBdl",
+      "url": "https://x.com/kimchi1x/status/1972122599040995693"
     },
     {
-      "at": "2020-05-28T08:08:42.000Z",
-      "text": "@deeemosbad https://t.co/j9AoYNrjfe",
-      "url": "https://x.com/kimchi1x/status/1265917901560639489"
+      "at": "2025-09-27T05:03:35.000Z",
+      "text": "@Quanterty 🤣🤣🤣",
+      "url": "https://x.com/kimchi1x/status/1971802881218244847"
     },
     {
-      "at": "2020-05-28T09:20:53.000Z",
-      "text": "@Re6ks ong",
-      "url": "https://x.com/kimchi1x/status/1265936067179343877"
+      "at": "2025-09-26T04:12:55.000Z",
+      "text": "@cz_binance and dexes",
+      "url": "https://x.com/kimchi1x/status/1971427742920122602"
     },
     {
-      "at": "2020-05-28T17:22:44.000Z",
-      "text": "@fearedcn https://t.co/6T9jnYDuRz",
-      "url": "https://x.com/kimchi1x/status/1266057331151757317"
+      "at": "2025-09-24T07:47:11.000Z",
+      "text": "@404flipped what should we wake up to it at tmrw?",
+      "url": "https://x.com/kimchi1x/status/1970756887886082076"
     },
     {
-      "at": "2020-06-02T23:08:27.000Z",
-      "text": "@nolanrfn she’s in the item shop rn homie",
-      "url": "https://x.com/kimchi1x/status/1267956273770721280"
+      "at": "2025-09-23T17:54:44.000Z",
+      "text": "@Quanterty you're selling down here?",
+      "url": "https://x.com/kimchi1x/status/1970547393419718929"
     },
     {
-      "at": "2020-06-08T03:42:33.000Z",
-      "text": "@Re6ks @qteae @YoshiiPlaysClaw who",
-      "url": "https://x.com/kimchi1x/status/1269837192093818880"
+      "at": "2025-09-22T20:18:00.000Z",
+      "text": "@cz_binance @JakeGagain yes changpeng",
+      "url": "https://x.com/kimchi1x/status/1970221062119137524"
     },
     {
-      "at": "2020-06-09T23:52:45.000Z",
-      "text": "@5G_gaming_ @MenaceYoutube",
-      "url": "https://x.com/kimchi1x/status/1270504136077791232"
+      "at": "2025-09-22T04:19:52.000Z",
+      "text": "@cz_binance i like this, keep workin https://t.co/epU8snxqYQ",
+      "url": "https://x.com/kimchi1x/status/1969979939698139521"
     },
     {
-      "at": "2020-06-10T00:02:56.000Z",
-      "text": "@MenaceYoutube @5G_gaming_ fuck you pussy",
-      "url": "https://x.com/kimchi1x/status/1270506697551826945"
+      "at": "2025-09-22T01:31:10.000Z",
+      "text": "@CookerFlips https://t.co/MHSij7Z8s7",
+      "url": "https://x.com/kimchi1x/status/1969937484672082179"
     },
     {
-      "at": "2020-06-10T00:08:59.000Z",
-      "text": "@MenaceYoutube @5G_gaming_ 💫",
-      "url": "https://x.com/kimchi1x/status/1270508220793016320"
+      "at": "2025-09-21T05:43:55.000Z",
+      "text": "@cz_binance @GiggleAcademy this aster chart makin me giggle",
+      "url": "https://x.com/kimchi1x/status/1969638703363735956"
     },
     {
-      "at": "2020-06-10T11:25:18.000Z",
-      "text": "@fearedcn no bruh the grind isn’t going anywhere",
-      "url": "https://x.com/kimchi1x/status/1270678422151262209"
+      "at": "2025-09-20T04:49:21.000Z",
+      "text": "@FlippingProfits https://t.co/sFgdywz1im",
+      "url": "https://x.com/kimchi1x/status/1969262582604111895"
     },
     {
-      "at": "2020-06-10T23:23:05.000Z",
-      "text": "@MenaceYoutube @brxndonng @fearedcn @tyro_fn say that shit again",
-      "url": "https://x.com/kimchi1x/status/1270859056060575744"
+      "at": "2025-09-19T20:31:53.000Z",
+      "text": "@404flipped i made this shit go up last night since you didn't want to now it's your turn",
+      "url": "https://x.com/kimchi1x/status/1969137390766768524"
     },
     {
-      "at": "2020-06-10T23:38:05.000Z",
-      "text": "@MenaceYoutube @fearedcn @brxndonng @tyro_fn real ones head count - 2",
-      "url": "https://x.com/kimchi1x/status/1270862833182359552"
+      "at": "2025-09-19T03:37:42.000Z",
+      "text": "@404flipped can you make this shit go up?",
+      "url": "https://x.com/kimchi1x/status/1968882165120196809"
     },
     {
-      "at": "2020-06-11T10:15:28.000Z",
-      "text": "@fearedqt macro??",
-      "url": "https://x.com/kimchi1x/status/1271023236109619202"
+      "at": "2025-09-12T04:54:21.000Z",
+      "text": "@orangie 😂😂😂😂😂😂😂😂😂😂",
+      "url": "https://x.com/kimchi1x/status/1966364736624435685"
     },
     {
-      "at": "2020-06-11T10:27:56.000Z",
-      "text": "@fearedqt ❤️",
-      "url": "https://x.com/kimchi1x/status/1271026372417187841"
+      "at": "2025-09-10T18:00:57.000Z",
+      "text": "@lbexplorer https://t.co/0rIbdQ1XgG",
+      "url": "https://x.com/kimchi1x/status/1965837918465061182"
     },
     {
-      "at": "2020-06-11T20:50:40.000Z",
-      "text": "@Re6ks @fearedqt this is my feared",
-      "url": "https://x.com/kimchi1x/status/1271183090367397889"
+      "at": "2025-09-08T22:18:17.000Z",
+      "text": "@pasternak https://t.co/Q9q7mkwETD",
+      "url": "https://x.com/kimchi1x/status/1965177899092509149"
     }
   ],
   "findings": []
