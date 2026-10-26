@@ -3,13 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:27:33Z",
+  "updated_at": "2026-10-26T18:27:55Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:48:38Z",
-      "phase": "record",
-      "text": "posts 1,921–1,980 of 2,258 typed: nothing claimed"
-    },
     {
       "at": "2026-10-26T17:48:38Z",
       "phase": "record",
@@ -304,6 +299,11 @@
       "at": "2026-10-26T18:27:33Z",
       "phase": "replay",
       "text": "replaying $NOSWCH (Ak34…BAGS): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
+    },
+    {
+      "at": "2026-10-26T18:27:55Z",
+      "phase": "replay",
+      "text": "replaying $Headcap (7dit…bonk): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
     }
   ],
   "wallets": [
