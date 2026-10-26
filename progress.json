@@ -3,7 +3,7 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:39:17Z",
+  "updated_at": "2026-10-26T18:39:23Z",
   "steps": [
     {
       "at": "2026-10-26T17:52:07Z",
@@ -625,6 +625,8 @@
     "sol_in": 1270,
     "sol_out": 1156,
     "tokens": 20,
-    "launches": 159
+    "launches": 159,
+    "findings": 13,
+    "score": 406
   }
 }
