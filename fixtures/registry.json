@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-26T16:43:09Z",
+  "updated_at": "2026-10-26T18:39:25Z",
   "entries": [
     {
       "handle": "@kimchi1x",
@@ -68,6 +68,41 @@
           "address": "AFzmh2TYRFyhMcv9T32pjqPg2zdjCHMsRwxUMJcTsR3V",
           "tier": "probable",
           "source": "https://intel.arkm.com/explorer/entity/kimchi1x"
+        },
+        {
+          "address": "HyjSofYUDNVi3gEAg9yeNKMjihLox9upoSseY3YsamFi",
+          "tier": "probable",
+          "source": "https://intel.arkm.com/explorer/address/HyjSofYUDNVi3gEAg9yeNKMjihLox9upoSseY3YsamFi"
+        },
+        {
+          "address": "Ex7TLXb3goYqP2aqJ4uhyjGQAiUCVyqMRCY4UzxnoMS3",
+          "tier": "probable",
+          "source": "https://solscan.io/tx/3jnEGVhKVHpAUxjxTQf6svdpCyBrWcv8XDQCGaQPAtiMSvW4StW5bPFKSuyiL49x4dA4pPxbTrYeEun3YdhBYFmR"
+        },
+        {
+          "address": "H4BnRsR8QPnaNiLRGyTMYTNJpHMbhj5awbPin9dE5AiG",
+          "tier": "probable",
+          "source": "https://solscan.io/tx/49Kgs8oEhNEscVHGBQ9gMpb6D7SgjMqbLmtV2CRNYGGk7qdRoKgwchRi8mq1ZoUmD6UvamPfTCzJz2VRRzGS79N3"
+        },
+        {
+          "address": "FogxVNs6Mm2w9rnGL1vkARSwJxvLE8mujTv3LK8RnUhF",
+          "tier": "probable",
+          "source": "https://solscan.io/tx/48b2sFWudJRGmFuKEFsYnSXq3PYY1umwkcf57YY5KF8CYVrvU1k8RhwYDyXJ1m4ZAVQB9FTGtoncn5iacA2tRCPu"
+        },
+        {
+          "address": "5uAN7vfK5tpr1rgpauxbieyhLyfQp5fwAdNxNGMaR6Rg",
+          "tier": "probable",
+          "source": "https://solscan.io/tx/mCWfAL63jtt3QJ6hCLzatdMEiS96F2Dw2pVrHCv99P5pgjnEaWwnjysDXQnPvRdn1nLhLCTACPgYzExgmpxQ8KJ"
+        },
+        {
+          "address": "2f7Ujb8uABrGbX1jCuqoWXARx8Bc2M2Ur8cLJjXtq1ot",
+          "tier": "probable",
+          "source": "https://solscan.io/tx/5Nc6mdXYmk1xHeK5Sqe5f11UtKDfux8KtWgnjP1oD1hMnQzpdCB1He2EZcoW7pYNWBdvnevwPY3VTzCdtFfP95vJ"
+        },
+        {
+          "address": "cBVAT9CXwu7aArdsFGqWfFbTFYs5QXvn2qUKRFopDdg",
+          "tier": "probable",
+          "source": "https://solscan.io/tx/5878aEoxd7A2smH8nfqniHsAUEqQaKT8HNZYkYvRTRWhntzh34VRNPNA2w49jeMCcXTHwdKH2UdVAm3WB81EFtAJ"
         }
       ]
     }

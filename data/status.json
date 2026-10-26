@@ -1,8 +1,8 @@
 {
-  "state": "running",
+  "state": "idle",
   "mode": "live",
-  "last_run_at": "2026-10-26T17:44:27Z",
+  "last_run_at": "2026-10-26T18:39:26Z",
   "next_run_at": null,
-  "last_case": null,
-  "message": "@kimchi1x is under investigation."
+  "last_case": 1,
+  "message": "Case 0001 opened on @kimchi1x. The next poll decides who is next."
 }

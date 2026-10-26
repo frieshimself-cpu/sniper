@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-26T17:44:10Z",
+  "updated_at": "2026-10-26T18:39:35Z",
   "polls": [
     {
       "id": "2114755345792798981",
@@ -30,8 +30,9 @@
       ],
       "total": 66,
       "winner": "Kimchi",
-      "message": "Won the poll. Under investigation.",
-      "processed_at": "2026-10-26T17:44:10Z"
+      "case_n": 1,
+      "message": "Investigated.",
+      "processed_at": "2026-10-26T18:39:35Z"
     }
   ]
 }

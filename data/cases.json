@@ -1,6 +1,539 @@
 {
-  "generated_at": "2026-10-26T17:44:08Z",
+  "generated_at": "2026-10-26T18:39:25Z",
   "agent": "C.R.I.M.E.",
   "version": 1,
-  "cases": []
+  "cases": [
+    {
+      "n": 1,
+      "id": "0001",
+      "kind": "person",
+      "opened_at": "2026-10-26T18:39:25Z",
+      "status": "open",
+      "severity": "critical",
+      "score": 99,
+      "token": {
+        "symbol": "NOSWCH",
+        "name": "Palantir Nato Switch⚡",
+        "mint": "Ak343AMxqvHyK4wChpatRArGrgaAXSLaJjmXwPkBAGS"
+      },
+      "subjects": [
+        "@kimchi1x"
+      ],
+      "headline": "@kimchi1x has 6 wallets the posts never mention. The transfers do.",
+      "charge": "6 wallets never admitted, linked by transfers",
+      "findings": [
+        {
+          "code": "F-01",
+          "title": "6 wallets never admitted, linked by transfers",
+          "detail": "Found by following SOL between the wallets on record and the rest of the chain: Ex7T…oMS3 (5 transfers with 2yu3…mBMC); H4Bn…5AiG (2 transfers with HyjS…amFi); Fogx…nUhF (2 transfers with HyjS…amFi); 5uAN…R6Rg (1 transfer with HyjS…amFi); 2f7U…q1ot (1 transfer with HyjS…amFi); cBVA…pDdg (1 transfer with HyjS…amFi).",
+          "score": 40
+        },
+        {
+          "code": "F-02",
+          "title": "Launched $NOSWCH: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65.",
+          "score": 39
+        },
+        {
+          "code": "F-03",
+          "title": "Launched $Horgho: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65.",
+          "score": 39
+        },
+        {
+          "code": "F-04",
+          "title": "Launched $ABJSIR: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold; deployer bought at creation. Score 55.",
+          "score": 33
+        },
+        {
+          "code": "F-05",
+          "title": "159 tokens launched from the wallets",
+          "detail": "Pools or curves created from the wallets on record, the newest on 2026-10-26, the oldest on 2024-05-24. The newest 12 are replayed below.",
+          "score": 30
+        },
+        {
+          "code": "F-06",
+          "title": "Launched $Ibmblu: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
+          "score": 30
+        },
+        {
+          "code": "F-07",
+          "title": "Launched $Headcap: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
+          "score": 30
+        },
+        {
+          "code": "F-08",
+          "title": "Launched $Snohlove: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
+          "score": 30
+        },
+        {
+          "code": "F-09",
+          "title": "Launched $Trshield: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
+          "score": 30
+        },
+        {
+          "code": "F-10",
+          "title": "Launched $METBAL: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
+          "score": 30
+        },
+        {
+          "code": "F-11",
+          "title": "Launched $Abydrn: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
+          "score": 30
+        },
+        {
+          "code": "F-12",
+          "title": "Launched $Halbr: deployer sold",
+          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
+          "score": 30
+        },
+        {
+          "code": "F-13",
+          "title": "Called out by 7 other accounts",
+          "detail": "\"The situation about @kimchi1x for example. ... They just rugging and don't even feel accountable eno\" · \"If it can be proven according to Californian law, “THEFT BY FALSE PRETENCES” that @kimchi1x even onl\" (kimchi) · \"even scammers like @kimchi1x and PF shady ones don't scam with their main wallets!\".",
+          "score": 15
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "post",
+          "ref": "https://x.com/Observerfxn/status/2114694246364324117",
+          "at": "",
+          "note": "Said by another account: accusation"
+        },
+        {
+          "kind": "post",
+          "ref": "https://x.com/Almost_Bankrupt/status/2114671270092578939",
+          "at": "",
+          "note": "Said by another account: kimchi"
+        },
+        {
+          "kind": "post",
+          "ref": "https://x.com/Reza_Architekt/status/2114662246748197221",
+          "at": "",
+          "note": "Said by another account: accusation"
+        },
+        {
+          "kind": "post",
+          "ref": "https://x.com/tilon_sol/status/2114634238138237277",
+          "at": "",
+          "note": "Said by another account: accusation"
+        },
+        {
+          "kind": "tx",
+          "ref": "3jnEGVhKVHpAUxjxTQf6svdpCyBrWcv8XDQCGaQPAtiMSvW4StW5bPFKSuyiL49x4dA4pPxbTrYeEun3YdhBYFmR",
+          "wallet": "Ex7TLXb3goYqP2aqJ4uhyjGQAiUCVyqMRCY4UzxnoMS3",
+          "amount": "461.49 SOL",
+          "at": "2024-06-12T19:35:32.000Z",
+          "note": "Linked wallet: 5 transfers with 2yu3…mBMC (2 in, 3 out)"
+        },
+        {
+          "kind": "tx",
+          "ref": "mCWfAL63jtt3QJ6hCLzatdMEiS96F2Dw2pVrHCv99P5pgjnEaWwnjysDXQnPvRdn1nLhLCTACPgYzExgmpxQ8KJ",
+          "wallet": "5uAN7vfK5tpr1rgpauxbieyhLyfQp5fwAdNxNGMaR6Rg",
+          "amount": "6.47 SOL",
+          "at": "2025-06-05T23:50:07.000Z",
+          "note": "Linked wallet: 1 transfer with HyjS…amFi (1 in, 0 out)"
+        },
+        {
+          "kind": "tx",
+          "ref": "5Nc6mdXYmk1xHeK5Sqe5f11UtKDfux8KtWgnjP1oD1hMnQzpdCB1He2EZcoW7pYNWBdvnevwPY3VTzCdtFfP95vJ",
+          "wallet": "2f7Ujb8uABrGbX1jCuqoWXARx8Bc2M2Ur8cLJjXtq1ot",
+          "amount": "5.99 SOL",
+          "at": "2025-06-05T23:50:16.000Z",
+          "note": "Linked wallet: 1 transfer with HyjS…amFi (1 in, 0 out)"
+        },
+        {
+          "kind": "tx",
+          "ref": "49Kgs8oEhNEscVHGBQ9gMpb6D7SgjMqbLmtV2CRNYGGk7qdRoKgwchRi8mq1ZoUmD6UvamPfTCzJz2VRRzGS79N3",
+          "wallet": "H4BnRsR8QPnaNiLRGyTMYTNJpHMbhj5awbPin9dE5AiG",
+          "amount": "33.77 SOL",
+          "at": "2025-06-06T01:33:09.000Z",
+          "note": "Linked wallet: 2 transfers with HyjS…amFi (1 in, 1 out)"
+        },
+        {
+          "kind": "tx",
+          "ref": "5878aEoxd7A2smH8nfqniHsAUEqQaKT8HNZYkYvRTRWhntzh34VRNPNA2w49jeMCcXTHwdKH2UdVAm3WB81EFtAJ",
+          "wallet": "cBVAT9CXwu7aArdsFGqWfFbTFYs5QXvn2qUKRFopDdg",
+          "amount": "5.94 SOL",
+          "at": "2025-06-10T23:43:14.000Z",
+          "note": "Linked wallet: 1 transfer with HyjS…amFi (1 in, 0 out)"
+        },
+        {
+          "kind": "tx",
+          "ref": "48b2sFWudJRGmFuKEFsYnSXq3PYY1umwkcf57YY5KF8CYVrvU1k8RhwYDyXJ1m4ZAVQB9FTGtoncn5iacA2tRCPu",
+          "wallet": "FogxVNs6Mm2w9rnGL1vkARSwJxvLE8mujTv3LK8RnUhF",
+          "amount": "0.10 SOL",
+          "at": "2025-06-11T02:12:28.000Z",
+          "note": "Linked wallet: 2 transfers with HyjS…amFi (0 in, 2 out)"
+        },
+        {
+          "kind": "tx",
+          "ref": "5U5AryrCHsnZgzscSgAu6sR6gBxE9SKXhBQ6u5D5V6rHL3CKMYxN5ZWJubSSW2s5WkvA7xXE2gZgxTToDgUyL5VF",
+          "wallet": "5HJkVsBpSNDaj5a4PpeCWqvobEAmNHmbyXwwgPubX92z",
+          "amount": "1,000,000 Halbr",
+          "at": "2026-10-21T17:55:17.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "2MDHPMkmSHtArHdG8YXnkXK4vkKfGV2TNnDpPCKQPM28LMiqyPaDnjzTKJD8LraPdXQSZZ8mJkCWv95ovAXYx4Rb",
+          "wallet": "5HJkVsBpSNDaj5a4PpeCWqvobEAmNHmbyXwwgPubX92z",
+          "amount": "573 SOL",
+          "at": "2026-10-21T18:04:16.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "2MDHPMkmSHtArHdG8YXnkXK4vkKfGV2TNnDpPCKQPM28LMiqyPaDnjzTKJD8LraPdXQSZZ8mJkCWv95ovAXYx4Rb",
+          "wallet": "28VEzKt1Xq6RAKNjapzrVzAwWH862tRSzVsVibpRQnZP",
+          "amount": "573 SOL",
+          "at": "2026-10-21T18:04:16.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "2DLs7NPkonap5hEAZaCAu5krBChYmSJXzK9qY7PN2fHjudm9JA3qMaBSNnj43HAUZUBY1b9vdooZSRv5Pon3QVR",
+          "wallet": "2egWgrYoVSA6ffEaVY8HAmNvsWJ7BWLtCUZHWdKuUY7j",
+          "amount": "583 SOL",
+          "at": "2026-10-21T18:13:31.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "5YveVmBXhXeefJm7iZgnVV3Sp1Gy9raquR142QKbk1LVW9uWH1DWAwfRn9gUV11CnfYSzLkQrbQmpAVpsW9MBdTA",
+          "wallet": "AcptSMu3Mr93xqmnTwknBCuxEHHJ9npkZqsiw1UidEDz",
+          "amount": "4,000,000 Horgho",
+          "at": "2026-10-21T19:03:32.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "4Sme2Uh5oDYoSjauZ4qxv1A15Fr9WacLeDsJc8BJXNWM7p36uN67qKfWLtPGfMUuFzZvHvBmU54mQ6c6kXCY45dF",
+          "wallet": "5rnBmJMv7cm1ttTtxkd2Zo6CxeoS8QwGjy4dpFMAoCTU",
+          "amount": "3,763,631 Horgho",
+          "at": "2026-10-21T19:04:55.000Z",
+          "note": "Launch, deployer's opening buy"
+        },
+        {
+          "kind": "tx",
+          "ref": "4dcYwycVBX3qj6cpvcGZaaK9Khs86gExHqRGwxu99G4ioqtGzEUPh3XDFCFkvR9Y21ygLaaYEuixoYJDtMWSRNPi",
+          "wallet": "AcptSMu3Mr93xqmnTwknBCuxEHHJ9npkZqsiw1UidEDz",
+          "amount": "553 SOL",
+          "at": "2026-10-21T19:06:22.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "4dcYwycVBX3qj6cpvcGZaaK9Khs86gExHqRGwxu99G4ioqtGzEUPh3XDFCFkvR9Y21ygLaaYEuixoYJDtMWSRNPi",
+          "wallet": "6KTqf56EVD8gveb96srbjxLUygUz4EFHqgCCVbhbn6EP",
+          "amount": "553 SOL",
+          "at": "2026-10-21T19:06:22.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "2HcewBkPebVLmXVE5QbsFbuqxrKG2TUXBo6Jeb1duJiqZn1y3RLg1xUZ9a6Dh1GAUHrh1g6xeUwvHbvVBU62TA8o",
+          "wallet": "4gKUs5wUDXW771dyEBf3iRxWX5R9u43Fso57VFtaHfHr",
+          "amount": "4,000,000 ABJSIR",
+          "at": "2026-10-21T19:06:32.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "WPJm6UznvSHhdHYhX7hFF5AEMqDkG2KfwtB2feytBgosDCG5ifq656cZxDWgWRvSDsY9Pmhc78qjxXiKYQwVBbG",
+          "wallet": "CXfLgo2RVBJHufsmm7heSTp6t9iJob6Yqz3814ZTAbWr",
+          "amount": "3,796,553 ABJSIR",
+          "at": "2026-10-21T19:08:42.000Z",
+          "note": "Launch, deployer's opening buy"
+        },
+        {
+          "kind": "tx",
+          "ref": "25WeHHQ2dLjAeKR8tRgbGs6AqnjwesnmHhYPPQ7awnbadVEuFC42iHT6mHjRPsoNZCqtrHXbqowDpiBvehtigeSe",
+          "wallet": "4gKUs5wUDXW771dyEBf3iRxWX5R9u43Fso57VFtaHfHr",
+          "amount": "562 SOL",
+          "at": "2026-10-21T19:10:13.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "25WeHHQ2dLjAeKR8tRgbGs6AqnjwesnmHhYPPQ7awnbadVEuFC42iHT6mHjRPsoNZCqtrHXbqowDpiBvehtigeSe",
+          "wallet": "6JbyXV4WCa9ULudnaHoMawZUf85ntnxFaaagyWwc9DiB",
+          "amount": "562 SOL",
+          "at": "2026-10-21T19:10:13.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "3QrBmbpDxZ2AtPjdnYJJNx84Q6J2nNs6sphqrig6Lqpa2MMEr5E7qcoy3cXNCN2P2CLQ4szvkf2adzYAUwQRRdBF",
+          "wallet": "FmUZ6oD1wK8ovuAXHtwMivjCrVj4rC1Mp2oQzkNpwdb4",
+          "amount": "1,000,000,000 Abydrn",
+          "at": "2026-10-21T19:14:25.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "tNayQQGaSVhjN2a6TGZ9cjKpknSmRGP7NdD7USPiDRZP28x1XpXzMWnh1GdDV7ByDVUit3VBGJ4Ho3xyRNrt2fZ",
+          "wallet": "J3WtwtGT1y7E4Pgn41TAHZgH4Vp9LwXrFg4cUUVprYt4",
+          "amount": "1,000,000,000 METBAL",
+          "at": "2026-10-21T19:23:22.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "42EytRTFp382bwX9GJxQMWCgwX9AV6tooYVih9A3cgb5SpPwqqxvBK6WLS7KBTYSAbaumfKJPTALVbRd9PN89TJv",
+          "wallet": "J3WtwtGT1y7E4Pgn41TAHZgH4Vp9LwXrFg4cUUVprYt4",
+          "amount": "0.15 SOL",
+          "at": "2026-10-21T19:40:53.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "3TnYg2ZsAobXpiGDHTtusWKL88w3yBmaM4bg9pnScAAtv8oqr4HajSTpNrdLHbqSpBGtHCiXX1XwH1eDfkWX4uRK",
+          "wallet": "FmUZ6oD1wK8ovuAXHtwMivjCrVj4rC1Mp2oQzkNpwdb4",
+          "amount": "0.14 SOL",
+          "at": "2026-10-21T19:40:54.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "3nYQ2jgqnPZyth3YziH4SZn7kQU4Brqj8A8K1iG7TmSaF7yJTJAxwJ8EEzhcDWJYDbFhoveaBQBGzjxWPDvhEKyc",
+          "wallet": "EBh4QY6VffnD5itXWwfNwj1P9hgqNaRsGiWcnLLXoFxt",
+          "amount": "552 SOL",
+          "at": "2026-10-21T19:41:26.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "3nYQ2jgqnPZyth3YziH4SZn7kQU4Brqj8A8K1iG7TmSaF7yJTJAxwJ8EEzhcDWJYDbFhoveaBQBGzjxWPDvhEKyc",
+          "wallet": "AVajqDN7Lb4XCxkwU1bbLeC9HY78edgik2a8faaf8ZYb",
+          "amount": "552 SOL",
+          "at": "2026-10-21T19:41:26.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "3nYQ2jgqnPZyth3YziH4SZn7kQU4Brqj8A8K1iG7TmSaF7yJTJAxwJ8EEzhcDWJYDbFhoveaBQBGzjxWPDvhEKyc",
+          "wallet": "EBh4QY6VffnD5itXWwfNwj1P9hgqNaRsGiWcnLLXoFxt",
+          "amount": "552 SOL",
+          "at": "2026-10-21T19:41:26.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "3nYQ2jgqnPZyth3YziH4SZn7kQU4Brqj8A8K1iG7TmSaF7yJTJAxwJ8EEzhcDWJYDbFhoveaBQBGzjxWPDvhEKyc",
+          "wallet": "AVajqDN7Lb4XCxkwU1bbLeC9HY78edgik2a8faaf8ZYb",
+          "amount": "552 SOL",
+          "at": "2026-10-21T19:41:26.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "5B2VcXG6x2UQ2AxSQTNf6YMtVdPqPmjjBnXwACCo93SW2yaY8dU9Xi395cHmzCnabXp1sv5XoWjD1Hbu5aGFgoJV",
+          "wallet": "8ahskjYFrBfCpovMAGkvbwPykm8fNvxHLDUaVnSpCK22",
+          "amount": "2,000,000 Trshield",
+          "at": "2026-10-21T21:57:37.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "48is85bgu8qhMZM5rzF6Y8tMEkyCEvPDpvEtKYxUftAfq7Q7fwqupz69PZXbu1J4oFTFu4125LBSykVovprkngE5",
+          "wallet": "8ahskjYFrBfCpovMAGkvbwPykm8fNvxHLDUaVnSpCK22",
+          "amount": "569 SOL",
+          "at": "2026-10-21T22:06:13.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "48is85bgu8qhMZM5rzF6Y8tMEkyCEvPDpvEtKYxUftAfq7Q7fwqupz69PZXbu1J4oFTFu4125LBSykVovprkngE5",
+          "wallet": "FRej1QHTukjzRDZ7xVWA62uYr9gtXBtEMcd7YRLLXR6g",
+          "amount": "569 SOL",
+          "at": "2026-10-21T22:06:13.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "4TU33EdVrsK4iV3X3EG9v8CHhku1yYANSnMH4H2qYERpz2biMF2iqveyBwJWzUv9ffLcpoQfhYHn2MwQaCMNzoaR",
+          "wallet": "5Ci4VHFKqY1PkUtqRjxxGF9yoTeSEbAPZf1YHbzSNhDY",
+          "amount": "569 SOL",
+          "at": "2026-10-21T22:06:17.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "435KhKSVvWCaEq42sG7nEY1NxvDpsH915BNn2QkJKRT1AaChSM2gy9chVLJ3DK9Ns1LJcpDkFUwSwM7yp93EQ9yK",
+          "wallet": "4Zx2Gp8ssjPY1nwypKj4ND2wrnfuoaNWpkRcTLar3bUe",
+          "amount": "800,000 Snohlove",
+          "at": "2026-10-22T03:51:01.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "5hwpYQN3kcbNuaXn2vSjwMqA9JRVRX2NC2owHeEoKN2mzEWbbySpSEXDDN4hQVNtxsDrW6s13BBFSdwwadvmqfuE",
+          "wallet": "4Zx2Gp8ssjPY1nwypKj4ND2wrnfuoaNWpkRcTLar3bUe",
+          "amount": "0.16 SOL",
+          "at": "2026-10-22T04:08:06.000Z",
+          "note": "Proceeds leave"
+        },
+        {
+          "kind": "tx",
+          "ref": "3vrQVqAJHbQyj75ti45TfxC28oQUDsn7WD4FSvWp43i29imrdck1md98SAUmd7diR1yNbsp6Uv8haKvPUpBroCHR",
+          "wallet": "HHHKtoJsjxyaDYF6NPJu826d21M3ShDJcWtn7B6yMRg9",
+          "amount": "0.19 SOL",
+          "at": "2026-10-22T04:19:01.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "FARmjtqR9hUbVQHXE7tK7WWqPtqsyJkgVR6q51m4bo46CyAbsWVebmzPh2FFrBAQMCwg6GfYoVeSpJsXjAFsFUX",
+          "wallet": "6xUpaU9qpHr6NMaCZT4V3gXXGhTTwEYscB23VnVYgfFh",
+          "amount": "0.14 SOL",
+          "at": "2026-10-22T04:27:58.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "511f7yweN2CbcVWiky8wokuq9GzMg6ZjoBZNwz6kipcTZGHAsA7AvoApFncpqzavV9hn9HQSkS7DdozjkiJfEeqr",
+          "wallet": "6cY8HMeLZciE3PQfcVZVQ83uuXBwT4hKvxnSm4pSCYkq",
+          "amount": "1,000,000 Headcap",
+          "at": "2026-10-22T05:16:19.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "3bcSXwU9unFZuV7oZTfznWAeUBoJzaWPXFqnNMzzS7XPFzRjK72kU6jy4mnynZs2KvrrQo8ZwyKPWRB5VWJzDPWK",
+          "wallet": "6cY8HMeLZciE3PQfcVZVQ83uuXBwT4hKvxnSm4pSCYkq",
+          "amount": "613 SOL",
+          "at": "2026-10-22T05:25:29.000Z",
+          "note": "Proceeds leave"
+        }
+      ],
+      "money_trail": [
+        {
+          "label": "wallet",
+          "address": "2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC",
+          "amount": "460 SOL"
+        },
+        {
+          "label": "hop 1",
+          "address": "Ex7TLXb3goYqP2aqJ4uhyjGQAiUCVyqMRCY4UzxnoMS3",
+          "amount": ""
+        }
+      ],
+      "pnl": [
+        {
+          "mint": "A1czMQUdXuPWTN6uGL7H5XYWJFMWkhApvoNccYKcfzHV",
+          "symbol": "STAR",
+          "bought_sol": 2.999999999,
+          "sold_sol": 270.349283055,
+          "net_sol": 267.349283056,
+          "trades": 80
+        },
+        {
+          "mint": "2J5uSgqgarWoh7QDBmHSDA3d7UbfBKDZsdy1ypTSpump",
+          "symbol": "DADDY",
+          "bought_sol": 24.75,
+          "sold_sol": 187.702374389,
+          "net_sol": 162.952374389,
+          "trades": 50
+        },
+        {
+          "mint": "3hRfnpSWsdajPohJDbzfPY4aEjPEV5ZnMFUiVNEspump",
+          "symbol": "MUVA",
+          "bought_sol": 3.0299999989999997,
+          "sold_sol": 106.458032089,
+          "net_sol": 103.42803209,
+          "trades": 23
+        },
+        {
+          "mint": "3S8qX1MsMqRbiwKg2cQyx7nis1oHMgaCuc9c4VfvVdPN",
+          "symbol": "MOTHER",
+          "bought_sol": 27.72,
+          "sold_sol": 102.992293272,
+          "net_sol": 75.272293272,
+          "trades": 11
+        },
+        {
+          "mint": "GkyBJxTXkgxLCVwVcVt6DGwMTzAHxMAkTmT8yvKupump",
+          "symbol": "MINI",
+          "bought_sol": 74.25,
+          "sold_sol": 37.030868218,
+          "net_sol": -37.219131782,
+          "trades": 4
+        },
+        {
+          "mint": "D3Bogh1GhJfg7CCetnG4SNKuzgauY1c7bVYCmJpkpump",
+          "symbol": "Noramyako",
+          "bought_sol": 4.059999998,
+          "sold_sol": 32.078777764,
+          "net_sol": 28.018777766,
+          "trades": 4
+        },
+        {
+          "mint": "7ZAYY6NgCiAG5ZdViBVLz1kZxfdngaaFL2Ho8HQjpump",
+          "symbol": "WHORE",
+          "bought_sol": 2.999999999,
+          "sold_sol": 29.467077742999997,
+          "net_sol": 26.467077743999997,
+          "trades": 12
+        },
+        {
+          "mint": "BQ3Kca1euMM2BHoMJa6Udipk4gHjiehRrgmSyg3apump",
+          "symbol": "SLUT",
+          "bought_sol": 2.999999999,
+          "sold_sol": 26.561747709,
+          "net_sol": 23.56174771,
+          "trades": 3
+        },
+        {
+          "mint": "E9mwdSSoCPVL5yrbE7kHKCznoaFL4RT932PsYMrGpump",
+          "symbol": "BBYS",
+          "bought_sol": 3.0299999989999997,
+          "sold_sol": 24.031360355,
+          "net_sol": 21.001360356,
+          "trades": 2
+        },
+        {
+          "mint": "kZqJmNfdUsNs8TrkeJWSRQTEsNU6UhVayRUVLwrM5Hh",
+          "symbol": "Redd",
+          "bought_sol": 5.969999999000001,
+          "sold_sol": 26.521000516,
+          "net_sol": 20.551000517,
+          "trades": 4
+        },
+        {
+          "mint": "GCENPumKegosmQuoc3cGia3CfxPiFA8HKrMwCzgmpump",
+          "symbol": "BONGO",
+          "bought_sol": 20.059999998,
+          "sold_sol": 0,
+          "net_sol": -20.059999998,
+          "trades": 2
+        },
+        {
+          "mint": "GFJfUnqDjKmHH5VcPreeK4JAfaR6TcUg5Wwj7RvBbonk",
+          "symbol": "PLEX",
+          "bought_sol": 29.700000000000003,
+          "sold_sol": 11.808169977999999,
+          "net_sol": -17.891830022000004,
+          "trades": 8
+        }
+      ],
+      "narrative": [
+        "@kimchi1x was picked by hand. The agent read 2258 posts and found 11 claims about tokens, 20 wallets on the record (1 claimed by the handle itself, 6 found by following the money).",
+        "The worst of it, in order: 1. 6 wallets never admitted, linked by transfers 2. Launched $NOSWCH: deployer sold 3. Launched $Horgho: deployer sold.",
+        "Found by following SOL between the wallets on record and the rest of the chain: Ex7T…oMS3 (5 transfers with 2yu3…mBMC); H4Bn…5AiG (2 transfers with HyjS…amFi); Fogx…nUhF (2 transfers with HyjS…amFi); 5uAN…R6Rg (1 transfer with HyjS…amFi); 2f7U…q1ot (1 transfer with HyjS…amFi); cBVA…pDdg (1 transfer with HyjS…amFi). Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65. Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65. Their own launch. The token's file: deployer sold; deployer bought at creation. Score 55. Pools or curves created from the wallets on record, the newest on 2026-10-26, the oldest on 2024-05-24. The newest 12 are replayed below. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. \"The situation about @kimchi1x for example. ... They just rugging and don't even feel accountable eno\" · \"If it can be proven according to Californian law, “THEFT BY FALSE PRETENCES” that @kimchi1x even onl\" (kimchi) · \"even scammers like @kimchi1x and PF shady ones don't scam with their main wallets!\".",
+        "What the wallets made, in SOL, from the swap legs: $STAR +267.3, $DADDY +163.0, $MUVA +103.4, $MOTHER +75.3, $MINI -37.2. What is still held is not priced.",
+        "460 SOL left 2yu3…mBMC. The trail ends at hop 1 Ex7T…oMS3.",
+        "Every post and every transaction above is linked. Disputes are honoured at once. Convictions: 0."
+      ],
+      "png": "case-0001.png"
+    }
+  ]
 }
