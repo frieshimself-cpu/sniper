@@ -3,7 +3,7 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:54:59Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:25:36Z",
+  "updated_at": "2026-10-26T17:25:41Z",
   "steps": [
     {
       "at": "2026-10-26T16:55:01Z",
@@ -299,6 +299,11 @@
       "at": "2026-10-26T17:25:36Z",
       "phase": "wallets",
       "text": "6 counterparties seen; 1 wallet never admitted, linked by transfers"
+    },
+    {
+      "at": "2026-10-26T17:25:41Z",
+      "phase": "replay",
+      "text": "121 tokens traded across the wallets; biggest $STAR +267 SOL, $DADDY +163 SOL"
     }
   ],
   "wallets": [
@@ -353,6 +358,12 @@
     {
       "address": "AFzmh2TYRFyhMcv9T32pjqPg2zdjCHMsRwxUMJcTsR3V",
       "tier": "probable"
+    },
+    {
+      "address": "Ex7TLXb3goYqP2aqJ4uhyjGQAiUCVyqMRCY4UzxnoMS3",
+      "tier": "probable",
+      "via": "5 transfers with 2yu3…mBMC",
+      "peer": "2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC"
     }
   ],
   "posts": [
