@@ -1,6 +1,7 @@
 # The agent, online, with no server: once an hour GitHub runs a cycle.
 #   ballot of fresh launches -> poll on X for X_POLL_MINUTES -> winner investigated -> case posted and committed.
-# Secrets: HELIUS_API_KEY (required), ARKHAM_API_KEY, XAI_API_KEY, X_BEARER_TOKEN, and either X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN,
+# Secrets: HELIUS_API_KEY (required), ARKHAM_API_KEY, XAI_API_KEY, X_BEARER_TOKEN, TURSO_DATABASE_URL + TURSO_AUTH_TOKEN (or KV_*),
+#   and either X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN,
 #   X_ACCESS_SECRET (OAuth 1.0a) or X_CLIENT_ID, X_CLIENT_SECRET, X_USER_TOKEN, X_REFRESH_TOKEN (OAuth 2.0, needs a shared store),
 # X_ACCESS_SECRET (polls on X), KV_REST_API_URL + KV_REST_API_TOKEN (shared state with the Vercel site).
 name: investigate
@@ -60,6 +61,8 @@ jobs:
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
           KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
           KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           SITE_URL: ${{ vars.SITE_URL || 'https://frieshimself-cpu.github.io/sniper' }}
           X_POLL_MINUTES: ${{ vars.X_POLL_MINUTES || '10' }}
           REQUIRE_VOTES: ${{ vars.REQUIRE_VOTES || 'on' }}
@@ -85,8 +88,13 @@ jobs:
           if git diff --cached --quiet; then
             echo "nothing to commit"
           else
-            N=$(node -e 'const f=require("./data/cases.json");const c=f.cases.at(-1);console.log(c?`${c.id} $${c.token.symbol}`:"")')
-            git commit -m "Case ${N}: opened by the agent" -m "$(node -e 'console.log(require("./data/status.json").message)')"
+            MSG=$(node -e 'console.log(require("./data/status.json").message)')
+            if git diff --cached --quiet -- data/cases.json; then
+              git commit -m "Status: ${MSG}"
+            else
+              N=$(node -e 'const f=require("./data/cases.json");const c=f.cases.at(-1);console.log(c?`${c.id} ${c.kind==="person"?c.subjects[0]:"$"+c.token.symbol}`:"")')
+              git commit -m "Case ${N}: opened by the agent" -m "${MSG}"
+            fi
             git pull --rebase origin "${{ github.ref_name }}"
             git push origin HEAD:"${{ github.ref_name }}"
             gh workflow run pages.yml --ref "${{ github.ref_name }}" || echo "pages workflow not dispatched (is Pages enabled?)"
