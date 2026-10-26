@@ -1,8 +1,8 @@
 {
-  "state": "running",
+  "state": "done",
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:38:18Z",
-  "updated_at": "2026-10-26T16:43:07Z",
+  "updated_at": "2026-10-26T16:43:09Z",
   "steps": [
     {
       "at": "2026-10-26T16:38:20Z",
@@ -43,6 +43,16 @@
       "at": "2026-10-26T16:41:06Z",
       "phase": "replay",
       "text": "7 tokens to replay, posts set next to transactions"
+    },
+    {
+      "at": "2026-10-26T16:43:09Z",
+      "phase": "findings",
+      "text": "1 finding, worst first: Called out by 7 other accounts"
+    },
+    {
+      "at": "2026-10-26T16:43:09Z",
+      "phase": "file",
+      "text": "@kimchi1x: score 15, 1 finding. Not enough for a case."
     }
   ],
   "wallets": [
@@ -104,5 +114,6 @@
       "title": "Called out by 7 other accounts",
       "score": 15
     }
-  ]
+  ],
+  "message": "@kimchi1x: score 15, 1 finding. Not enough for a case."
 }
