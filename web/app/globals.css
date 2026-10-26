@@ -481,3 +481,4 @@ body > * { position: relative; z-index: 1; }
 .live-post-at { display: flex; gap: 8px; align-items: baseline; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(226, 221, 209, 0.45); font-variant-numeric: tabular-nums; }
 .live-post-type { color: var(--color-stamp); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { .live-posts li { animation: none; } }
+.live-posts li a { display: block; overflow-wrap: anywhere; white-space: normal; }
