@@ -120,13 +120,14 @@ If you import by hand instead: vercel.com/new, Root Directory `web`, Framework N
 
 After the first deploy:
 
-1. Storage tab: if Upstash Redis is not attached yet, add it (Marketplace, free plan). It
-   sets `KV_REST_API_URL` and `KV_REST_API_TOKEN` on the project.
+1. Storage tab: attach a store, free plan. Either Upstash Redis (sets `KV_REST_API_URL`
+   and `KV_REST_API_TOKEN`) or Turso (sets `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`).
+   The state module speaks both. Redeploy once it is attached.
 2. Settings, Environment Variables: set `SITE_URL` to the deployment URL and redeploy.
    Optional for on-site wallet voting: `CRIME_MINT`, `MIN_VOTE_BALANCE`, `HELIUS_API_KEY`.
-3. GitHub, Settings, Secrets and variables, Actions: add `KV_REST_API_URL` and
-   `KV_REST_API_TOKEN` (same values, Storage tab shows them) so the agent writes ballots
-   and reads lead approvals in the same place; add the variable `SITE_URL`.
+3. GitHub, Settings, Secrets and variables, Actions: add the same two values as secrets
+   (the Storage tab shows them) so the agent writes ballots and reads lead approvals in
+   the same place; add the variable `SITE_URL`.
 4. Every case the agent commits triggers a new deployment, because the build copies
    `../data`, `../out` and `../fixtures` into the site (`scripts/sync-agent-data.mjs`).
 
@@ -158,7 +159,7 @@ Set these in the repository: Settings, Secrets and variables, Actions.
 | `ARKHAM_API_KEY` | no, adds labels, exchange names on the trail, pump.fun usernames |
 | `XAI_API_KEY` | no, adds self-claimed wallets from X posts |
 | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` | no, moves the vote to a poll on X and posts cases there (developer.x.com, Read and Write) |
-| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | no, shares ballots and leads with the Vercel site |
+| `KV_REST_API_URL` + `KV_REST_API_TOKEN`, or `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` | no, shares ballots and leads with the Vercel site |
 
 Optional repository variables: `SITE_URL`, `X_POLL_MINUTES` (10), `REQUIRE_VOTES` (on), `MIN_PUBLISH_SCORE` (35).
 Run it by hand from the Actions tab (workflow_dispatch) with a mint, or as a dry run.

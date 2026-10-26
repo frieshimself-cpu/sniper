@@ -11,7 +11,7 @@
 import { join } from "node:path";
 import { discover, describe } from "./sources/discover.js";
 import { X, xCreds } from "./sources/x.js";
-import { readState, updateState, usingRedis } from "./state.js";
+import { readState, updateState, backend } from "./state.js";
 import { run, writeStatus, ROOT } from "./investigate.js";
 import { enforce } from "./policy.js";
 import type { CasesFile } from "./types.js";
@@ -83,7 +83,7 @@ async function buildOptions(): Promise<{ options: Option[]; carried?: string }> 
 
 export async function cycle(opts: { dry?: boolean } = {}): Promise<void> {
   const x = xCreds() ? new X(xCreds()!) : null;
-  process.stdout.write(`cycle ${periodId()} · state ${usingRedis() ? "redis" : "files"} · polls on ${x ? "X" : "the site"}\n`);
+  process.stdout.write(`cycle ${periodId()} · state ${backend()} · polls on ${x ? "X" : "the site"}\n`);
   const { options, carried } = await buildOptions();
   if (options.length < 2) {
     await writeStatus({ state: "idle", last_run_at: iso(), message: "Not enough fresh subjects for a ballot. Nothing opened.", next_run_at: iso(new Date(Date.now() + PERIOD_MS)) });

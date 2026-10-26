@@ -14,7 +14,7 @@ src/render.ts        case card renderer (HTML → PNG, Playwright/Chromium)
 src/investigate.ts   npm run investigate → one real case from the chain
 src/cycle.ts         npm run cycle → ballot, poll on X (10 min), investigate the winner, post the case
 src/schedule.ts      npm run watch → a cycle every hour
-src/state.ts         shared state (ballots, disputes, leads): Upstash Redis when configured, else files
+src/state.ts         shared state (ballots, disputes, leads): Turso or Upstash Redis when configured, else files
 src/detectors.ts     what the agent looks for (bundles, exits, LP pulls, dev sells, concentration)
 src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (X posts), x.ts (polls and posting),
                      discover.ts (DexScreener boosts, Jupiter trending), pumpfun.ts (bonding curve PDA), mock.ts

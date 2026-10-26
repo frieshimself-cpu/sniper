@@ -23,7 +23,7 @@ import { investigate as runDetectors, short, type Investigation } from "./detect
 import { liveSources, liveConfigured } from "./sources/live.js";
 import { mockSources } from "./sources/mock.js";
 import { discover, tokenHints } from "./sources/discover.js";
-import { readState, updateState, usingRedis } from "./state.js";
+import { readState, updateState, backend } from "./state.js";
 import type { Claim, Label, Sources } from "./sources/types.js";
 import type { Case, CasesFile, Registry, RegistryEntry } from "./types.js";
 
@@ -331,7 +331,7 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   await writeStatus({ state: "running", mode: src.name, message: "" });
   const applied = await applyApprovedLeads(registry).catch(() => 0);
   if (applied) process.stdout.write(`applied ${applied} approved lead${applied === 1 ? "" : "s"} to the registry\n`);
-  process.stdout.write(`state: ${usingRedis() ? "redis" : "files"}\n`);
+  process.stdout.write(`state: ${backend()}\n`);
 
   let picked = await pickSubject(opts.subject, src, registry, opts.via);
   let inv: Investigation | null = null;
