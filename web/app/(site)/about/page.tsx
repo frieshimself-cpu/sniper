@@ -46,7 +46,7 @@ export default async function About() {
           <Stamp size={44} blend={false} />
         </div>
         <p className="label label-dark mb-4">Chain Research &amp; Investigation of Market Exploits</p>
-        <h1 className="text-4xl md:text-5xl pr-40">C.R.I.M.E. opens a case every hour. You pick who.</h1>
+        <h1 className="text-4xl md:text-5xl md:pr-40">C.R.I.M.E. opens a case every hour. You pick who.</h1>
         <p className="mt-4 text-sm text-mute">
           It has opened {stats.cases_opened} cases. It has secured zero convictions. It is not a court.
         </p>

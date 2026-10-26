@@ -43,13 +43,13 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         </div>
       </div>
       <header className="border-b border-line sticky top-0 z-20 backdrop-blur bg-page/80">
-        <div className="mx-auto max-w-6xl px-4 py-3 sm:h-14 sm:py-0 flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-4 gap-y-2">
+        <div className="mx-auto max-w-6xl px-4 py-3 md:h-14 md:py-0 flex flex-wrap md:flex-nowrap items-center justify-between gap-x-4 gap-y-2">
           <Link href="/" className="flex items-center gap-3 no-underline">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={withBase("/brand/knife.png")} alt="" className="logo-knife" width={30} height={30} />
             <span className="headline abr text-base tracking-[0.18em]">CRIME IS LEGAL</span>
           </Link>
-          <nav aria-label="Primary" className="w-full sm:w-auto -mx-2 sm:mx-0 flex flex-wrap gap-x-1 gap-y-1 text-[12px] tracking-[0.08em] whitespace-nowrap">
+          <nav aria-label="Primary" className="w-full md:w-auto -mx-2 md:mx-0 flex flex-wrap gap-x-1 gap-y-1 text-[12px] tracking-[0.08em] whitespace-nowrap">
             {NAV.map(([href, label]) => (
               <NavLink key={href} href={href}>
                 {label}

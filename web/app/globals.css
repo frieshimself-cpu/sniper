@@ -508,3 +508,9 @@ body > * { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) { .live-narration, .live-posts li.new { animation: none; } }
 .live-wallet a { white-space: nowrap; }
 .live-wallet { flex-wrap: wrap; }
+/* chapter anchors clear the taller phone header */
+@media (max-width: 767px) { .chapter { scroll-margin-top: 150px; } }
+/* small type in the live panel reads */
+.live-at, .live-post-at, .live-narration-at { color: rgba(226, 221, 209, 0.62); }
+/* the drawn wallets stay legible on a phone: the drawing keeps its width and scrolls */
+@media (max-width: 767px) { .live-graph { overflow-x: auto; } .live-graph svg { min-width: 640px; } }

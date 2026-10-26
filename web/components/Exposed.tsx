@@ -18,9 +18,9 @@ function left(iso: string) {
   return m < 120 ? `${m}m` : `${Math.round(m / 60)}h`;
 }
 
-const hrefFor = (subject?: string) => (subject?.startsWith("@") ? `/persons/${subject.slice(1)}` : null);
+const hrefFor = (subject: string | undefined, known: string[]) => (subject?.startsWith("@") && known.includes(subject.toLowerCase()) ? `/persons/${subject.slice(1)}` : null);
 
-export function Exposed({ initial, account, lastSubject }: { initial: PollView | null; account: string; lastSubject: { label: string; href: string } | null }) {
+export function Exposed({ initial, account, lastSubject, known = [] }: { initial: PollView | null; account: string; lastSubject: { label: string; href: string } | null; known?: string[] }) {
   const [poll, setPoll] = useState<PollView | null>(initial);
   const [, tick] = useState(0);
   useEffect(() => {
@@ -65,7 +65,7 @@ export function Exposed({ initial, account, lastSubject }: { initial: PollView |
   const n = lead.votes;
   const pct = poll.total ? Math.round((n / poll.total) * 100) : 0;
   const tied = open && ordered.length > 1 && ordered[1].votes === n;
-  const href = hrefFor(lead.subject);
+  const href = hrefFor(lead.subject, known);
   const max = Math.max(1, ...poll.options.map((o) => o.votes));
 
   return (
@@ -121,7 +121,7 @@ export function Exposed({ initial, account, lastSubject }: { initial: PollView |
         <ol className="mt-4 flex flex-col gap-4">
           {poll.options.map((o, i) => {
             const p = poll.total ? Math.round((o.votes / poll.total) * 100) : 0;
-            const h = hrefFor(o.subject);
+            const h = hrefFor(o.subject, known);
             return (
               <li key={i} className="flex flex-col gap-2">
                 <div className="flex items-baseline justify-between gap-3">

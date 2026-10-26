@@ -59,7 +59,9 @@ test("/cases searches by $symbol, @handle and CA and filters by severity", async
   await page.goto(`/cases?q=${c.token.mint}`);
   await expect(page.locator("a.file")).toHaveCount(1);
   await page.goto("/cases?severity=critical");
-  for (const t of await page.locator("a.file").allInnerTexts()) expect(t).toMatch(/CRITICAL/);
+  await expect(page.locator("a.file").first()).toBeVisible();
+  const n = await page.locator("a.file").count();
+  for (let i = 0; i < n; i++) await expect(page.locator("a.file").nth(i)).toContainText(/severity\s*critical/i); // the archive streams in after the shell; the capitals are CSS
   await page.goto("/cases?q=nothing-matches-this");
   await expect(page.getByText("Nothing on file.")).toBeVisible();
   await clean(page);

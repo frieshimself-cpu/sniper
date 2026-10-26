@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { dyn } from "@/lib/request";
 import Link from "next/link";
-import { getStats, latestCases, getAgentStatus } from "@/lib/data";
+import { getStats, latestCases, getAgentStatus, getPersons } from "@/lib/data";
 import { currentPoll } from "@/lib/polls";
 import { getProgress } from "@/lib/progress";
 import { ago, until, siteUrl } from "@/lib/format";
@@ -86,7 +86,7 @@ export default async function Home() {
           <Chapter n="01" id="exposed" title="Who gets exposed first" sub={`A poll on @${account}. Four names, ten minutes. The winner gets read, wallet by wallet, post by post.`} />
         </Reveal>
         <Reveal className="mt-10" delay={120}>
-          <Exposed initial={poll} account={account} lastSubject={lastSubject} />
+          <Exposed initial={poll} account={account} lastSubject={lastSubject} known={getPersons().map((p) => p.handle.toLowerCase())} />
         </Reveal>
       </section>
 
@@ -106,7 +106,7 @@ export default async function Home() {
           <div className="flex items-end justify-between gap-6">
             <Chapter n="03" id="files" title="The files" sub="Every case is a file: a headline, the findings worst first, an evidence table where every row is a link, the money drawn." />
             <Link href="/cases" className="hidden sm:inline text-[11px] font-semibold uppercase tracking-[0.14em] underline whitespace-nowrap">
-              All {stats.cases_opened} cases
+              All {stats.cases_opened} case{stats.cases_opened === 1 ? "" : "s"}
             </Link>
           </div>
         </Reveal>
@@ -140,7 +140,7 @@ export default async function Home() {
           </Reveal>
         ) : null}
         <Link href="/cases" className="sm:hidden mt-6 inline-block text-[11px] font-semibold uppercase tracking-[0.14em] underline">
-          All {stats.cases_opened} cases
+          All {stats.cases_opened} case{stats.cases_opened === 1 ? "" : "s"}
         </Link>
       </section>
 

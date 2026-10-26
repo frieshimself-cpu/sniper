@@ -12,14 +12,20 @@ import { withBase } from "@/lib/dyn";
 export function Hero({ children, line }: { children: React.ReactNode; line: string }) {
   const svg = useRef<SVGSVGElement>(null);
   useEffect(() => {
+    // replay the draw-in when the page comes back from the cache
     const el = svg.current;
     if (!el) return;
-    const id = requestAnimationFrame(() => el.classList.add("draw"));
-    return () => cancelAnimationFrame(id);
+    const again = () => {
+      el.classList.remove("draw");
+      void el.getBoundingClientRect();
+      el.classList.add("draw");
+    };
+    window.addEventListener("pageshow", again);
+    return () => window.removeEventListener("pageshow", again);
   }, []);
   return (
     <div className="hero">
-      <svg ref={svg} className="hero-knife" viewBox={KNIFE_BOX} aria-hidden>
+      <svg ref={svg} className="hero-knife draw" viewBox={KNIFE_BOX} aria-hidden>
         <path className="k-b" d={KNIFE_PATH} pathLength={1000} />
         <path className="k-r" d={KNIFE_PATH} pathLength={1000} />
         <path className="k-g" d={KNIFE_PATH} pathLength={1000} />

@@ -202,7 +202,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
         <p className="live-phase">
           <span className={`live-dot ${running ? "on" : ""}`} aria-hidden />
           {running ? "under way" : p.state === "done" ? "finished" : "stopped"}
-          {p.started_at && mounted ? <span className="ml-3 opacity-60">{running ? `${since(p.started_at)} in` : since(p.updated_at) + " ago"}</span> : null}
+          {p.started_at && mounted ? <span className="ml-3 opacity-80">{running ? `${since(p.started_at)} in` : since(p.updated_at) + " ago"}</span> : null}
         </p>
         <div className="flex items-baseline gap-5">
           {running && p.started_at && mounted ? (
