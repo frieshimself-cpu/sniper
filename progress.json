@@ -3,18 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:15:38Z",
+  "updated_at": "2026-10-26T18:19:03Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:48:24Z",
-      "phase": "record",
-      "text": "posts 1,741–1,800 of 2,258 typed: nothing claimed"
-    },
-    {
-      "at": "2026-10-26T17:48:29Z",
-      "phase": "record",
-      "text": "posts 1,801–1,860 of 2,258 typed: nothing claimed"
-    },
     {
       "at": "2026-10-26T17:48:34Z",
       "phase": "record",
@@ -304,6 +294,16 @@
       "at": "2026-10-26T18:15:38Z",
       "phase": "replay",
       "text": "141 tokens traded across the wallets; biggest $STAR +267 SOL, $DADDY +163 SOL"
+    },
+    {
+      "at": "2026-10-26T18:15:41Z",
+      "phase": "replay",
+      "text": "159 launches found on the wallets; 20 tokens to replay, the wallets' own launches first; posts set next to transactions"
+    },
+    {
+      "at": "2026-10-26T18:19:03Z",
+      "phase": "replay",
+      "text": "replaying $Ibmblu (FfjG…bonk): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
     }
   ],
   "wallets": [
@@ -623,6 +623,8 @@
     "wallets_read": 14,
     "transfers": 20639,
     "sol_in": 1270,
-    "sol_out": 1156
+    "sol_out": 1156,
+    "tokens": 20,
+    "launches": 159
   }
 }
