@@ -125,7 +125,7 @@ export default async function CasePage({ params }: Props) {
         <h1 className="mt-8 text-3xl md:text-4xl max-w-3xl abr">{c.headline}</h1>
         <p className="mt-3 text-[12px] font-semibold uppercase tracking-[0.14em]">{c.charge}</p>
 
-        <h2 className="mt-10 text-xl">Findings</h2>
+        <h2 className="mt-10 text-xl">{c.kind === "person" ? "The worst of it, in order" : "Findings"}</h2>
         <ol className="mt-3 flex flex-col gap-3">
           {c.findings.map((f) => (
             <li key={f.code} className="grid grid-cols-[72px_1fr] gap-3 text-[13px]">
@@ -147,6 +147,44 @@ export default async function CasePage({ params }: Props) {
         <div className="mt-3">
           <EvidenceTable rows={c.evidence} />
         </div>
+
+        {c.pnl && c.pnl.length ? (
+          <>
+            <h2 className="mt-10 text-xl">What the wallets made</h2>
+            <p className="mt-1 text-[12px] opacity-70">In SOL, from the swap legs across every wallet on the record. What is still held is not priced.</p>
+            <div className="mt-3 overflow-x-auto -mx-5 px-5">
+              <table className="data">
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Bought for</th>
+                    <th>Sold for</th>
+                    <th>Net</th>
+                    <th>Trades</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {c.pnl.map((q) => (
+                    <tr key={q.mint}>
+                      <td>
+                        <a href={solscanToken(q.mint)} target="_blank" rel="noopener noreferrer" className="underline">
+                          {q.symbol ? `$${q.symbol}` : `${q.mint.slice(0, 4)}…${q.mint.slice(-4)}`}
+                        </a>
+                      </td>
+                      <td>{q.bought_sol.toFixed(1)} SOL</td>
+                      <td>{q.sold_sol.toFixed(1)} SOL</td>
+                      <td className={q.net_sol >= 5 ? "text-stamp font-semibold" : ""}>
+                        {q.net_sol >= 0 ? "+" : ""}
+                        {q.net_sol.toFixed(1)} SOL
+                      </td>
+                      <td>{q.trades}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : null}
 
         <h2 className="mt-10 text-xl">Money trail</h2>
         <div className="mt-3">

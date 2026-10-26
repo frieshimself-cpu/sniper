@@ -15,13 +15,16 @@ import { ruleClaims } from "./sources/claims.js";
 import { X, xCreds, type Post } from "./sources/x.js";
 import { investigate as investigateToken, isService, short, type Investigation } from "./detectors.js";
 import type { Sources, Transfer } from "./sources/types.js";
-import type { Evidence, Finding, Hop, Severity, WalletTier } from "./types.js";
+import type { Evidence, Finding, Hop, Severity, TokenPnl, WalletTier } from "./types.js";
+import { isWallet } from "./sources/pumpfun.js";
 import { normalizeHandle } from "./policy.js";
 
 export interface PersonSources {
   posts(handle: string): Promise<Post[]>;
   claims(handle: string, posts: Post[]): Promise<PostClaim[]>;
   deleted(handle: string): Promise<Array<{ url: string; quote: string; about: string }>>;
+  /** what others said about the handle on X: accusations with the post that made them */
+  said(handle: string): Promise<Array<{ url: string; quote: string; about: string }>>;
   wallets(handle: string): Promise<Array<{ address: string; platform?: string; url: string }>>;
   chain: Sources;
 }
@@ -30,7 +33,8 @@ export interface PersonInvestigation {
   handle: string;
   posts: number;
   claims: PostClaim[];
-  wallets: Array<{ address: string; tier: WalletTier; source: string; platform?: string }>;
+  wallets: Array<{ address: string; tier: WalletTier; source: string; platform?: string; via?: string }>;
+  pnl: TokenPnl[];
   findings: Finding[];
   evidence: Evidence[];
   trail: Hop[];
@@ -42,7 +46,8 @@ export interface PersonInvestigation {
   log: string[];
 }
 
-const MAX_POSTS = Number(process.env.PERSON_MAX_POSTS ?? 200); // X bills per post read
+const MAX_POSTS = Number(process.env.PERSON_MAX_POSTS ?? 3200); // the whole record; X bills per post read, and stops at 3,200
+const MAX_LINKED = Number(process.env.PERSON_MAX_LINKED ?? 6); // wallets found by following the money
 const MAX_TOKENS = Number(process.env.PERSON_MAX_TOKENS ?? 5);
 const HOUR = 3_600_000;
 const WSOL = "So11111111111111111111111111111111111111112";
@@ -75,6 +80,10 @@ export function livePersonSources(chain: Sources): PersonSources {
     async deleted(handle) {
       if (!grok) return [];
       return grok.searchHistory(handle).catch(() => []);
+    },
+    async said(handle) {
+      if (!grok) return [];
+      return grok.searchSaid(handle).catch(() => []);
     },
     async wallets(handle) {
       if (!arkham) return [];
@@ -109,7 +118,51 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
 
   const history = new Map<string, Transfer[]>();
   for (const w of wallets.keys()) history.set(w, await src.chain.transfers(w, 400).catch(() => []));
-  const all = [...history.values()].flat();
+
+  // ---- the wallets they never admitted: follow the money ----------------------
+  // Plain SOL transfers between a wallet on the record and another wallet, both ways, counted. Two transfers,
+  // or one of five SOL or more, is a link. Services, programs and token accounts are never links.
+  {
+    const seeds = new Set(wallets.keys());
+    const cand = new Map<string, { n: number; sol: number; sig: string; at: string; with: string; ins: number; outs: number }>();
+    for (const t of [...history.values()].flat()) {
+      if (t.kind !== "sol" || t.amount < 0.05 || (t.type && t.type !== "TRANSFER" && t.type !== "UNKNOWN")) continue;
+      const seed = seeds.has(t.from) ? t.from : seeds.has(t.to) ? t.to : null;
+      const other = seed === t.from ? t.to : t.from;
+      if (!seed || !other || seeds.has(other) || !isWallet(other)) continue;
+      const c = cand.get(other) ?? { n: 0, sol: 0, sig: t.signature, at: t.at, with: seed, ins: 0, outs: 0 };
+      c.n++;
+      c.sol += t.amount;
+      if (seed === t.from) c.outs++;
+      else c.ins++;
+      if (t.amount > (cand.get(other)?.sol ?? 0)) Object.assign(c, { sig: t.signature, at: t.at, with: seed });
+      cand.set(other, c);
+    }
+    const ranked = [...cand.entries()].filter(([, c]) => c.n >= 2 || c.sol >= 5).sort((a, b) => b[1].n - a[1].n || b[1].sol - a[1].sol).slice(0, MAX_LINKED * 3);
+    const labels = ranked.length ? await src.chain.labels(ranked.map(([a]) => a)).catch(() => new Map()) : new Map();
+    let linked = 0;
+    for (const [a, c] of ranked) {
+      if (linked >= MAX_LINKED) break;
+      const l = labels.get(a);
+      if (isService(l) || (l?.entity && !l?.handle)) continue; // somebody else's, or a service
+      if (l?.handle && normalizeHandle(l.handle) !== handle) continue; // on record as another handle
+      wallets.set(a, { address: a, tier: "probable", source: `https://solscan.io/tx/${c.sig}`, via: `${c.n} transfer${c.n === 1 ? "" : "s"} with ${short(c.with)}` });
+      evidence.push({ kind: "tx", ref: c.sig, wallet: a, amount: `${c.sol.toFixed(2)} SOL`, at: c.at, note: `Linked wallet: ${c.n} transfer${c.n === 1 ? "" : "s"} with ${short(c.with)} (${c.ins} in, ${c.outs} out)` });
+      history.set(a, await src.chain.transfers(a, 400).catch(() => []));
+      linked++;
+    }
+    if (linked) {
+      findings.push({ code: code(), title: `${linked} wallet${linked === 1 ? "" : "s"} never admitted, linked by transfers`, detail: `Found by following SOL between the wallets on record and the rest of the chain: ${[...wallets.values()].filter((w) => w.via).map((w) => `${short(w.address)} (${w.via})`).join("; ")}.`, score: 10 + 5 * linked });
+      score += 10 + 5 * linked;
+    }
+    log.push(`${cand.size} counterparties, ${linked} linked wallet${linked === 1 ? "" : "s"} added`);
+  }
+  const all = dedupe([...history.values()].flat());
+
+  // ---- profit per token, from the swap legs --------------------------------------
+  const pnl = profitPerToken(all, new Set(wallets.keys()));
+  for (const q of pnl.slice(0, 12)) q.symbol = (await src.chain.token(q.mint).catch(() => null))?.symbol ?? "";
+  log.push(`${pnl.length} tokens traded; biggest: ${pnl.slice(0, 3).map((p) => `${p.symbol || short(p.mint)} ${p.net_sol >= 0 ? "+" : ""}${p.net_sol.toFixed(1)} SOL`).join(", ") || "none"}`);
 
   // ---- tokens the posts talk about ----------------------------------------
   const mentioned = new Map<string, { token: string; mint?: string; claims: PostClaim[] }>();
@@ -170,12 +223,15 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       if (after.length && soldAmt > 0) {
         const soldAfter = sum(after.map((t) => t.amount));
         const share = boughtAmt ? Math.min(1, soldAfter / boughtAmt) : 1;
+        const made = pnl.find((p) => p.mint === mint);
+        const w = 30 + Math.min(20, Math.round(share * 20)) + (hours(s.at, after[0].at) <= 2 ? 10 : 0) + (made && made.net_sol >= 5 ? Math.min(20, Math.round(made.net_sol / 10)) : 0);
         findings.push({
           code: code(),
-          title: `Promoted $${symbol}, then sold`,
-          detail: `Posted "${s.quote.slice(0, 120)}" and sold ${fmt(soldAfter)} $${symbol} (${pct(share)} of what the wallets held) starting ${when(hours(s.at, after[0].at))} after the post.${before.length ? ` The wallets had bought ${when(hours(before[0].at, s.at))} before posting.` : ""}`,
+          title: made && made.net_sol >= 5 ? `Promoted $${symbol}, then sold: ${fmt(made.net_sol)} SOL out` : `Promoted $${symbol}, then sold`,
+          detail: `Posted "${s.quote.slice(0, 120)}" and sold ${fmt(soldAfter)} $${symbol} (${pct(share)} of what the wallets held) starting ${when(hours(s.at, after[0].at))} after the post.${before.length ? ` The wallets had bought ${when(hours(before[0].at, s.at))} before posting.` : ""}${made ? ` Across the wallets: bought for ${made.bought_sol.toFixed(1)} SOL, sold for ${made.sold_sol.toFixed(1)} SOL, net ${made.net_sol >= 0 ? "+" : ""}${made.net_sol.toFixed(1)} SOL.` : ""}`,
+          score: w,
         });
-        score += 30 + Math.min(20, Math.round(share * 20)) + (hours(s.at, after[0].at) <= 2 ? 10 : 0);
+        score += w;
         if (s.url) evidence.push({ kind: "post", ref: s.url, at: s.at, note: `Promoted $${symbol}` });
         for (const t of after.slice(0, 3)) evidence.push({ kind: "tx", ref: t.signature, wallet: t.from, amount: `${fmt(t.amount)} ${symbol}`, at: t.at, note: "Sold after the post" });
         for (const t of before.slice(0, 2)) evidence.push({ kind: "tx", ref: t.signature, wallet: t.to, amount: `${fmt(t.amount)} ${symbol}`, at: t.at, note: "Bought before the post" });
@@ -191,6 +247,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
           code: code(),
           title: c.type === "holding" ? `Said holding $${symbol}, the wallets sold` : `Said $${symbol} was safe, the wallets sold`,
           detail: `Posted "${c.quote.slice(0, 120)}". The wallets sold ${pct(Math.min(1, soldAfter / boughtAmt))} of their $${symbol} within ${when(hours(c.at, after[after.length - 1].at))}.`,
+          score: 35,
         });
         score += 35;
         evidence.push({ kind: "post", ref: c.url, at: c.at, note: c.type === "holding" ? "Said holding" : "Said safe" });
@@ -205,14 +262,17 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       if (inv && inv.findings.length) {
         tokenCases.push(inv);
         const launched = m.claims.some((c) => c.type === "launch") || (inv.deployer ? wallets.has(inv.deployer) : false);
+        const made = pnl.find((p) => p.mint === mint);
+        const w = Math.round(inv.score * (launched ? 0.6 : 0.3)) + (launched && made && made.net_sol >= 5 ? Math.min(20, Math.round(made.net_sol / 10)) : 0);
         findings.push({
           code: code(),
-          title: `${launched ? "Launched" : "Promoted"} $${symbol}: ${inv.charge.toLowerCase()}`,
-          detail: `${launched ? "Their own launch." : "A launch they promoted."} The token's file: ${inv.findings.map((f) => f.title.toLowerCase()).join("; ")}. Score ${inv.score}.`,
+          title: `${launched ? "Launched" : "Promoted"} $${symbol}: ${inv.charge.toLowerCase()}${launched && made && made.net_sol >= 5 ? `, ${fmt(made.net_sol)} SOL out` : ""}`,
+          detail: `${launched ? "Their own launch." : "A launch they promoted."} The token's file: ${inv.findings.map((f) => f.title.toLowerCase()).join("; ")}. Score ${inv.score}.${made ? ` The wallets' trades: bought for ${made.bought_sol.toFixed(1)} SOL, sold for ${made.sold_sol.toFixed(1)} SOL, net ${made.net_sol >= 0 ? "+" : ""}${made.net_sol.toFixed(1)} SOL.` : ""}`,
+          score: w,
         });
-        score += Math.round(inv.score * (launched ? 0.6 : 0.3));
+        score += w;
         if (inv.funder && wallets.has(inv.funder)) {
-          findings.push({ code: code(), title: `A claimed wallet funded the $${symbol} bundle`, detail: `${short(inv.funder)} is on this handle's record and funded ${inv.bundle.length} of the first buyers.` });
+          findings.push({ code: code(), title: `A claimed wallet funded the $${symbol} bundle`, detail: `${short(inv.funder)} is on this handle's record and funded ${inv.bundle.length} of the first buyers.`, score: 30 });
           score += 30;
         }
         for (const e of inv.evidence.slice(0, 4)) evidence.push(e);
@@ -225,9 +285,18 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   // ---- what was deleted ---------------------------------------------------
   const deleted = await src.deleted(handle);
   if (deleted.length) {
-    findings.push({ code: code(), title: `${deleted.length} promotion${deleted.length === 1 ? "" : "s"} since deleted`, detail: `Quoted by others: ${deleted.slice(0, 3).map((d) => `"${d.quote.slice(0, 80)}"`).join(" · ")}.` });
+    findings.push({ code: code(), title: `${deleted.length} promotion${deleted.length === 1 ? "" : "s"} since deleted`, detail: `Quoted by others: ${deleted.slice(0, 3).map((d) => `"${d.quote.slice(0, 80)}"`).join(" · ")}.`, score: Math.min(15, deleted.length * 5) });
     score += Math.min(15, deleted.length * 5);
     for (const d of deleted.slice(0, 3)) evidence.push({ kind: "post", ref: d.url, at: "", note: `Deleted, quoted: ${d.about}` });
+  }
+
+  // ---- what others said ------------------------------------------------------
+  // Accusations are not findings on their own; they are low weight, and every one carries the post that made it.
+  const said = await src.said(handle);
+  if (said.length) {
+    findings.push({ code: code(), title: `Called out by ${said.length} other account${said.length === 1 ? "" : "s"}`, detail: said.slice(0, 3).map((d) => `"${d.quote.slice(0, 100)}"${d.about ? ` (${d.about})` : ""}`).join(" · ") + ".", score: Math.min(15, said.length * 5) });
+    score += Math.min(15, said.length * 5);
+    for (const d of said.slice(0, 4)) evidence.push({ kind: "post", ref: d.url, at: "", note: `Said by another account: ${d.about || "accusation"}` });
   }
 
   // ---- the money, in one line ----------------------------------------------
@@ -251,6 +320,9 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     }
   }
 
+  // worst first: the rap sheet reads down from the heaviest finding
+  findings.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  findings.forEach((f, i) => (f.code = `F-${String(i + 1).padStart(2, "0")}`));
   evidence.sort((a, b) => (a.at || "").localeCompare(b.at || ""));
   const severity: Severity = score >= 85 ? "critical" : score >= 60 ? "high" : score >= 35 ? "medium" : "low";
   return {
@@ -258,6 +330,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     posts: posts.length,
     claims,
     wallets: [...wallets.values()],
+    pnl,
     findings,
     evidence: evidence.slice(0, 40),
     trail,
@@ -268,4 +341,49 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     tokenCases,
     log,
   };
+}
+
+
+/** The same transfer seen from two wallets' histories is one transfer. */
+function dedupe(ts: Transfer[]): Transfer[] {
+  const seen = new Set<string>();
+  const out: Transfer[] = [];
+  for (const t of ts) {
+    const k = `${t.signature}|${t.from}|${t.to}|${t.amount}|${t.mint ?? ""}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(t);
+  }
+  return out;
+}
+
+/**
+ * Profit per token for a set of wallets, from the swap legs: in one transaction, SOL leaving the set while a
+ * token arrives is a buy; a token leaving while SOL arrives is a sell. Transfers between the set's own
+ * wallets cancel. Net is SOL received minus SOL spent; what is still held is not priced.
+ */
+export function profitPerToken(all: Transfer[], set: Set<string>): TokenPnl[] {
+  const byTx = new Map<string, Transfer[]>();
+  for (const t of all) byTx.set(t.signature, [...(byTx.get(t.signature) ?? []), t]);
+  const acc = new Map<string, TokenPnl>();
+  for (const legs of byTx.values()) {
+    const solOut = sum(legs.filter((l) => l.kind === "sol" && set.has(l.from) && !set.has(l.to)).map((l) => l.amount));
+    const solIn = sum(legs.filter((l) => l.kind === "sol" && set.has(l.to) && !set.has(l.from)).map((l) => l.amount));
+    const mints = new Set(legs.filter((l) => l.kind === "token" && l.mint && l.mint !== WSOL).map((l) => l.mint!));
+    for (const mint of mints) {
+      const tokIn = sum(legs.filter((l) => l.kind === "token" && l.mint === mint && set.has(l.to) && !set.has(l.from)).map((l) => l.amount));
+      const tokOut = sum(legs.filter((l) => l.kind === "token" && l.mint === mint && set.has(l.from) && !set.has(l.to)).map((l) => l.amount));
+      const p = acc.get(mint) ?? { mint, symbol: "", bought_sol: 0, sold_sol: 0, net_sol: 0, trades: 0 };
+      if (tokIn > 0 && solOut > 0) {
+        p.bought_sol += solOut / mints.size;
+        p.trades++;
+      } else if (tokOut > 0 && solIn > 0) {
+        p.sold_sol += solIn / mints.size;
+        p.trades++;
+      } else continue;
+      acc.set(mint, p);
+    }
+  }
+  const out = [...acc.values()].map((p) => ({ ...p, net_sol: p.sold_sol - p.bought_sol }));
+  return out.filter((p) => p.trades > 0).sort((a, b) => Math.abs(b.net_sol) - Math.abs(a.net_sol));
 }

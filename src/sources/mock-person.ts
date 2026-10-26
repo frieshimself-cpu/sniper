@@ -32,6 +32,9 @@ export function mockPersonSources(handle = "@wen_moon_wendy"): PersonSources {
     async deleted() {
       return [{ url: `https://x.com/onchain_tipster/status/1890000000000000009`, quote: "she said LP was locked lol", about: "$MOCK" }];
     },
+    async said() {
+      return [];
+    },
     async wallets() {
       return [{ address: "fJkgiWmLe9zo87xSJK98z16G22cwunMScRabZgKPd28p", url: "https://intel.arkm.com/explorer/address/fJkgiWmLe9zo87xSJK98z16G22cwunMScRabZgKPd28p" }];
     },

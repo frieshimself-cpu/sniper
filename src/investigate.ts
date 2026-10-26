@@ -430,7 +430,10 @@ function personHeadline(p: PersonInvestigation): string {
   const f = p.findings[0];
   if (!f) return `${p.handle}. Nothing on file.`;
   const t = p.token ? `$${p.token.symbol}` : "a token";
+  if (/then sold: (.+) SOL out/.test(f.title)) return `${p.handle} promoted ${t}, sold into the people who listened, and walked away with ${f.title.match(/then sold: (.+) SOL out/)![1]} SOL.`;
   if (/then sold/.test(f.title)) return `${p.handle} promoted ${t} and sold into the people who listened.`;
+  if (/never admitted/.test(f.title)) return `${p.handle} has ${f.title.replace(/ never admitted.*$/, "")} the posts never mention. The transfers do.`;
+  if (/Called out by/.test(f.title)) return `${p.handle}. ${f.title}. The chain agrees.`;
   if (/Said holding/.test(f.title)) return `${p.handle} said holding ${t}. The wallets were selling.`;
   if (/was safe/.test(f.title)) return `${p.handle} said ${t} was safe. The wallets left.`;
   if (/^Launched/.test(f.title)) return `${p.handle} launched ${t}. ${f.title.replace(/^Launched \$\S+: /, "").replace(/^./, (c) => c.toUpperCase())}.`;
@@ -484,12 +487,15 @@ async function runPerson(handle: string, src: Sources, registry: Registry, opts:
     findings: p.findings,
     evidence: p.evidence,
     money_trail: p.trail,
+    pnl: p.pnl.slice(0, 12),
     narrative: [
-      `${h} was picked by ${opts.via ?? "hand"}. The agent read ${p.posts} posts and found ${p.claims.length} claims about tokens, ${p.wallets.length} wallet${p.wallets.length === 1 ? "" : "s"} on the record (${p.wallets.filter((w) => w.tier === "claimed").length} claimed by the handle itself).`,
+      `${h} was picked by ${opts.via ?? "hand"}. The agent read ${p.posts} posts and found ${p.claims.length} claims about tokens, ${p.wallets.length} wallet${p.wallets.length === 1 ? "" : "s"} on the record (${p.wallets.filter((w) => w.tier === "claimed").length} claimed by the handle itself, ${p.wallets.filter((w) => w.via).length} found by following the money).`,
+      `The worst of it, in order: ${p.findings.slice(0, 3).map((f, i) => `${i + 1}. ${f.title}`).join(" ")}.`,
       p.findings.map((f) => f.detail).join(" "),
+      p.pnl.length ? `What the wallets made, in SOL, from the swap legs: ${p.pnl.slice(0, 5).map((q) => `$${q.symbol || short(q.mint)} ${q.net_sol >= 0 ? "+" : ""}${q.net_sol.toFixed(1)}`).join(", ")}. What is still held is not priced.` : "",
       p.trail.length > 1 ? `${p.trail[0].amount} left ${short(p.trail[0].address)}. The trail ends at ${p.trail[p.trail.length - 1].label} ${short(p.trail[p.trail.length - 1].address)}.` : "No money trail could be followed from the wallets on record.",
       "Every post and every transaction above is linked. Disputes are honoured at once. Convictions: 0.",
-    ],
+    ].filter(Boolean),
     png: `case-${pad(n)}.png`,
   });
   if (opts.dry) {

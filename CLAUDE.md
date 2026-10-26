@@ -54,18 +54,25 @@ closed: the winner is investigated and the case goes on the site, the poll and i
 
 ## How a person's case gets opened
 
-1. The record: the handle's posts from the X API (up to `PERSON_MAX_POSTS`), typed into
-   claims by Grok, or by rule when there is no Grok: shill, holding, lp_locked, sold, launch, wallet. Every claim keeps its post URL.
+1. The record: the handle's posts from the X API, all of them the API allows (`PERSON_MAX_POSTS`, 3,200),
+   typed into claims by Grok, or by rule when there is no Grok: shill, holding, lp_locked, sold, launch,
+   wallet. Every claim keeps its post URL. Grok also searches X for what others said about the handle and
+   for promotions since deleted; only cited posts count.
 2. The wallets: addresses the handle posted itself (tier claimed, the post is the source), the wallets
-   already on the registry, and the wallets Arkham ties to the handle's entity (tier probable, the Arkham
-   page is the source; on-curve only, since Arkham files token accounts under the entity too; capped by
-   `PERSON_MAX_WALLETS`).
-3. The replay: every wallet's transfers. Posts go next to transactions by time.
-4. Findings: promoted then sold; said holding while selling; said safe while liquidity left; launched
-   or promoted a token whose own file (the launch detectors) is bad; a claimed wallet funded a bundle;
-   promotions since deleted but quoted by others. Without X and Grok, the wallets' own launches stand in.
-5. Same publish rule as a launch. The case carries kind "person", the handle as subject, and the
-   worst token as its token.
+   already on the registry, the wallets Arkham ties to the handle's entity (tier probable, the Arkham page
+   is the source; on-curve only; capped by `PERSON_MAX_WALLETS`), and then the ones never admitted: plain
+   SOL transfers between a wallet on the record and another wallet, two of them or one of five SOL, make a
+   link (tier probable, the linking transaction is the source; services and other people's labelled
+   wallets never link; capped by `PERSON_MAX_LINKED`).
+3. The replay: every wallet's transfers, deduplicated. Posts go next to transactions by time. Profit per
+   token in SOL from the swap legs across the whole set (`pnl` on the case).
+4. Findings, each with a weight: promoted then sold (and what it made); said holding while selling; said
+   safe while liquidity left; launched or promoted a token whose own file (the launch detectors) is bad;
+   a claimed wallet funded a bundle; wallets never admitted; promotions since deleted; called out by
+   others. Without X and Grok, the wallets' own launches stand in.
+5. Worst first: findings are sorted by weight, the headline is the heaviest, the narrative opens with the
+   top three. Same publish rule as a launch. The case carries kind "person", the handle as subject, and
+   the worst token as its token.
 
 ## How a case gets opened
 

@@ -10,6 +10,7 @@ export class Grok {
   model: string;
   extractClaims = extractClaims;
   searchHistory = searchHistory;
+  searchSaid = searchSaid;
   readonly base: string;
   /** X live search is an xAI-only feature. Through a reseller (OpenRouter) the model still reads and classifies posts; it cannot search X. */
   readonly canSearch: boolean;
@@ -165,3 +166,22 @@ export async function searchHistory(this: Grok, handle: string): Promise<Array<{
 
 /** The post id in an x.com or twitter.com status URL; citations come back as x.com/i/status/<id>. */
 const statusId = (u: string) => u.match(/\/status\/(\d+)/)?.[1] ?? "";
+
+/** What others said: posts by other accounts accusing the handle of a rug, a dump, a scam, an exit. Each needs a cited URL. */
+export async function searchSaid(this: Grok, handle: string): Promise<Array<{ url: string; quote: string; about: string }>> {
+  if (!this.canSearch) return [];
+  const h = handle.replace(/^@/, "");
+  const prompt = `Search X for posts by accounts other than @${h} that accuse @${h} of rugging, dumping on followers, scamming, insider trading, bundling, or promoting a token and selling it. Return ONLY a JSON array of {"url": "<x.com status URL of the accusing post>", "quote": "<what it says, max 200 chars>", "about": "<$SYMBOL or token named, or empty>"}. Only include posts you actually found, newest first, at most 8.`;
+  const { text, cited } = await this.search(prompt, { exclude: [h] });
+  let items: Array<Record<string, unknown>> = [];
+  try {
+    const m = text.match(/\[[\s\S]*\]/);
+    items = m ? (JSON.parse(m[0]) as Array<Record<string, unknown>>) : [];
+  } catch {
+    return [];
+  }
+  return items
+    .filter((it) => typeof it.url === "string" && /^https?:\/\/(x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d+/.test(it.url as string) && cited.has(statusId(it.url as string)))
+    .filter((it) => !(it.url as string).toLowerCase().includes(`/${h.toLowerCase()}/status/`))
+    .map((it) => ({ url: it.url as string, quote: String(it.quote ?? "").slice(0, 280), about: String(it.about ?? "") }));
+}

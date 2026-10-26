@@ -5,6 +5,18 @@ export interface Finding {
   code: string;
   title: string;
   detail: string;
+  /** how much it weighs; findings are listed worst first */
+  score?: number;
+}
+
+/** What a wallet set made on one token, in SOL, from the swap legs. */
+export interface TokenPnl {
+  mint: string;
+  symbol: string;
+  bought_sol: number;
+  sold_sol: number;
+  net_sol: number;
+  trades: number;
 }
 
 export interface Evidence {
@@ -39,6 +51,8 @@ export interface Case {
   findings: Finding[];
   evidence: Evidence[];
   money_trail: Hop[];
+  /** a person's case: what the wallets made per token, worst first */
+  pnl?: TokenPnl[];
   narrative: string[];
   png: string;
 }
