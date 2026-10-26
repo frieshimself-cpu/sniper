@@ -57,6 +57,12 @@ export class Arkham {
     return (await r.json()) as T;
   }
 
+  getPublic<T>(path: string, params: Record<string, string | number> = {}, heavy = false): Promise<T | null> {
+    return this.get<T>(path, params, heavy);
+  }
+
+  resolveHandle = resolveHandle;
+
   async label(address: string): Promise<Label | null> {
     const j = await this.get<ArkAddr>(`/intelligence/address/${address}`, { chain: "solana" });
     return j ? toLabel(address, j) : null;
@@ -103,6 +109,30 @@ export class Arkham {
       type: "TRANSFER",
     }));
   }
+}
+
+export interface HandleWallets {
+  handle: string;
+  entityId: string | null;
+  wallets: Array<{ address: string; label: string | null; platform?: string; url: string }>;
+}
+
+/** The Solana wallets Arkham ties to a handle. Impersonator and hacker entities are left out. */
+export async function resolveHandle(this: Arkham, handle: string): Promise<HandleWallets> {
+  const h = handle.replace(/^@/, "").toLowerCase();
+  type Search = {
+    arkhamEntities?: Array<{ id: string; name?: string; type?: string; twitter?: string }>;
+    arkhamAddresses?: Array<ArkAddr & { chain?: string }>;
+  };
+  const j = await this.getPublic<Search>("/intelligence/search", { query: `@${h}` }, true);
+  const ent = (j?.arkhamEntities ?? []).find((e) => (e.twitter ?? "").replace(/^.*\//, "").replace(/^@/, "").toLowerCase() === h && !/impersonat|hacker|scam|phish/i.test(`${e.name} ${e.type}`));
+  const wallets = (j?.arkhamAddresses ?? [])
+    .filter((a) => a.chain === "solana" && a.address && ent && a.arkhamEntity?.id === ent.id)
+    .map((a) => {
+      const pf = (a.arkhamLabel?.name ?? "").match(/^"([^"]{1,40})" on (Pump\.fun|Vector\.fun|[A-Za-z.]+)$/i);
+      return { address: a.address!, label: pf ? pf[1] : a.arkhamLabel?.name ?? null, platform: pf ? pf[2].toLowerCase() : undefined, url: `https://intel.arkm.com/explorer/address/${a.address}` };
+    });
+  return { handle: `@${h}`, entityId: ent?.id ?? null, wallets };
 }
 
 function mapType(t: string): Label["type"] {

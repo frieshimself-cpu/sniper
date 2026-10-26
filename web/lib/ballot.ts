@@ -7,6 +7,7 @@
  */
 import { discover, describe } from "@agent/sources/discover";
 import { eligibleSubjects, getCases } from "./data";
+import { getBoard } from "./nominations";
 import { carryOver, currentId, getBallots, getCurrentBallot, recentlyBalloted, setBallot, type Ballot, type BallotOption } from "./store";
 
 export const BALLOT_SIZE = 4; // at most
@@ -44,13 +45,22 @@ export async function candidates(): Promise<Candidate[]> {
   if (current) for (const o of current.options) recent.delete(o.key);
   const out: Candidate[] = [];
   if (carried) out.push({ ...carried, score: 0, carried: true });
-  const source = (process.env.BALLOT_SOURCE ?? "discovery").toLowerCase();
+  const source = (process.env.BALLOT_SOURCE ?? "board").toLowerCase();
   let pool: Candidate[] = [];
   if (source !== "archive") {
+    // people first: the nominations board, minus handles on file in the last week
+    const week = Date.now() - 7 * 86_400_000;
+    const recentHandles = new Set(getCases().filter((c) => c.kind === "person" && Date.parse(c.opened_at) >= week).flatMap((c) => c.subjects));
+    for (const e of await getBoard().catch(() => [])) {
+      if (recentHandles.has(e.handle)) continue;
+      pool.push({ key: `handle:${e.handle}`, kind: "handle", label: e.handle, ref: e.handle, score: e.nominations, carried: false, why: `${e.nominations} nomination${e.nominations === 1 ? "" : "s"}` });
+    }
+  }
+  if (source !== "archive" && pool.length < BALLOT_SIZE) {
     try {
-      pool = await fromDiscovery();
+      pool.push(...(await fromDiscovery()));
     } catch {
-      pool = [];
+      /* the board alone, then */
     }
   }
   if (pool.length < BALLOT_MIN) pool = [...pool, ...fromArchive()];

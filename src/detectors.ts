@@ -310,6 +310,9 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
   const labels = await src.labels(addrs);
   for (const [k, v] of trailLabels) labels.set(k, v);
 
+  // the opening-buy note is context, not the charge: it goes last
+  findings.sort((a, b) => Number(/bought at creation/.test(a.title)) - Number(/bought at creation/.test(b.title)));
+  findings.forEach((f, i) => (f.code = `F-${String(i + 1).padStart(2, "0")}`));
   const severity: Severity = score >= 85 ? "critical" : score >= 60 ? "high" : score >= 35 ? "medium" : "low";
   const charge = findings[0].title.replace(/^\d+ /, "").toLowerCase().replace(/^./, (c) => c.toUpperCase());
   // Who to try to put a handle on: deployer, funder, and the trail's wallets that are not a service.

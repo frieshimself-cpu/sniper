@@ -151,6 +151,22 @@ test("/rules carries the rules and how to dispute, without the forbidden word", 
   await clean(page);
 });
 
+test("/nominate shows the board and the form", async ({ page, request }) => {
+  await page.goto("/nominate");
+  await expect(page.getByRole("heading", { name: "The board" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Nominate" })).toBeVisible();
+  await clean(page);
+  const kp = nacl.sign.keyPair();
+  const wallet = bs58.encode(kp.publicKey);
+  const sign = (m: string) => bs58.encode(nacl.sign.detached(new TextEncoder().encode(m), kp.secretKey));
+  const ok = await request.post("/api/nominate", { data: { handle: "@some_kol", wallet, signature: sign("CRIME nominate @some_kol"), note: "shilled and sold" } });
+  expect(ok.status()).toBe(200);
+  const dup = await request.post("/api/nominate", { data: { handle: "@some_kol", wallet, signature: sign("CRIME nominate @some_kol") } });
+  expect(dup.status()).toBe(409);
+  const board = await (await request.get("/api/nominate")).json();
+  expect(board.board[0].handle).toBe("@some_kol");
+});
+
 test("/about explains the project without the forbidden word", async ({ page }) => {
   await page.goto("/about");
   await expect(page.getByRole("heading", { name: /opens a case every hour/ })).toBeVisible();

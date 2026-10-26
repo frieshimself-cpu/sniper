@@ -71,10 +71,8 @@ export default async function CasePage({ params }: Props) {
             </dd>
           </div>
           <div>
-            <dt className="label">Token</dt>
-            <dd>
-              ${c.token.symbol} · {c.token.name}
-            </dd>
+            <dt className="label">{c.kind === "person" ? "Worst token" : "Token"}</dt>
+            <dd>{c.token.mint ? `$${c.token.symbol} · ${c.token.name}` : "—"}</dd>
           </div>
           <div>
             <dt className="label">Subject</dt>
@@ -96,19 +94,27 @@ export default async function CasePage({ params }: Props) {
           <div className="col-span-2 md:col-span-4">
             <dt className="label">CA</dt>
             <dd className="break-all">
-              <a href={solscanToken(c.token.mint)} target="_blank" rel="noopener noreferrer" className="underline">
-                {c.token.mint}
-              </a>
-              <span className="ml-3 text-[11px] font-semibold uppercase tracking-[0.12em] whitespace-nowrap">
-                <a href={`https://dexscreener.com/solana/${c.token.mint}`} target="_blank" rel="noopener noreferrer" className="underline">
-                  Chart
+              {c.token.mint ? (
+                <a href={solscanToken(c.token.mint)} target="_blank" rel="noopener noreferrer" className="underline">
+                  {c.token.mint}
                 </a>
-                {/pump$/.test(c.token.mint) ? (
+              ) : (
+                "—"
+              )}
+              <span className="ml-3 text-[11px] font-semibold uppercase tracking-[0.12em] whitespace-nowrap">
+                {c.token.mint ? (
                   <>
-                    {" · "}
-                    <a href={`https://pump.fun/coin/${c.token.mint}`} target="_blank" rel="noopener noreferrer" className="underline">
-                      pump.fun
+                    <a href={`https://dexscreener.com/solana/${c.token.mint}`} target="_blank" rel="noopener noreferrer" className="underline">
+                      Chart
                     </a>
+                    {/pump$/.test(c.token.mint) ? (
+                      <>
+                        {" · "}
+                        <a href={`https://pump.fun/coin/${c.token.mint}`} target="_blank" rel="noopener noreferrer" className="underline">
+                          pump.fun
+                        </a>
+                      </>
+                    ) : null}
                   </>
                 ) : null}
               </span>

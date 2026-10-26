@@ -5,6 +5,7 @@ import { apiUrl, withBase } from "@/lib/dyn";
 const NAV = [
   ["/cases", "Cases"],
   ["/persons", "Persons"],
+  ["/nominate", "Nominate"],
   ["/ballot", "Ballot"],
   ["/stamp", "Stamp"],
   ["/embed", "Embed"],

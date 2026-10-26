@@ -24,7 +24,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ n: stri
       e.wallet ?? "",
       e.amount ?? "",
       e.note,
-      e.ref === "hidden" ? "" : e.kind === "tx" ? `https://solscan.io/tx/${e.ref}` : `https://solscan.io/account/${e.ref}`,
+      e.ref === "hidden" ? "" : e.kind === "post" ? e.ref : e.kind === "tx" ? `https://solscan.io/tx/${e.ref}` : `https://solscan.io/account/${e.ref}`,
     ]),
   ];
   const csv = rows.map((r) => r.map(cell).join(",")).join("\r\n") + "\r\n";

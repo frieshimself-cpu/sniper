@@ -12,7 +12,7 @@ export function CaseCard({ c }: { c: Case }) {
       </div>
       <div className="grid grid-cols-3 gap-3 pt-3 text-[13px]">
         <div><span className="label block">Opened</span>{date(c.opened_at)}</div>
-        <div><span className="label block">Token</span>${c.token.symbol}</div>
+        <div><span className="label block">{c.kind === "person" ? "Subject" : "Token"}</span>{c.kind === "person" ? c.subjects[0] : `$${c.token.symbol}`}</div>
         <div><span className="label block">Severity</span><Severity level={c.severity} ink /></div>
       </div>
       <h3 className="mt-4 text-xl leading-tight">{c.headline}</h3>

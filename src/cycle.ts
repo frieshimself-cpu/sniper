@@ -61,6 +61,21 @@ function tally(b: Ballot): Record<string, number> {
   return t;
 }
 
+interface Nomination {
+  handle: string;
+  wallet: string;
+  at: string;
+}
+
+/** The board: handles nominated in the last week, most nominated first. */
+async function nominated(): Promise<Array<{ handle: string; n: number }>> {
+  const all = await readState<Nomination[]>("nominations", []);
+  const cutoff = Date.now() - 7 * 86_400_000;
+  const m = new Map<string, number>();
+  for (const x of all) if (Date.parse(x.at) >= cutoff) m.set(x.handle, (m.get(x.handle) ?? 0) + 1);
+  return [...m.entries()].map(([handle, n]) => ({ handle, n })).sort((a, b) => b.n - a.n);
+}
+
 async function buildOptions(): Promise<{ options: Option[]; carried?: string }> {
   const ballots = await readState<Ballot[]>("ballots", []);
   const cases = JSON.parse(await readFile(join(ROOT, "data/cases.json"), "utf8").catch(() => '{"cases":[]}')) as CasesFile;
@@ -69,9 +84,18 @@ async function buildOptions(): Promise<{ options: Option[]; carried?: string }> 
   const recent = new Set(ballots.filter((b) => Date.parse(b.opened_at) >= dayAgo).flatMap((b) => b.options.map((o) => o.key)));
   const prev = ballots.sort((a, b) => b.id.localeCompare(a.id)).find((b) => b.closed);
   const carried = prev?.runner_up ? prev.options.find((o) => o.key === prev.runner_up) : undefined;
-  const fresh = await describe((await discover(60)).filter((c) => !covered.has(c.mint)).slice(0, 40));
   const options: Option[] = [];
   if (carried && !covered.has(carried.ref)) options.push(carried);
+  // people first: the board. Handles already on file in the last 7 days sit out.
+  const recentHandles = new Set(cases.cases.filter((c) => c.kind === "person" && Date.parse(c.opened_at) >= Date.now() - 7 * 86_400_000).flatMap((c) => c.subjects));
+  for (const { handle } of await nominated()) {
+    if (options.length >= 4) break;
+    const key = `handle:${handle}`;
+    if (recent.has(key) || recentHandles.has(handle) || options.some((o) => o.key === key)) continue;
+    options.push({ key, kind: "handle", label: enforce(handle), ref: handle });
+  }
+  // then fresh launches, if the board is short
+  const fresh = options.length >= 4 ? [] : await describe((await discover(60)).filter((c) => !covered.has(c.mint)).slice(0, 40));
   for (const c of fresh) {
     if (!c.symbol || options.length >= 4) continue;
     const key = `token:${c.mint}`;
@@ -144,6 +168,7 @@ export async function cycle(opts: { dry?: boolean } = {}): Promise<void> {
 
   // ---- investigate the winner ---------------------------------------------
   const result = await run({ subject: winner.ref, via: `ballot ${id}, ${votes} vote${votes === 1 ? "" : "s"} on ${x ? "X" : "the site"}` });
+  // (a handle option starts with "@" and run() takes the person path)
   if (result.case) {
     await updateState<Ballot[]>("ballots", [], (all) => all.map((b) => (b.id === id ? { ...b, case_n: result.case!.n } : b)));
     if (x && POST_CASES) {

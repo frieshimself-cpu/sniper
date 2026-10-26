@@ -48,7 +48,7 @@ for (const c of getCases()) {
   if (png) write(`cases/${c.n}/card.png`, fs.readFileSync(png));
   const rows = [
     ["case", "n", "at", "kind", "ref", "wallet", "amount", "note", "explorer"],
-    ...full.evidence.map((e, i) => [full.id, i + 1, e.at, e.kind, e.ref, e.wallet ?? "", e.amount ?? "", e.note, e.ref === "hidden" ? "" : e.kind === "tx" ? `https://solscan.io/tx/${e.ref}` : `https://solscan.io/account/${e.ref}`]),
+    ...full.evidence.map((e, i) => [full.id, i + 1, e.at, e.kind, e.ref, e.wallet ?? "", e.amount ?? "", e.note, e.ref === "hidden" ? "" : e.kind === "post" ? e.ref : e.kind === "tx" ? `https://solscan.io/tx/${e.ref}` : `https://solscan.io/account/${e.ref}`]),
   ];
   write(`cases/${c.n}/evidence.csv`, rows.map((r) => r.map(cell).join(",")).join("\r\n") + "\r\n");
   n++;

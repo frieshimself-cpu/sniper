@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export type StateKey = "ballots" | "disputes" | "leads";
+export type StateKey = "ballots" | "disputes" | "leads" | "nominations";
 
 const url = () => process.env.KV_REST_API_URL?.replace(/\/$/, "") || process.env.UPSTASH_REDIS_REST_URL?.replace(/\/$/, "") || "";
 const token = () => process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";

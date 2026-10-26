@@ -8,7 +8,8 @@ export interface Finding {
 }
 
 export interface Evidence {
-  kind: "tx" | "account" | "token";
+  /** tx: a signature. account/token: an address. post: a URL on X. */
+  kind: "tx" | "account" | "token" | "post";
   ref: string;
   wallet?: string;
   amount?: string;
@@ -25,6 +26,8 @@ export interface Hop {
 export interface Case {
   n: number;
   id: string;
+  /** "token": a launch was investigated. "person": a handle was. */
+  kind?: "token" | "person";
   opened_at: string;
   status: "open" | "closed";
   severity: Severity;

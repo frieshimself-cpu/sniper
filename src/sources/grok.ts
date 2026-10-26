@@ -6,8 +6,10 @@
 import type { Claim } from "./types.js";
 
 export class Grok {
-  private readonly key: string;
-  private readonly model: string;
+  readonly key: string;
+  readonly model: string;
+  extractClaims = extractClaims;
+  searchHistory = searchHistory;
   constructor(key = process.env.XAI_API_KEY ?? "", model = process.env.XAI_MODEL ?? "grok-4") {
     if (!key) throw new Error("XAI_API_KEY is not set");
     this.key = key;
@@ -58,6 +60,92 @@ export class Grok {
     }
     return out;
   }
+}
+
+export type ClaimType = "shill" | "holding" | "lp_locked" | "wallet" | "sold" | "launch" | "other";
+
+export interface PostClaim {
+  post_id: string;
+  url: string;
+  at: string;
+  type: ClaimType;
+  token?: string; // $SYMBOL or a mint
+  mint?: string;
+  address?: string; // a Solana address in the post
+  quote: string;
+}
+
+const SOL_ADDR = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
+
+/** Posts to claims. Cheap part first (regex), Grok on top for the reading comprehension. */
+export async function extractClaims(this: Grok, handle: string, posts: Array<{ id: string; text: string; at: string }>): Promise<PostClaim[]> {
+  const h = handle.replace(/^@/, "");
+  const url = (id: string) => `https://x.com/${h}/status/${id}`;
+  const claims: PostClaim[] = [];
+  // every address a handle ever typed is a claim on its own, no model needed
+  for (const p of posts) for (const m of p.text.match(SOL_ADDR) ?? []) claims.push({ post_id: p.id, url: url(p.id), at: p.at, type: "wallet", address: m, quote: p.text.slice(0, 280) });
+  // the model reads the rest in batches
+  const batch = 60;
+  for (let i = 0; i < posts.length; i += batch) {
+    const slice = posts.slice(i, i + batch);
+    const prompt = [
+      `Below are posts by @${h}, one per line as JSON {id, at, text}. Classify each post that makes a claim about a crypto token.`,
+      `Types: shill (promotes or recommends a token), holding (says they hold or are not selling), lp_locked (says liquidity is locked or safe), sold (admits selling), launch (announces their own token), other.`,
+      `Return ONLY a JSON array of {"id": "<post id>", "type": "<type>", "token": "<$SYMBOL or mint if named, else null>", "quote": "<the exact words, max 200 chars>"}. Skip posts with no token claim. Never invent a post id.`,
+      ...slice.map((p) => JSON.stringify({ id: p.id, at: p.at, text: p.text.slice(0, 400) })),
+    ].join("\n");
+    const r = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
+      body: JSON.stringify({ model: this.model, temperature: 0, messages: [{ role: "system", content: "You classify posts. JSON only." }, { role: "user", content: prompt }] }),
+      signal: AbortSignal.timeout(120_000),
+    });
+    if (!r.ok) throw new Error(`xai ${r.status}`);
+    const j = (await r.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    const text = j.choices?.[0]?.message?.content ?? "[]";
+    let items: Array<Record<string, unknown>> = [];
+    try {
+      const m = text.match(/\[[\s\S]*\]/);
+      items = m ? (JSON.parse(m[0]) as Array<Record<string, unknown>>) : [];
+    } catch {
+      items = [];
+    }
+    const byId = new Map(slice.map((p) => [p.id, p]));
+    for (const it of items) {
+      const p = typeof it.id === "string" ? byId.get(it.id) : undefined;
+      if (!p) continue; // never a post the model made up
+      const type = String(it.type ?? "other") as ClaimType;
+      if (!["shill", "holding", "lp_locked", "sold", "launch"].includes(type)) continue;
+      const token = typeof it.token === "string" && it.token ? it.token.trim() : undefined;
+      claims.push({ post_id: p.id, url: url(p.id), at: p.at, type, token, mint: token && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(token) ? token : undefined, quote: String(it.quote ?? p.text).slice(0, 280) });
+    }
+  }
+  return claims;
+}
+
+/** What the timeline no longer shows: quotes and screenshots of the handle's deleted or older posts. Each needs a citing URL. */
+export async function searchHistory(this: Grok, handle: string): Promise<Array<{ url: string; quote: string; about: string }>> {
+  const h = handle.replace(/^@/, "");
+  const prompt = `Search X for posts quoting, screenshotting or replying to crypto token promotions by @${h} that @${h} later deleted. Return ONLY a JSON array of {"url": "<x.com status URL of the citing post>", "quote": "<what the deleted post said, as quoted>", "about": "<$SYMBOL or token named>"}. Only include posts you actually found.`;
+  const r = await fetch("https://api.x.ai/v1/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
+    body: JSON.stringify({ model: this.model, temperature: 0, messages: [{ role: "system", content: "You are a retrieval tool. JSON only. Never guess a URL." }, { role: "user", content: prompt }], search_parameters: { mode: "on", return_citations: true, sources: [{ type: "x" }] } }),
+    signal: AbortSignal.timeout(120_000),
+  });
+  if (!r.ok) throw new Error(`xai ${r.status}`);
+  const j = (await r.json()) as { choices?: Array<{ message?: { content?: string } }>; citations?: string[] };
+  const cites = new Set((j.citations ?? []).map(norm));
+  let items: Array<Record<string, unknown>> = [];
+  try {
+    const m = (j.choices?.[0]?.message?.content ?? "[]").match(/\[[\s\S]*\]/);
+    items = m ? (JSON.parse(m[0]) as Array<Record<string, unknown>>) : [];
+  } catch {
+    return [];
+  }
+  return items
+    .filter((it) => typeof it.url === "string" && /^https?:\/\/(x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d+/.test(it.url as string) && (!cites.size || cites.has(norm(it.url as string))))
+    .map((it) => ({ url: it.url as string, quote: String(it.quote ?? "").slice(0, 280), about: String(it.about ?? "") }));
 }
 
 const norm = (u: string) => u.replace(/^https?:\/\/(?:www\.)?(?:twitter|x)\.com/, "x").replace(/[?#].*$/, "").replace(/\/$/, "");

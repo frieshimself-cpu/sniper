@@ -10,6 +10,13 @@ import { readFile } from "node:fs/promises";
 
 const enc = (s: string) => encodeURIComponent(s).replace(/[!'()*]/g, (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase());
 
+export interface Post {
+  id: string;
+  text: string;
+  at: string;
+  urls: string[];
+}
+
 export interface XCreds {
   key: string;
   secret: string;
@@ -59,6 +66,34 @@ export class X {
   async me(): Promise<{ id: string; username: string }> {
     const j = await this.json<{ data: { id: string; username: string } }>("GET", "https://api.x.com/2/users/me");
     return j.data;
+  }
+
+  async userByUsername(username: string): Promise<{ id: string; username: string; name: string; followers: number; created_at: string } | null> {
+    const u = username.replace(/^@/, "");
+    const j = await this.json<{ data?: { id: string; username: string; name: string; created_at?: string; public_metrics?: { followers_count?: number } } }>(
+      "GET",
+      `https://api.x.com/2/users/by/username/${encodeURIComponent(u)}?user.fields=created_at,public_metrics`,
+    );
+    if (!j.data) return null;
+    return { id: j.data.id, username: j.data.username, name: j.data.name, followers: j.data.public_metrics?.followers_count ?? 0, created_at: j.data.created_at ?? "" };
+  }
+
+  /** The user's own posts, newest first, up to `max` (the API stops at 3,200). Replies kept, retweets dropped. */
+  async userPosts(userId: string, max = 800): Promise<Post[]> {
+    const out: Post[] = [];
+    let token: string | undefined;
+    while (out.length < max) {
+      const u = new URL(`https://api.x.com/2/users/${userId}/tweets`);
+      u.searchParams.set("max_results", "100");
+      u.searchParams.set("tweet.fields", "created_at,entities,public_metrics,referenced_tweets");
+      u.searchParams.set("exclude", "retweets");
+      if (token) u.searchParams.set("pagination_token", token);
+      const j = await this.json<{ data?: Array<{ id: string; text: string; created_at: string; entities?: { urls?: Array<{ expanded_url?: string }> } }>; meta?: { next_token?: string } }>("GET", u.toString());
+      for (const t of j.data ?? []) out.push({ id: t.id, text: t.text, at: t.created_at, urls: (t.entities?.urls ?? []).map((x) => x.expanded_url ?? "").filter(Boolean) });
+      token = j.meta?.next_token;
+      if (!token || !(j.data ?? []).length) break;
+    }
+    return out;
   }
 
   /** Post a poll. Options: 2 to 4, 25 characters each. Returns the post id and URL. */

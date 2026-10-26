@@ -23,6 +23,8 @@ import { investigate as runDetectors, short, type Investigation } from "./detect
 import { liveSources, liveConfigured } from "./sources/live.js";
 import { mockSources } from "./sources/mock.js";
 import { discover, tokenHints } from "./sources/discover.js";
+import { investigatePerson, livePersonSources, type PersonInvestigation } from "./person.js";
+import { mockPersonSources } from "./sources/mock-person.js";
 import { readState, updateState, backend } from "./state.js";
 import type { Claim, Label, Sources } from "./sources/types.js";
 import type { Case, CasesFile, Registry, RegistryEntry } from "./types.js";
@@ -333,6 +335,12 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   if (applied) process.stdout.write(`applied ${applied} approved lead${applied === 1 ? "" : "s"} to the registry\n`);
   process.stdout.write(`state: ${backend()}\n`);
 
+  // ---- a person ---------------------------------------------------------------
+  const handleSubject = opts.subject?.startsWith("@") ? opts.subject : (await ballotWinner())?.kind === "handle" && !opts.subject ? (await ballotWinner())!.ref : null;
+  if (handleSubject) {
+    return runPerson(handleSubject, src, registry, opts);
+  }
+
   let picked = await pickSubject(opts.subject, src, registry, opts.via);
   let inv: Investigation | null = null;
   if (picked) {
@@ -413,6 +421,96 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
     process.stderr.write(`card render failed: ${(err as Error).message}\n`);
   }
   const msg = `Case ${c.id} opened on $${c.token.symbol}: ${c.findings.length} findings, ${att.added.length} wallets attributed, ${att.leads.length} leads.`;
+  await writeStatus({ state: "idle", last_run_at: iso(), last_case: n, message: msg, next_run_at: nextRun() });
+  process.stdout.write(msg + "\n");
+  return { case: c, message: msg };
+}
+
+function personHeadline(p: PersonInvestigation): string {
+  const f = p.findings[0];
+  if (!f) return `${p.handle}. Nothing on file.`;
+  const t = p.token ? `$${p.token.symbol}` : "a token";
+  if (/then sold/.test(f.title)) return `${p.handle} promoted ${t} and sold into the people who listened.`;
+  if (/Said holding/.test(f.title)) return `${p.handle} said holding ${t}. The wallets were selling.`;
+  if (/was safe/.test(f.title)) return `${p.handle} said ${t} was safe. The wallets left.`;
+  if (/^Launched/.test(f.title)) return `${p.handle} launched ${t}. ${f.title.replace(/^Launched \$\S+: /, "").replace(/^./, (c) => c.toUpperCase())}.`;
+  if (/^Promoted/.test(f.title)) return `${p.handle} promoted ${t}. ${f.title.replace(/^Promoted \$\S+: /, "").replace(/^./, (c) => c.toUpperCase())}.`;
+  if (/funded the/.test(f.title)) return `A wallet ${p.handle} claims as theirs funded the ${t} bundle.`;
+  if (/deleted/.test(f.title)) return `${p.handle} deleted the promotions. The quotes remain.`;
+  return `${p.handle}. ${p.findings.length} findings.`;
+}
+
+async function runPerson(handle: string, src: Sources, registry: Registry, opts: RunOptions): Promise<{ case?: Case; message: string }> {
+  const psrc = src.name === "mock" ? mockPersonSources(handle) : livePersonSources(src);
+  process.stdout.write(`subject ${handle} via ${opts.via ?? "argument"}\n`);
+  const p = await investigatePerson(handle, psrc);
+  for (const l of p.log) process.stdout.write(`  ${l}\n`);
+  process.stdout.write(`  score ${p.score}: ${p.findings.map((f) => f.title).join("; ") || "nothing"}\n`);
+  const ok = p.score >= MIN_PUBLISH_SCORE && (p.findings.length >= 2 || p.score >= STRONG_SCORE);
+  if (!ok) {
+    const msg = `${handle}: score ${p.score}, ${p.findings.length} finding${p.findings.length === 1 ? "" : "s"}. Not enough for a case.`;
+    await writeStatus({ state: "idle", last_run_at: iso(), message: msg, next_run_at: nextRun() });
+    return { message: msg };
+  }
+  // wallets with a source go on the record
+  const added: string[] = [];
+  const h = normalizeHandle(handle);
+  let entry = registry.entries.find((e) => normalizeHandle(e.handle) === h);
+  for (const w of p.wallets) {
+    if (!entry) {
+      entry = { handle: h, wallets: [], ...(w.platform ? { note: `${w.platform} username` } : {}) };
+      registry.entries.push(entry);
+    }
+    if (!entry.wallets.some((x) => x.address === w.address)) {
+      entry.wallets.push({ address: w.address, tier: w.tier, source: w.source });
+      added.push(w.address);
+    }
+  }
+  const file = await readJson<CasesFile>(CASES, { generated_at: iso(), agent: "C.R.I.M.E.", version: 1, cases: [] });
+  const n = (file.cases.reduce((m, c) => Math.max(m, c.n), 0) || 0) + 1;
+  const c: Case = enforceDeep({
+    n,
+    id: pad(n),
+    kind: "person",
+    opened_at: iso(),
+    status: "open",
+    severity: p.severity,
+    score: p.score,
+    token: p.token ?? { symbol: "—", name: "no token", mint: "" },
+    subjects: [h],
+    headline: personHeadline(p),
+    charge: p.charge,
+    findings: p.findings,
+    evidence: p.evidence,
+    money_trail: p.trail,
+    narrative: [
+      `${h} was picked by ${opts.via ?? "hand"}. The agent read ${p.posts} posts and found ${p.claims.length} claims about tokens, ${p.wallets.length} wallet${p.wallets.length === 1 ? "" : "s"} on the record (${p.wallets.filter((w) => w.tier === "claimed").length} claimed by the handle itself).`,
+      p.findings.map((f) => f.detail).join(" "),
+      p.trail.length > 1 ? `${p.trail[0].amount} left ${short(p.trail[0].address)}. The trail ends at ${p.trail[p.trail.length - 1].label} ${short(p.trail[p.trail.length - 1].address)}.` : "No money trail could be followed from the wallets on record.",
+      "Every post and every transaction above is linked. Disputes are honoured at once. Convictions: 0.",
+    ],
+    png: `case-${pad(n)}.png`,
+  });
+  if (opts.dry) {
+    process.stdout.write(JSON.stringify({ case: c, added }, null, 2) + "\n");
+    await writeStatus({ state: "idle", last_run_at: iso(), message: `dry run: would open case ${c.id} on ${h}` });
+    return { case: c, message: "dry run" };
+  }
+  file.cases.push(c);
+  file.generated_at = iso();
+  await mkdir(join(ROOT, "data"), { recursive: true });
+  await mkdir(join(ROOT, "out"), { recursive: true });
+  await writeJson(CASES, file);
+  if (added.length) {
+    registry.updated_at = iso();
+    await writeJson(REGISTRY, enforceDeep(registry));
+  }
+  try {
+    await renderCards([c], join(ROOT, "out"));
+  } catch (err) {
+    process.stderr.write(`card render failed: ${(err as Error).message}\n`);
+  }
+  const msg = `Case ${c.id} opened on ${h}: ${c.findings.length} findings, ${added.length} wallets on the record.`;
   await writeStatus({ state: "idle", last_run_at: iso(), last_case: n, message: msg, next_run_at: nextRun() });
   process.stdout.write(msg + "\n");
   return { case: c, message: msg };

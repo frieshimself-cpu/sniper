@@ -67,14 +67,14 @@ li{display:flex;gap:16px;font-size:15px;line-height:1.4}
 <div class="top"><div class="brand">C.R.I.M.E.</div><div class="no">Case file No. ${esc(c.id)}</div></div>
 <div class="meta">
 <div><b>Opened</b><span class="v">${esc(c.opened_at.slice(0, 10))}</span></div>
-<div><b>Token</b><span class="v">$${esc(c.token.symbol)}</span></div>
+<div><b>${c.kind === "person" ? "Worst token" : "Token"}</b><span class="v">${c.token.mint ? "$" + esc(c.token.symbol) : "—"}</span></div>
 <div><b>Subject</b><span class="v">${subjects}</span></div>
 <div><b>Severity</b><span class="v sev">${esc(c.severity)}</span></div>
 </div>
 <h1>${esc(c.headline)}</h1>
 <div class="charge">${esc(c.charge)}</div>
 <ol>${findings}</ol>
-<div class="foot"><span>CA ${esc(c.token.mint)}</span><span class="conv">Convictions 0</span></div>
+<div class="foot"><span>${c.token.mint ? "CA " + esc(c.token.mint) : esc(c.subjects[0] ?? "")}</span><span class="conv">Convictions 0</span></div>
 <div class="stamp">LEGAL<small>C.R.I.M.E.</small></div>
 </div></body></html>`;
 }

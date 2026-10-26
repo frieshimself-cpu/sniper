@@ -47,6 +47,10 @@ export function EvidenceTable({ rows }: { rows: Evidence[] }) {
               <td>
                 {isHiddenLabel(e.ref) ? (
                   <span className="redacted" title="disputed, hidden" aria-label="hidden wallet" />
+                ) : e.kind === "post" ? (
+                  <a href={e.ref} target="_blank" rel="noopener noreferrer" className="underline">
+                    post
+                  </a>
                 ) : (
                   <a
                     href={e.kind === "tx" ? solscanTx(e.ref) : solscanAccount(e.ref)}

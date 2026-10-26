@@ -1,8 +1,8 @@
 {
-  "state": "running",
+  "state": "idle",
   "mode": "mock",
-  "last_run_at": "2026-10-26T04:25:50Z",
+  "last_run_at": "2026-10-26T07:34:15Z",
   "next_run_at": "2026-10-26T10:07:36Z",
   "last_case": 5,
-  "message": "Ballot 2026-10-26T04 open for 10 minutes: $CATTLEAXE, $TIT, $Chop, $GTA."
+  "message": "dry run: would open case 0006 on @wen_moon_wendy"
 }
