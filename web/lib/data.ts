@@ -280,28 +280,3 @@ export function getStats(): Stats {
   };
 }
 
-/** Subjects the admin may put on a ballot: tokens over threshold and registry handles. */
-export interface EligibleSubject {
-  key: string;
-  kind: "token" | "handle";
-  label: string;
-  ref: string;
-  score: number;
-}
-
-export function eligibleSubjects(threshold: number): EligibleSubject[] {
-  const tokens = new Map<string, EligibleSubject>();
-  for (const c of getCases()) {
-    if (c.score < threshold) continue;
-    const key = `token:${c.token.mint}`;
-    const prev = tokens.get(key);
-    if (!prev || prev.score < c.score) {
-      tokens.set(key, { key, kind: "token", label: `$${c.token.symbol}`, ref: c.token.mint, score: c.score });
-    }
-  }
-  const handles: EligibleSubject[] = readRegistry().entries.map((e) => {
-    const h = normalizeHandle(e.handle);
-    return { key: `handle:${h}`, kind: "handle", label: h, ref: h, score: 0 };
-  });
-  return enforceDeep([...tokens.values(), ...handles]);
-}

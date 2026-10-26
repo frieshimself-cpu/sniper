@@ -10,7 +10,6 @@ const NAV = [
   ["/#exposed", "exposed"],
   ["/cases", "files"],
   ["/#how", "how it works"],
-  ["/#nominate", "nominate"],
   ["/rules", "rules"],
   ["/about", "about"],
 ] as const;

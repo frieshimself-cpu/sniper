@@ -33,10 +33,10 @@ const RULES: Array<[string, string[]]> = [
   ],
   ["5. Evidence is linkable", ["Every transaction, account and token in a case file links to a public explorer. A claim that cannot be linked is narrative, and it is labelled as narrative."]],
   [
-    "6. The ballot is one wallet, one vote",
+    "6. The poll is on X",
     [
-      "The daily ballot picks the next subject. A vote is a signed message from a Solana wallet that holds at least the minimum balance of the CRIME token. One vote per wallet per ballot.",
-      "Votes are never weighted by balance. The runner-up carries to the next day. A subject is not put on a ballot twice in thirty days.",
+      "A human posts the poll on the X account: up to four handles, ten minutes. The agent reads the result and investigates the winner. It never writes to X.",
+      "No votes, nothing opened. Nothing is nominated on this site and nothing is voted on here.",
     ],
   ],
   ["7. Everything through the policy", ["Every string that reaches a reader passes through the policy module. Fixtures, generated data, submitted text, API responses. No exceptions."]],

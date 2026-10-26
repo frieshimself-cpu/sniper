@@ -4,8 +4,7 @@ import { withBase } from "@/lib/dyn";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Candidate } from "@/lib/ballot";
-import type { BallotOption, Dispute, Lead } from "@/lib/store";
+import type { Dispute, Lead } from "@/lib/store";
 import type { AgentStatus } from "@/lib/data";
 
 async function post(url: string, body: unknown) {
@@ -47,49 +46,9 @@ export function AdminLogin() {
   );
 }
 
-interface TodayView {
-  id: string;
-  options: BallotOption[];
-  votes: number;
-  tally: Record<string, number>;
-}
-
-export function AdminPanel({
-  candidates,
-  size,
-  threshold,
-  today,
-  disputes,
-  leads,
-  agent,
-}: {
-  candidates: Candidate[];
-  size: number;
-  threshold: number;
-  today: TodayView | null;
-  disputes: Dispute[];
-  leads: Lead[];
-  agent: AgentStatus;
-}) {
+export function AdminPanel({ disputes, leads, agent }: { disputes: Dispute[]; leads: Lead[]; agent: AgentStatus }) {
   const router = useRouter();
-  const [picked, setPicked] = useState<string[]>(today?.options.map((o) => o.key) ?? candidates.slice(0, size).map((c) => c.key));
   const [note, setNote] = useState<string | null>(null);
-  const locked = (today?.votes ?? 0) > 0;
-
-  function toggle(key: string) {
-    setPicked((p) => (p.includes(key) ? p.filter((k) => k !== key) : p.length < size ? [...p, key] : p));
-  }
-
-  async function build() {
-    setNote(null);
-    try {
-      await post("/api/admin/ballot", { keys: picked });
-      setNote("Ballot built.");
-      router.refresh();
-    } catch (e) {
-      setNote((e as Error).message);
-    }
-  }
 
   async function review(wallet: string, status: "removed" | "kept") {
     setNote(null);
@@ -118,45 +77,7 @@ export function AdminPanel({
 
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
-      <section className="file p-5 md:p-6">
-        <div className="flex items-baseline justify-between gap-4 border-b-2 border-ink pb-2">
-          <h2 className="text-xl">This hour&apos;s ballot</h2>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{today ? `${today.id} · ${today.votes} votes` : "not built"}</span>
-        </div>
-        <p className="mt-3 text-xs opacity-80">
-          Pick up to {size}, at least 2. Eligible: tokens with score at or above {threshold}, and registry handles. Nothing that was on a ballot in the last day.
-          The previous runner-up is carried.
-        </p>
-        {locked ? <p className="mt-2 text-xs text-stamp">Votes are in. Today&apos;s ballot is locked.</p> : null}
-        <ul className="mt-4 flex flex-col gap-2 max-h-96 overflow-y-auto">
-          {candidates.map((c) => (
-            <li key={c.key}>
-              <label className="flex items-center gap-3 text-[13px] cursor-pointer">
-                <input type="checkbox" checked={picked.includes(c.key)} onChange={() => toggle(c.key)} disabled={locked} />
-                <span className="font-semibold">{c.label}</span>
-                <span className="text-[10px] uppercase tracking-[0.12em] opacity-75">
-                  {c.kind}
-                  {c.kind === "token" ? ` · score ${c.score}` : ""}
-                  {c.carried ? " · carried" : ""}
-                </span>
-              </label>
-            </li>
-          ))}
-          {candidates.length === 0 ? <li className="text-sm">No eligible subjects.</li> : null}
-        </ul>
-        <div className="mt-4 flex items-center gap-4">
-          <button type="button" className="btn btn-solid" disabled={locked || picked.length < 2 || picked.length > size} onClick={build}>
-            Build ballot ({picked.length}/{size})
-          </button>
-          {today ? (
-            <span className="text-xs">
-              {today.options.map((o) => `${o.label} ${today.tally[o.key] ?? 0}`).join(" · ")}
-            </span>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="file p-5 md:p-6">
+      <section className="file p-5 md:p-6 lg:col-span-2">
         <div className="flex items-baseline justify-between gap-4 border-b-2 border-ink pb-2">
           <h2 className="text-xl">Disputes</h2>
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{disputes.filter((d) => d.status === "open").length} open</span>

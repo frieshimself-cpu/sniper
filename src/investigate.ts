@@ -3,7 +3,7 @@
  *
  *   npm run investigate -- --subject <mint>        one token
  *   npm run investigate -- --subject @handle       the handle's latest launch (registry wallets)
- *   npm run investigate                            next from the ballot winner, then data/watchlist.json
+ *   npm run investigate                            next from data/watchlist.json (the polls are settled by cycle.ts)
  *   npm run investigate -- --mock                  deterministic fake chain, no keys needed
  *   npm run investigate -- --dry                   do everything but write
  *
@@ -93,39 +93,7 @@ export async function writeStatus(patch: Partial<Status>): Promise<Status> {
 }
 
 // ---- subject selection ---------------------------------------------------
-interface BallotDoc {
-  id: string;
-  closed: boolean;
-  closes_at: string;
-  winner?: string;
-  votes: Record<string, string>;
-  options: Array<{ key: string; kind: "token" | "handle"; ref: string; label?: string }>;
-}
-
 const REQUIRE_VOTES = (process.env.REQUIRE_VOTES ?? "on").toLowerCase() !== "off";
-
-/** The most recent finished ballot that had votes and whose winner is not yet on file. */
-async function ballotWinner(): Promise<{ kind: "token" | "handle"; ref: string; ballot: string; votes: number } | null> {
-  const ballots = await readState<BallotDoc[]>("ballots", []);
-  const cases = await readJson<CasesFile>(CASES, { generated_at: "", agent: "", version: 1, cases: [] });
-  const covered = new Set(cases.cases.map((c) => c.token.mint));
-  const now = Date.now();
-  for (const b of ballots.sort((a, c) => c.id.localeCompare(a.id))) {
-    const finished = b.closed || Date.parse(b.closes_at) <= now;
-    if (!finished) continue;
-    const tally: Record<string, number> = {};
-    for (const k of Object.values(b.votes ?? {})) tally[k] = (tally[k] ?? 0) + 1;
-    const ordered = b.options.map((o) => o.key).sort((x, y) => (tally[y] ?? 0) - (tally[x] ?? 0));
-    const winner = b.winner ?? ordered[0];
-    const o = b.options.find((x) => x.key === winner);
-    if (!o) continue;
-    const votes = tally[winner] ?? 0;
-    if (REQUIRE_VOTES && votes === 0) continue;
-    if (o.kind === "token" && covered.has(o.ref)) continue;
-    return { kind: o.kind, ref: o.ref, ballot: b.id, votes };
-  }
-  return null;
-}
 
 /** Leads a human approved on the site become registry entries on the agent's next run. */
 async function applyApprovedLeads(registry: Registry): Promise<number> {
@@ -172,13 +140,6 @@ async function pickSubject(arg: string | undefined, src: Sources, registry: Regi
     return mint ? { mint, via: `handle ${arg}` } : null;
   }
   if (arg) return { mint: arg, via: viaHint ?? "argument" };
-  const win = await ballotWinner();
-  if (win) {
-    const via = `ballot ${win.ballot}, ${win.votes} vote${win.votes === 1 ? "" : "s"}`;
-    if (win.kind === "token") return { mint: win.ref, via };
-    const mint = await latestLaunchOf(win.ref, src, registry);
-    if (mint) return { mint, via: `${via} (${win.ref})` };
-  }
   const watch = await readJson<Watch[]>(WATCHLIST, []);
   const next = watch.find((w) => !w.done);
   return next ? { mint: next.mint, via: "watchlist" } : null;
@@ -188,7 +149,7 @@ const DISCOVER_SCAN = Number(process.env.DISCOVER_SCAN ?? 6);
 const RESCAN_DAYS = Number(process.env.RESCAN_DAYS ?? 3);
 let scanned = 0;
 
-/** No ballot winner, no watchlist: scan what is paying for attention and keep the worst one. */
+/** No poll, no watchlist: scan what is paying for attention and keep the worst one. */
 async function scanDiscovered(src: Sources): Promise<{ inv: Investigation; mint: string; via: string } | null> {
   const cases = await readJson<CasesFile>(CASES, { generated_at: "", agent: "", version: 1, cases: [] });
   const covered = new Set(cases.cases.map((c) => c.token.mint));
@@ -337,9 +298,8 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   process.stdout.write(`state: ${backend()}\n`);
 
   // ---- a person ---------------------------------------------------------------
-  const handleSubject = opts.subject?.startsWith("@") ? opts.subject : (await ballotWinner())?.kind === "handle" && !opts.subject ? (await ballotWinner())!.ref : null;
-  if (handleSubject) {
-    return runPerson(handleSubject, src, registry, opts);
+  if (opts.subject?.startsWith("@")) {
+    return runPerson(opts.subject, src, registry, opts);
   }
 
   let picked = await pickSubject(opts.subject, src, registry, opts.via);
@@ -351,7 +311,7 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
     for (const l of inv?.log ?? []) process.stdout.write(`  ${l}\n`);
     await markWatchlist(picked.mint, undefined);
   } else if (src.name === "live" && REQUIRE_VOTES) {
-    await writeStatus({ state: "idle", last_run_at: iso(), message: "No ballot winner with votes this period. Nothing opened. The ballot is open.", next_run_at: nextRun() });
+    await writeStatus({ state: "idle", last_run_at: iso(), message: "No poll settled this period. Nothing opened. The next poll on X decides.", next_run_at: nextRun() });
     return { message: "nothing to investigate: no votes" };
   } else if (src.name === "live") {
     const best = await scanDiscovered(src);

@@ -1,4 +1,3 @@
-import "server-only";
 /**
  * The polls. A human posts them on the X account; the agent settles them into data/polls.json.
  * The site shows the live one straight from X (read only, X_BEARER_TOKEN) and the settled ones from the file.

@@ -4,18 +4,18 @@ Chain Research & Investigation of Market Exploits. It has opened many cases. It 
 
 ## What it is
 
-A filing clerk with a stamp. Once an hour it takes a name the crowd voted for, reads everything that name ever said on X, finds every wallet that name can be tied to, and replays what those wallets did on Solana while the posts were going up. Then it writes the case file and posts it.
+A filing clerk with a stamp. Once an hour it takes a name the crowd voted for, reads everything that name ever said on X, finds every wallet that name can be tied to, and replays what those wallets did on Solana while the posts were going up. Then it writes the case file.
 
 The file has a headline, the findings, the receipts, the money trail and a narrative. Every receipt is a link: a post, a transaction, a wallet. If it cannot be linked, it is not in the file.
 
 ## How a case gets made
 
-1. Nominate. Anyone can put a handle on the board.
-2. Vote. Every hour the four most nominated go on a poll. Ten minutes.
+1. The poll. A human posts it on the X account: up to four handles, ten minutes. The public votes there.
+2. The winner. The agent reads the result. It never writes to X. No votes, nothing opened.
 3. Sweep. The winner's post history comes down. Every token mentioned, every "not selling", every address they ever typed.
 4. Map. Wallets the handle posted themselves are theirs, claimed. Wallets a public label ties to them are probable. Anything weaker waits for a human.
 5. Replay. The wallets' trades go next to the posts. Bought at 14:02. Posted "generational entry" at 14:09. Sold into you at 14:31.
-6. File. Worst thing first. Card on X, full file on the site.
+6. File. Worst thing first. The file is on the site, every receipt a link.
 
 ## What counts as a finding
 
@@ -47,8 +47,7 @@ Every week someone with a hundred thousand followers calls a coin a generational
 ## Where
 
 Site: crime-theta.vercel.app
-Polls: here, every hour, ten minutes each.
-Nominations: on the site.
+Polls: on X, posted by hand, ten minutes each.
 Disputes: on the site, one signature.
 
 Cases opened. Crimes found. Convictions: 0.

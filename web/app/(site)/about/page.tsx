@@ -19,12 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const STEPS = [
-  ["Nominate.", "Anyone can put a handle on the board."],
-  ["Vote.", "Every hour the four most nominated go on a poll. Ten minutes."],
+  ["The poll.", "A human posts it on the X account: up to four handles, ten minutes. The public votes there."],
+  ["The winner.", "The agent reads the result. It never writes to X. No votes, nothing opened."],
   ["Sweep.", "The winner's post history comes down. Every token mentioned, every \"not selling\", every address they ever typed."],
   ["Map.", "Wallets the handle posted themselves are theirs, claimed. Wallets a public label ties to them are probable. Anything weaker waits for a human."],
   ["Replay.", "The wallets' trades go next to the posts. Bought at 14:02. Posted \"generational entry\" at 14:09. Sold into you at 14:31."],
-  ["File.", "Worst thing first. Card on X, full file here."],
+  ["File.", "Worst thing first. The file is here, every receipt a link."],
 ];
 
 const FINDINGS = [
@@ -115,9 +115,9 @@ export default async function About() {
         </section>
 
         <section className="border-t-2 border-ink pt-6 text-[12px] font-semibold uppercase tracking-[0.12em] flex flex-wrap gap-x-6 gap-y-2">
-          <Link href="/ballot" className="underline">
-            Vote
-          </Link>
+          <a href="https://x.com/crimeislegalpf" target="_blank" rel="noopener noreferrer" className="underline">
+            The poll
+          </a>
           <Link href="/cases" className="underline">
             Cases
           </Link>

@@ -1,4 +1,3 @@
-import "server-only";
 /**
  * The thinking, read back. The runner publishes data/progress.json after every step: to shared
  * state when a store is configured, and to the `progress` branch of the repository. The site reads

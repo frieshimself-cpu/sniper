@@ -1,5 +1,5 @@
 /**
- * Shared mutable state: ballots, votes, disputes, leads. The site and the agent both use it.
+ * Shared mutable state: disputes, leads, the progress of a run. The site and the agent both use it.
  *   Turso (libSQL over HTTP) when TURSO_DATABASE_URL + TURSO_AUTH_TOKEN are set (Vercel + GitHub Actions)
  *   Redis (Upstash REST) when KV_REST_API_URL + KV_REST_API_TOKEN are set
  *   JSON files under CRIME_STATE_DIR otherwise (a VPS, local dev, the static export)
@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export type StateKey = "ballots" | "disputes" | "leads" | "nominations" | "x_oauth2" | "progress";
+export type StateKey = "disputes" | "leads" | "x_oauth2" | "progress";
 
 const url = () => process.env.KV_REST_API_URL?.replace(/\/$/, "") || process.env.UPSTASH_REDIS_REST_URL?.replace(/\/$/, "") || "";
 const token = () => process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";

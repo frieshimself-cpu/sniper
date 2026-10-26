@@ -3,7 +3,6 @@ import { dyn } from "@/lib/request";
 import Link from "next/link";
 import { getStats, latestCases, getAgentStatus } from "@/lib/data";
 import { currentPoll } from "@/lib/polls";
-import { getBoard } from "@/lib/nominations";
 import { ago, until, siteUrl } from "@/lib/format";
 import { Counter } from "@/components/Counter";
 import { Pill } from "@/components/Pills";
@@ -11,7 +10,6 @@ import { CaseCard } from "@/components/CaseCard";
 import { Board } from "@/components/Board";
 import { Glitch } from "@/components/Glitch";
 import { Exposed } from "@/components/Exposed";
-import { Nominate } from "@/components/Nominate";
 import { Hero } from "@/components/Hero";
 import { Reveal } from "@/components/Reveal";
 import { Pipeline } from "@/components/Pipeline";
@@ -49,7 +47,6 @@ export default async function Home() {
   const account = (process.env.X_ACCOUNT ?? "crimeislegalpf").replace(/^@/, "");
   const latest = latestCases(6);
   const agent = getAgentStatus();
-  const board = (await getBoard()).slice(0, 6);
   const last = latest[0];
   const lastSubject = last ? (last.kind === "person" && last.subjects[0] ? { label: last.subjects[0], href: `/cases/${last.n}` } : { label: `$${last.token.symbol}`, href: `/cases/${last.n}` }) : null;
   const drawn = latest.find((c) => c.money_trail.length > 1) ?? last;
@@ -151,48 +148,6 @@ export default async function Home() {
             .
           </p>
         </Reveal>
-      </section>
-
-      {/* ---- 04 the board ------------------------------------------------------------ */}
-      <section>
-        <Reveal>
-          <Chapter n="04" id="nominate" title="Put a name on the block" sub="One signature with a wallet. Nothing on chain. The most nominated handles are the ones put up for a vote." />
-        </Reveal>
-        <div className="mt-10 grid gap-8 md:grid-cols-2">
-          <Reveal delay={80}>
-            <div className="file p-5 h-full">
-              <h3 className="text-xl">Nominate</h3>
-              <p className="mt-1 mb-5 text-[13px] opacity-70">One nomination per wallet per handle per day.</p>
-              <Nominate />
-            </div>
-          </Reveal>
-          <Reveal delay={160}>
-            <div className="file p-5 h-full">
-              <div className="flex items-baseline justify-between border-b border-ink/40 pb-2">
-                <h3 className="text-xl">The board</h3>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{board.length} handle{board.length === 1 ? "" : "s"}</span>
-              </div>
-              {board.length === 0 ? (
-                <p className="mt-4">The board is empty. Be first.</p>
-              ) : (
-                <ol className="mt-4 flex flex-col gap-2">
-                  {board.map((b, i) => (
-                    <li key={b.handle} className="flex items-baseline justify-between gap-3">
-                      <span>
-                        <span className="font-semibold text-xs mr-2 opacity-70">{String(i + 1).padStart(2, "0")}</span>
-                        {b.handle}
-                      </span>
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{b.nominations} nomination{b.nominations === 1 ? "" : "s"}</span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-              <Link href="/nominate" className="mt-5 inline-block text-[11px] font-semibold uppercase tracking-[0.14em] underline">
-                The whole board
-              </Link>
-            </div>
-          </Reveal>
-        </div>
       </section>
 
       {/* ---- the foot ---------------------------------------------------------------- */}

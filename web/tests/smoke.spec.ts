@@ -22,7 +22,7 @@ test.beforeAll(() => {
   fs.rmSync(STATE_DIR, { recursive: true, force: true });
 });
 
-test("/ is one page: counters, who gets exposed first, latest files, how it works, nominate", async ({ page }) => {
+test("/ is one page: counters, who gets exposed first, latest files, how it works", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Cases opened", { exact: true })).toBeVisible();
   await expect(page.getByText("Crimes found", { exact: true })).toBeVisible();
@@ -35,7 +35,6 @@ test("/ is one page: counters, who gets exposed first, latest files, how it work
   await expect(page.getByRole("heading", { name: "Latest files" })).toBeVisible();
   await expect(page.locator("a.file")).toHaveCount(6);
   await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Put a name on the block" })).toBeVisible();
   await clean(page);
 });
 
@@ -104,29 +103,6 @@ test("/persons/[handle] shows rollup, wallets with tier + source, tokens and Dis
   await clean(page);
 });
 
-test("/ballot has four options and history; signed votes are one per wallet", async ({ page, request }) => {
-  await page.goto("/ballot");
-  await expect(page.getByRole("heading", { name: "The ballot" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Vote" })).toHaveCount(4);
-  await expect(page.getByRole("heading", { name: "History" })).toBeVisible();
-  await clean(page);
-
-  const { ballot } = await (await request.get("/api/ballot")).json();
-  expect(ballot.options).toHaveLength(4);
-  const kp = nacl.sign.keyPair();
-  const wallet = bs58.encode(kp.publicKey);
-  const sign = (m: string) => bs58.encode(nacl.sign.detached(new TextEncoder().encode(m), kp.secretKey));
-  const option = ballot.options[0].key;
-  const msg = `CRIME ballot ${ballot.id} vote ${option}`;
-  const ok = await request.post("/api/vote", { data: { ballot: ballot.id, option, wallet, signature: sign(msg) } });
-  expect(ok.status()).toBe(200);
-  expect((await ok.json()).tally[option]).toBeGreaterThanOrEqual(1);
-  const dup = await request.post("/api/vote", { data: { ballot: ballot.id, option, wallet, signature: sign(msg) } });
-  expect(dup.status()).toBe(409);
-  const bad = await request.post("/api/vote", { data: { ballot: ballot.id, option, wallet, signature: sign("other") } });
-  expect(bad.status()).toBe(401);
-});
-
 test("/stamp renders the canvas and controls", async ({ page }) => {
   await page.goto("/stamp");
   await expect(page.getByRole("heading", { name: "Stamp it" })).toBeVisible();
@@ -155,22 +131,6 @@ test("/rules carries the rules and how to dispute, without the forbidden word", 
   await clean(page);
 });
 
-test("/nominate shows the board and the form", async ({ page, request }) => {
-  await page.goto("/nominate");
-  await expect(page.getByRole("heading", { name: "The board" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Nominate" })).toBeVisible();
-  await clean(page);
-  const kp = nacl.sign.keyPair();
-  const wallet = bs58.encode(kp.publicKey);
-  const sign = (m: string) => bs58.encode(nacl.sign.detached(new TextEncoder().encode(m), kp.secretKey));
-  const ok = await request.post("/api/nominate", { data: { handle: "@some_kol", wallet, signature: sign("CRIME nominate @some_kol"), note: "shilled and sold" } });
-  expect(ok.status()).toBe(200);
-  const dup = await request.post("/api/nominate", { data: { handle: "@some_kol", wallet, signature: sign("CRIME nominate @some_kol") } });
-  expect(dup.status()).toBe(409);
-  const board = await (await request.get("/api/nominate")).json();
-  expect(board.board[0].handle).toBe("@some_kol");
-});
-
 test("/about explains the project without the forbidden word", async ({ page }) => {
   await page.goto("/about");
   await expect(page.getByRole("heading", { name: /opens a case every hour/ })).toBeVisible();
@@ -178,7 +138,7 @@ test("/about explains the project without the forbidden word", async ({ page }) 
   await clean(page);
 });
 
-test("/admin asks for the password, then builds a ballot and lists disputes", async ({ page, request }) => {
+test("/admin asks for the password, then lists disputes and leads", async ({ page, request }) => {
   await page.goto("/admin");
   await expect(page.getByLabel("Password")).toBeVisible();
   await page.getByLabel("Password").fill("wrong");
@@ -186,16 +146,14 @@ test("/admin asks for the password, then builds a ballot and lists disputes", as
   await expect(page.locator("p[role=alert]")).toContainText("Wrong password");
   await page.getByLabel("Password").fill("smoke-test");
   await page.getByRole("button", { name: "Enter" }).click();
-  await expect(page.getByRole("heading", { name: "This hour's ballot" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Disputes" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Attribution leads" })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Build ballot/ })).toBeVisible();
   await clean(page);
-  expect((await request.post("/api/admin/ballot", { data: { keys: [] } })).status()).toBe(401);
+  expect((await request.post("/api/admin/dispute", { data: { wallet: "x", status: "kept" } })).status()).toBe(401);
 });
 
-test("API: stats, cases, persons, ballot are JSON and never carry the forbidden word", async ({ request }) => {
-  for (const p of ["/api/stats", "/api/cases", "/api/cases/1", "/api/persons/deployer_dan", "/api/ballot?history=1"]) {
+test("API: stats, cases, persons, poll, progress are JSON and never carry the forbidden word", async ({ request }) => {
+  for (const p of ["/api/stats", "/api/cases", "/api/cases/1", "/api/persons/deployer_dan", "/api/poll", "/api/progress"]) {
     const r = await request.get(p);
     expect(r.status(), p).toBe(200);
     expect(r.headers()["content-type"]).toContain("application/json");

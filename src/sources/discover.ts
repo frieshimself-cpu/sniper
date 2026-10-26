@@ -1,5 +1,5 @@
 /**
- * Where subjects come from when the ballot has none: tokens paying for
+ * Where subjects come from when no poll has settled: tokens paying for
  * attention (DexScreener boosts and profiles) and launchpad tokens that are
  * trending (Jupiter's token API). Both feeds are public and free.
  */

@@ -46,15 +46,12 @@ export default function Embed() {
             <dd className="opacity-80">A dossier. Wallets appear only with a registry source and only until disputed.</dd>
           </div>
           <div>
-            <dt className="font-semibold">GET /api/ballot</dt>
-            <dd className="opacity-80">Today&apos;s ballot with live tallies, and history under /api/ballot?history=1.</dd>
+            <dt className="font-semibold">GET /api/poll</dt>
+            <dd className="opacity-80">The poll on the block, read from X, and the settled ones with the case each winner became.</dd>
           </div>
           <div>
-            <dt className="font-semibold">POST /api/vote</dt>
-            <dd className="opacity-80">
-              <code>{`{ ballot, option, wallet, signature }`}</code>. The signature is base58 over <code>CRIME ballot &lt;id&gt; vote &lt;option&gt;</code>.
-              One per wallet. Minimum balance enforced. Never weighted.
-            </dd>
+            <dt className="font-semibold">GET /api/progress</dt>
+            <dd className="opacity-80">The investigation under way: every step as the agent reports it, the wallets as they are found, the findings as they are weighed.</dd>
           </div>
           <div>
             <dt className="font-semibold">POST /api/dispute</dt>

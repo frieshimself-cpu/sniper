@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { dyn } from "@/lib/request";
 import { isAdmin, adminConfigured } from "@/lib/auth";
-import { candidates, BALLOT_SIZE, scoreThreshold } from "@/lib/ballot";
-import { getDisputes, getCurrentBallot, getLeads, tally } from "@/lib/store";
+import { getDisputes, getLeads } from "@/lib/store";
 import { getAgentStatus } from "@/lib/data";
 import { AdminPanel, AdminLogin } from "@/components/Admin";
 
@@ -26,19 +25,10 @@ export default async function Admin() {
       </div>
     );
   }
-  const today = await getCurrentBallot();
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-4xl md:text-5xl">Admin</h1>
-      <AdminPanel
-        candidates={await candidates()}
-        size={BALLOT_SIZE}
-        threshold={scoreThreshold()}
-        today={today ? { id: today.id, options: today.options, votes: Object.keys(today.votes).length, tally: tally(today) } : null}
-        disputes={await getDisputes()}
-        leads={await getLeads()}
-        agent={getAgentStatus()}
-      />
+      <AdminPanel disputes={await getDisputes()} leads={await getLeads()} agent={getAgentStatus()} />
     </div>
   );
 }

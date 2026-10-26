@@ -36,12 +36,12 @@ how much money moved and how clearly, not guilt. Convictions remain at zero.
 Every transaction, account and token in a case file links to a public explorer.
 If a claim cannot be linked, it is narrative, and it is labelled as narrative.
 
-## 6. The ballot is one wallet, one vote
+## 6. The poll is on X
 
-The daily ballot picks the next subject. A vote is a signed message from a
-Solana wallet that holds at least `MIN_VOTE_BALANCE` of `CRIME_MINT`. One vote
-per wallet per ballot. Votes are never weighted by balance. The runner-up
-carries to the next day. A subject is not put on a ballot twice in 30 days.
+A human posts the poll on the X account: up to four handles, ten minutes. The
+agent reads the result (`src/sources/x.ts` is read only; it has no method that
+could write) and investigates the winner. No votes, nothing opened. Nothing is
+nominated on the site and nothing is voted on there.
 
 ## 7. Everything through enforce()
 

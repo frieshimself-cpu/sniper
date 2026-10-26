@@ -15,7 +15,7 @@ src/investigate.ts   npm run investigate → one case: --subject <mint> for a la
 src/person.ts        a handle's record: posts (X), claims (Grok), wallets (own posts + Arkham), chain replay, findings
 src/cycle.ts         npm run cycle → read the polls a human posted on X, settle the closed ones, investigate the winner
 src/schedule.ts      npm run watch → a cycle every hour
-src/state.ts         shared state (ballots, disputes, leads): Turso or Upstash Redis when configured, else files
+src/state.ts         shared state (disputes, leads, progress): Turso or Upstash Redis when configured, else files
 src/detectors.ts     what the agent looks for in a launch (bundles, exits, LP pulls, dev sells, concentration)
 src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (reads posts), claims.ts (reads posts by rule),
                      x.ts (read only: timelines and polls),
@@ -76,8 +76,9 @@ closed: the winner is investigated and the case goes on the site, the poll and i
 
 ## How a case gets opened
 
-1. Subject: `--subject`, else the last finished ballot's winner with votes, else the next mint in
-   `data/watchlist.json`, else (only with `REQUIRE_VOTES=off`) a discovery scan that keeps the worst one.
+1. Subject: `--subject` (the cycle passes the poll winner), else the next mint in `data/watchlist.json`,
+   else (only with `REQUIRE_VOTES=off`) a discovery scan that keeps the worst one. Nothing is nominated or
+   voted on the site; the poll is on X and the site only shows it.
 2. Chain (Helius): for a pump.fun mint the bonding curve is derived from the mint (`src/sources/pumpfun.ts`)
    and its first transaction is the launch; otherwise the earliest reachable fee payer and the pool seed.
    Then first buyers, their funders, exits, deployer sells and transfers, liquidity, holders.

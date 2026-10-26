@@ -1,15 +1,14 @@
 /**
  * The API as files, for the static export. Mirrors the route handlers:
- *   /api/stats.json  /api/cases.json  /api/cases/<n>.json  /api/persons/<handle>.json  /api/ballot.json
+ *   /api/stats.json  /api/cases.json  /api/cases/<n>.json  /api/persons/<handle>.json  /api/poll.json  /api/progress.json
  *   /cases/<n>/card.png  /cases/<n>/evidence.csv
  */
 import fs from "node:fs";
 import path from "node:path";
 import { getCases, getCase, getPersons, getPerson, getStats, cardPath } from "../lib/data";
-import { ensureCurrentBallot } from "../lib/ballot";
 import { currentPoll, pollHistory } from "../lib/polls";
+import { getProgress } from "../lib/progress";
 import { primeHidden } from "../lib/store";
-import { getBallots, tally } from "../lib/store";
 import { enforceDeep } from "../lib/policy";
 import { atomFeed } from "../lib/feed";
 
@@ -33,6 +32,7 @@ await primeHidden();
 let n = 0;
 write("api/stats.json", getStats());
 write("api/poll.json", { poll: await currentPoll(), history: pollHistory().slice(0, 50) });
+write("api/progress.json", await getProgress());
 write(
   "api/cases.json",
   {
@@ -60,13 +60,6 @@ for (const p of getPersons()) {
   const { caseList, ...rest } = d;
   write(`api/persons/${p.handle.slice(1)}.json`, { ...rest, cases_list: caseList.map((c) => ({ n: c.n, id: c.id, headline: c.headline, severity: c.severity, url: withBase(`/cases/${c.n}`) })) });
 }
-const b = await ensureCurrentBallot();
-const t = b ? tally(b) : {};
-write("api/ballot.json", {
-  ballot: b, tally: t, total: Object.values(t).reduce((a, c) => a + c, 0),
-  history: (await getBallots()).filter((x) => x.closed).map((x) => ({ id: x.id, options: x.options, winner: x.winner, runner_up: x.runner_up, tally: tally(x), votes: Object.keys(x.votes).length })),
-  static: true,
-});
 write("feed.xml", atomFeed());
 console.log(`static api: ${n} cases, ${getPersons().length} persons`);
 }

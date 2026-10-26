@@ -1,7 +1,6 @@
 import nacl from "tweetnacl";
 import bs58 from "bs58";
 
-export const voteMessage = (ballotId: string, option: string) => `CRIME ballot ${ballotId} vote ${option}`;
 export const disputeMessage = (wallet: string) => `CRIME dispute ${wallet}`;
 
 export function isBase58Pubkey(s: unknown): s is string {
