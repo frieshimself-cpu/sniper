@@ -6,7 +6,7 @@
   The old names stay (manila, ink) so the files still read as files, now dark dossiers instead of paper.
 */
 @theme {
-  --color-page: #070708;
+  --color-page: #000000;
   --color-manila: #e8e4da; /* bone: body text on the page */
   --color-ink: #e2ddd1; /* the dossier's foreground: borders, labels, type on a file */
   --color-stamp: #b3121b;
@@ -74,7 +74,7 @@ a { text-underline-offset: 3px; }
 /* The dossier. Dark panel, a pale rule, a second rule inside, corner ticks. */
 .file {
   position: relative;
-  background: #0d0d10;
+  background: #0a0a0c;
   color: var(--color-ink);
   border: 1px solid rgba(226, 221, 209, 0.28);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 30px 60px -30px rgba(0, 0, 0, 0.9);
@@ -251,3 +251,47 @@ body > * { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) { .flow, .pulse { animation: none; } }
 
 .label { font-feature-settings: "tnum"; }
+
+/* ---- the brand: black, the knife, the words ---------------------------------------------------- */
+.curtain { background: #000; }
+.glitch {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+.glitch > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: screen; /* the black square disappears into the page */
+}
+.glitch-a, .glitch-b {
+  position: absolute;
+  inset: 0;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+.glitch-a { filter: hue-rotate(200deg) saturate(3); }
+.glitch-b { filter: hue-rotate(-30deg) saturate(3); }
+@keyframes glitch-a {
+  0%, 89%, 100% { opacity: 0; transform: none; clip-path: inset(0 0 100% 0); }
+  90% { opacity: 0.9; transform: translateX(-6px); clip-path: inset(12% 0 70% 0); }
+  92% { opacity: 0.9; transform: translateX(5px); clip-path: inset(55% 0 30% 0); }
+  94% { opacity: 0.9; transform: translateX(-3px); clip-path: inset(80% 0 8% 0); }
+  96% { opacity: 0; }
+}
+@keyframes glitch-b {
+  0%, 60%, 71%, 100% { opacity: 0; transform: none; clip-path: inset(0 0 100% 0); }
+  62% { opacity: 0.8; transform: translateX(7px); clip-path: inset(30% 0 60% 0); }
+  65% { opacity: 0.8; transform: translateX(-4px); clip-path: inset(5% 0 85% 0); }
+  68% { opacity: 0.8; transform: translateX(3px); clip-path: inset(66% 0 20% 0); }
+}
+.glitch-a { animation: glitch-a 7s steps(1) infinite; }
+.glitch-b { animation: glitch-b 11s steps(1) infinite 2s; }
+@media (prefers-reduced-motion: reduce) { .glitch-a, .glitch-b { animation: none; } }
+
+/* the small knife in the header */
+.logo-knife { width: 30px; height: 30px; mix-blend-mode: screen; display: block; }

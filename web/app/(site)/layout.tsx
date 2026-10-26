@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Stamp } from "@/components/Stamp";
 import { NavLink } from "@/components/NavLink";
 import { apiUrl, withBase } from "@/lib/dyn";
 import { getStats, getAgentStatus } from "@/lib/data";
@@ -47,7 +46,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <header className="border-b border-line sticky top-0 z-20 backdrop-blur bg-page/80">
         <div className="mx-auto max-w-6xl px-4 py-3 sm:h-14 sm:py-0 flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-4 gap-y-2">
           <Link href="/" className="flex items-center gap-3 no-underline">
-            <Stamp size={13} sub={false} blend={false} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={withBase("/brand/knife.png")} alt="" className="logo-knife" width={30} height={30} />
             <span className="headline abr text-base tracking-[0.18em]">C.R.I.M.E.</span>
           </Link>
           <nav aria-label="Primary" className="w-full sm:w-auto -mx-2 sm:mx-0 flex flex-wrap gap-x-1 gap-y-1 text-[12px] tracking-[0.08em] whitespace-nowrap">

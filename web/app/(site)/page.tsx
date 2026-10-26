@@ -10,8 +10,9 @@ import { Counter } from "@/components/Counter";
 import { Pill } from "@/components/Pills";
 import { CaseCard } from "@/components/CaseCard";
 import { BallotVote } from "@/components/BallotVote";
-import { Stamp } from "@/components/Stamp";
 import { Board } from "@/components/Board";
+import { Glitch } from "@/components/Glitch";
+import { withBase } from "@/lib/dyn";
 import { STATIC } from "@/lib/dyn";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -42,14 +43,9 @@ export default async function Home() {
       <section className="relative -mx-4 px-4 py-10 md:py-16 overflow-hidden border-b border-line">
         <Board className="absolute inset-0 w-full h-full opacity-80" />
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 50%, transparent 30%, rgba(7,7,8,0.85) 100%)" }} aria-hidden />
-        <div className="absolute right-4 top-5 md:hidden" aria-hidden>
-          <Stamp size={16} blend={false} />
-        </div>
-        <div className="absolute right-8 bottom-10 hidden md:block" aria-hidden>
-          <Stamp size={64} blend={false} />
-        </div>
         <div className="relative">
-          <p className="label label-dark mb-6 pr-28 md:pr-0">Chain Research &amp; Investigation of Market Exploits</p>
+          <Glitch src={withBase("/brand/wordmark.png")} alt="CRIME IS LEGAL" width={1500} height={500} priority className="w-full max-w-[640px] -ml-[4%] mb-4" />
+          <p className="label label-dark mb-6">Chain Research &amp; Investigation of Market Exploits</p>
           <Counter initial={stats} />
           <p className="mt-8 max-w-xl text-[13px] text-mute leading-relaxed">
             Every hour the public picks a handle. The agent reads the whole record, every post, every wallet, and opens a case when the chain
