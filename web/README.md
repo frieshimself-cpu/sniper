@@ -161,10 +161,10 @@ Set these in the repository: Settings, Secrets and variables, Actions.
 | `HELIUS_API_KEY` | yes |
 | `ARKHAM_API_KEY` | no, adds labels, exchange names on the trail, pump.fun usernames |
 | `XAI_API_KEY` | no. Grok reads posts; without it a rule reader does. `XAI_BASE_URL` points it at a reseller (OpenRouter, NanoGPT) |
-| `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET`, or `X_CLIENT_ID`, `X_CLIENT_SECRET`, `X_USER_TOKEN`, `X_REFRESH_TOKEN` (OAuth 2.0; the rotated pair lives in shared state), plus `X_BEARER_TOKEN` for reads | no, reads the subject's posts, moves the vote to a poll on X and posts cases there (developer.x.com, Read and Write, pay-per-use: about $0.005 a post read, `PERSON_MAX_POSTS` caps it) |
+| `X_BEARER_TOKEN` (read only), with `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` for the few reads that need a user context | no. Reads the subject's posts and the polls a human posts on the account (`X_ACCOUNT`). The agent never writes to X: there is no code that can. Pay-per-use, about $0.005 a post read; `PERSON_MAX_POSTS` caps it |
 | `KV_REST_API_URL` + `KV_REST_API_TOKEN`, or `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` | no, shares ballots and leads with the Vercel site |
 
-Optional repository variables: `SITE_URL`, `X_POLL_MINUTES` (10), `REQUIRE_VOTES` (on), `MIN_PUBLISH_SCORE` (35).
+Optional repository variables: `SITE_URL`, `X_ACCOUNT` (crimeislegalpf), `POLL_WAIT_MINUTES` (15), `REQUIRE_VOTES` (on), `MIN_PUBLISH_SCORE` (35).
 Run it by hand from the Actions tab (workflow_dispatch) with a mint, or as a dry run.
 The site then only needs to redeploy on push, or to pull the branch on a timer.
 
