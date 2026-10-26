@@ -24,7 +24,7 @@ test.beforeAll(() => {
 
 test("/ is one page: counters, who gets exposed first, latest files, how it works, nominate", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Cases opened")).toBeVisible();
+  await expect(page.getByText("Cases opened", { exact: true })).toBeVisible();
   await expect(page.getByText("Crimes found", { exact: true })).toBeVisible();
   await expect(page.getByText("Convictions", { exact: true })).toBeVisible();
   await expect(page.getByText("Agent watching", { exact: true })).toBeVisible();
@@ -33,7 +33,7 @@ test("/ is one page: counters, who gets exposed first, latest files, how it work
   await expect(page.getByRole("link", { name: "The poll on X" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Read case 0001" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Latest files" })).toBeVisible();
-  await expect(page.locator("a.file")).toHaveCount(3);
+  await expect(page.locator("a.file")).toHaveCount(6);
   await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Put a name on the block" })).toBeVisible();
   await clean(page);
@@ -143,7 +143,7 @@ test("/embed documents the iframe and /embed/counter is 600×160", async ({ page
   await expect(page.locator("iframe")).toHaveAttribute("width", "600");
   await clean(page);
   await page.goto("/embed/counter");
-  await expect(page.getByText("Cases opened")).toBeVisible();
+  await expect(page.getByText("Cases opened", { exact: true })).toBeVisible();
   const r = await page.request.get("/embed/counter");
   expect(r.headers()["content-security-policy"]).toContain("frame-ancestors *");
 });

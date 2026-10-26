@@ -12,6 +12,12 @@ import { Board } from "@/components/Board";
 import { Glitch } from "@/components/Glitch";
 import { Exposed } from "@/components/Exposed";
 import { Nominate } from "@/components/Nominate";
+import { Hero } from "@/components/Hero";
+import { Reveal } from "@/components/Reveal";
+import { Pipeline } from "@/components/Pipeline";
+import { WalletGraph } from "@/components/WalletGraph";
+import { Stamp } from "@/components/Stamp";
+import { caseGraph } from "@/lib/graph";
 import { withBase } from "@/lib/dyn";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,131 +32,175 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+function Chapter({ n, title, sub, id }: { n: string; title: string; sub?: string; id: string }) {
+  return (
+    <div id={id} className="chapter scroll-mt-24">
+      <span className="chapter-n">{n}</span>
+      <h2>{title}</h2>
+      {sub ? <p className="chapter-sub">{sub}</p> : null}
+    </div>
+  );
+}
+
 export default async function Home() {
   await dyn();
   const stats = getStats();
   const poll = await currentPoll();
   const account = (process.env.X_ACCOUNT ?? "crimeislegalpf").replace(/^@/, "");
-  const latest = latestCases(3);
+  const latest = latestCases(6);
   const agent = getAgentStatus();
   const board = (await getBoard()).slice(0, 6);
   const last = latest[0];
   const lastSubject = last ? (last.kind === "person" && last.subjects[0] ? { label: last.subjects[0], href: `/cases/${last.n}` } : { label: `$${last.token.symbol}`, href: `/cases/${last.n}` }) : null;
+  const drawn = latest.find((c) => c.money_trail.length > 1) ?? last;
 
   return (
-    <div className="flex flex-col gap-20 md:gap-28">
-      {/* ---- the hero ---------------------------------------------------------------- */}
-      <section className="relative -mx-4 px-4 pt-6 pb-10 md:pt-10 md:pb-16 overflow-hidden">
-        <Board className="absolute inset-0 w-full h-full opacity-70" />
-        <div className="relative grid gap-8 md:grid-cols-[1fr_minmax(220px,340px)] md:items-center">
-          <div className="min-w-0">
-            <Glitch src={withBase("/brand/wordmark.png")} alt="CRIME IS LEGAL" width={1502} height={392} priority className="w-full max-w-[680px]" />
-            <p className="mt-6 max-w-xl text-[13px] text-mute leading-relaxed">
-              Every hour the public picks a handle. The agent reads the whole record, every post, every wallet, and opens a case when the chain
-              disagrees with the feed. Every claim is a link. Nothing is a verdict.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
+    <div className="flex flex-col gap-24 md:gap-36">
+      {/* ---- the opening frame ------------------------------------------------------- */}
+      <section className="relative -mx-4 px-4 overflow-hidden">
+        <Board className="absolute inset-0 w-full h-full opacity-60" />
+        <div className="relative">
+          <Hero line="The public picks a handle. The agent reads everything. Nothing is a verdict.">
+            <div className="mt-7 flex flex-wrap gap-2">
               <Pill red={agent.state === "error"}>Agent {agent.state === "idle" ? "watching" : agent.state}</Pill>
               {agent.next_run_at ? <Pill>Next case {until(agent.next_run_at)}</Pill> : null}
               <Pill>Last case {ago(stats.last_case_at)}</Pill>
               <Pill red>Convictions 0</Pill>
             </div>
+            <div className="mt-10">
+              <Counter initial={stats} compact hero />
+            </div>
+            <div className="mt-12 flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-mute">
+              <span className="cue inline-block w-px h-6 bg-mute" aria-hidden />
+              <a href="#exposed" className="no-underline hover:text-manila">
+                who gets exposed first
+              </a>
+            </div>
+          </Hero>
+        </div>
+      </section>
+
+      {/* ---- 01 who gets exposed first ----------------------------------------------- */}
+      <section>
+        <Reveal>
+          <Chapter n="01" id="exposed" title="Who gets exposed first" sub={`A poll on @${account}. Four names, ten minutes. The winner gets read, wallet by wallet, post by post.`} />
+        </Reveal>
+        <Reveal className="mt-10" delay={120}>
+          <Exposed initial={poll} account={account} lastSubject={lastSubject} />
+        </Reveal>
+      </section>
+
+      {/* ---- 02 the files ------------------------------------------------------------ */}
+      <section>
+        <Reveal>
+          <div className="flex items-end justify-between gap-6">
+            <Chapter n="02" id="files" title="Latest files" sub="Every case is a file: a headline, the findings worst first, an evidence table where every row is a link, the money drawn." />
+            <Link href="/cases" className="hidden sm:inline text-[11px] font-semibold uppercase tracking-[0.14em] underline whitespace-nowrap">
+              All {stats.cases_opened} cases
+            </Link>
           </div>
-          <Glitch src={withBase("/brand/knife.png")} alt="" width={1408} height={1408} priority className="w-[200px] sm:w-[260px] md:w-full justify-self-end" />
-        </div>
-        <div className="relative mt-10 md:mt-14">
-          <Counter initial={stats} compact />
-        </div>
-      </section>
-
-      {/* ---- who gets exposed first -------------------------------------------------- */}
-      <section id="exposed" className="scroll-mt-20">
-        <h2 className="text-2xl md:text-3xl">Who gets exposed first</h2>
-        <p className="mt-1 mb-8 text-[13px] text-mute">
-          A poll on{" "}
-          <a href={`https://x.com/${account}`} target="_blank" rel="noopener noreferrer" className="underline">
-            @{account}
-          </a>
-          . Four names, ten minutes. The winner gets read, wallet by wallet, post by post.
-        </p>
-        <Exposed initial={poll} account={account} lastSubject={lastSubject} />
-      </section>
-
-      {/* ---- the latest files -------------------------------------------------------- */}
-      <section id="files" className="scroll-mt-20">
-        <div className="flex items-baseline justify-between mb-6">
-          <h2 className="text-2xl md:text-3xl">Latest files</h2>
-          <Link href="/cases" className="text-[11px] font-semibold uppercase tracking-[0.14em] underline">
-            All {stats.cases_opened} cases
-          </Link>
-        </div>
+        </Reveal>
         {latest.length === 0 ? (
-          <p className="text-mute">No cases yet. The agent is watching.</p>
+          <p className="mt-8 text-mute">No cases yet. The agent is watching.</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-3">
-            {latest.map((c) => (
-              <CaseCard key={c.n} c={c} />
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {latest.slice(0, 6).map((c, i) => (
+              <Reveal key={c.n} delay={i * 80}>
+                <div className="relative h-full">
+                  <CaseCard c={c} />
+                  <span className="card-stamp" aria-hidden>
+                    <Stamp size={22} blend={false} sub={false} />
+                  </span>
+                </div>
+              </Reveal>
             ))}
           </div>
         )}
+        {drawn ? (
+          <Reveal className="mt-10" delay={160}>
+            <div className="flex items-baseline justify-between gap-4 mb-3">
+              <p className="label label-dark">The money, drawn · case {drawn.id}</p>
+              <Link href={`/cases/${drawn.n}`} className="text-[11px] font-semibold uppercase tracking-[0.14em] underline">
+                Open the file
+              </Link>
+            </div>
+            <div className="border-y border-ink/30 bg-page -mx-4 px-2 md:mx-0 md:px-3 py-2 relative overflow-hidden">
+              <WalletGraph graph={caseGraph(drawn)} />
+            </div>
+          </Reveal>
+        ) : null}
+        <Link href="/cases" className="sm:hidden mt-6 inline-block text-[11px] font-semibold uppercase tracking-[0.14em] underline">
+          All {stats.cases_opened} cases
+        </Link>
       </section>
 
-      {/* ---- how it works ------------------------------------------------------------ */}
-      <section id="how" className="scroll-mt-20">
-        <h2 className="text-2xl md:text-3xl">How it works</h2>
-        <ol className="mt-6 grid gap-4 md:grid-cols-3">
-          {[
-            ["01", "Nominate", "Sign a message with your wallet. The most nominated handles are the ones put up for a vote."],
-            ["02", "Vote", `A poll on @${account}, four names, ten minutes. The winner is the subject. No votes, no case.`],
-            ["03", "Exposed", "Every post read by Grok, every wallet from Arkham replayed on chain through Helius. Posts next to transactions, by time. Findings scored. A case opens only when the evidence clears the bar."],
-          ].map(([n, title, body]) => (
-            <li key={n} className="file p-5">
-              <span className="text-stamp font-semibold text-[11px] tracking-[0.14em]">{n}</span>
-              <h3 className="mt-2 text-xl">{title}</h3>
-              <p className="mt-2 text-[13px] opacity-80 leading-relaxed">{body}</p>
-            </li>
-          ))}
-        </ol>
-        <p className="mt-6 text-[12px] text-mute max-w-2xl">
-          Handles only. A wallet is attributed only with a linked source. Disputed wallets vanish. The agent finds things; courts decide what they are.{" "}
-          <Link href="/rules" className="underline">
-            The rules
-          </Link>
-          .
-        </p>
+      {/* ---- 03 the method ----------------------------------------------------------- */}
+      <section>
+        <Reveal>
+          <Chapter n="03" id="how" title="How it works" sub="Five stations. The money moves between them. Grok reads, Arkham names, Helius replays, the detectors weigh, the file is written." />
+        </Reveal>
+        <Reveal className="mt-12" delay={120}>
+          <Pipeline />
+        </Reveal>
+        <Reveal className="mt-8" delay={200}>
+          <p className="text-[12px] text-mute max-w-2xl">
+            Handles only. A wallet is attributed only with a linked source. Disputed wallets vanish. The word &ldquo;illegal&rdquo; never appears. The agent finds things; courts decide what they are.{" "}
+            <Link href="/rules" className="underline">
+              The rules
+            </Link>
+            .
+          </p>
+        </Reveal>
       </section>
 
-      {/* ---- nominate ---------------------------------------------------------------- */}
-      <section id="nominate" className="scroll-mt-20 grid gap-8 md:grid-cols-2">
-        <div className="file p-5">
-          <h2 className="text-2xl">Put a name on the block</h2>
-          <p className="mt-1 mb-5 text-[13px] opacity-70">One signature. Nothing on chain. One nomination per wallet per handle per day.</p>
-          <Nominate />
+      {/* ---- 04 the board ------------------------------------------------------------ */}
+      <section>
+        <Reveal>
+          <Chapter n="04" id="nominate" title="Put a name on the block" sub="One signature with a wallet. Nothing on chain. The most nominated handles are the ones put up for a vote." />
+        </Reveal>
+        <div className="mt-10 grid gap-8 md:grid-cols-2">
+          <Reveal delay={80}>
+            <div className="file p-5 h-full">
+              <h3 className="text-xl">Nominate</h3>
+              <p className="mt-1 mb-5 text-[13px] opacity-70">One nomination per wallet per handle per day.</p>
+              <Nominate />
+            </div>
+          </Reveal>
+          <Reveal delay={160}>
+            <div className="file p-5 h-full">
+              <div className="flex items-baseline justify-between border-b border-ink/40 pb-2">
+                <h3 className="text-xl">The board</h3>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{board.length} handle{board.length === 1 ? "" : "s"}</span>
+              </div>
+              {board.length === 0 ? (
+                <p className="mt-4">The board is empty. Be first.</p>
+              ) : (
+                <ol className="mt-4 flex flex-col gap-2">
+                  {board.map((b, i) => (
+                    <li key={b.handle} className="flex items-baseline justify-between gap-3">
+                      <span>
+                        <span className="font-semibold text-xs mr-2 opacity-70">{String(i + 1).padStart(2, "0")}</span>
+                        {b.handle}
+                      </span>
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{b.nominations} nomination{b.nominations === 1 ? "" : "s"}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              <Link href="/nominate" className="mt-5 inline-block text-[11px] font-semibold uppercase tracking-[0.14em] underline">
+                The whole board
+              </Link>
+            </div>
+          </Reveal>
         </div>
-        <div className="file p-5">
-          <div className="flex items-baseline justify-between border-b border-ink/40 pb-2">
-            <h2 className="text-2xl">The board</h2>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{board.length} handle{board.length === 1 ? "" : "s"}</span>
-          </div>
-          {board.length === 0 ? (
-            <p className="mt-4">The board is empty. Be first.</p>
-          ) : (
-            <ol className="mt-4 flex flex-col gap-2">
-              {board.map((b, i) => (
-                <li key={b.handle} className="flex items-baseline justify-between gap-3">
-                  <span>
-                    <span className="font-semibold text-xs mr-2 opacity-70">{String(i + 1).padStart(2, "0")}</span>
-                    {b.handle}
-                  </span>
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{b.nominations} nomination{b.nominations === 1 ? "" : "s"}</span>
-                </li>
-              ))}
-            </ol>
-          )}
-          <Link href="/nominate" className="mt-5 inline-block text-[11px] font-semibold uppercase tracking-[0.14em] underline">
-            The whole board
-          </Link>
-        </div>
+      </section>
+
+      {/* ---- the foot ---------------------------------------------------------------- */}
+      <section className="pt-6">
+        <Reveal>
+          <Glitch src={withBase("/brand/wordmark.png")} alt="" width={1502} height={392} className="foot-mark" />
+          <p className="mt-6 text-center text-[10px] uppercase tracking-[0.24em] text-mute">Chain Research &amp; Investigation of Market Exploits · Convictions 0</p>
+        </Reveal>
       </section>
     </div>
   );

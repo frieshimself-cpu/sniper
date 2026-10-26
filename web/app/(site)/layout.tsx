@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { NavLink } from "@/components/NavLink";
 import { apiUrl, withBase } from "@/lib/dyn";
-import { getStats, getAgentStatus } from "@/lib/data";
+import { getStats, getAgentStatus, latestCases } from "@/lib/data";
+import { Marquee } from "@/components/Marquee";
 import { until } from "@/lib/format";
 import { dyn } from "@/lib/request";
 
@@ -57,6 +58,15 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           </nav>
         </div>
       </header>
+      <Marquee
+        items={[
+          `${stats.cases_opened} cases opened`,
+          `${stats.crimes_found} crimes found`,
+          "convictions 0",
+          ...latestCases(6).map((c) => `No. ${c.id} · ${c.headline}`),
+          `agent ${agent.state === "idle" ? "watching" : agent.state}`,
+        ]}
+      />
       <main className="flex-1 mx-auto w-full max-w-6xl px-4 py-8 md:py-12">{children}</main>
       <footer className="border-t border-line">
         <div className="mx-auto max-w-6xl px-4 py-6 flex flex-wrap gap-x-6 gap-y-2 justify-between text-[11px] uppercase tracking-[0.14em] text-mute">

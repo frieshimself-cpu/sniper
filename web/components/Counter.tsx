@@ -28,7 +28,7 @@ function useCountUp(target: number, ms = 900) {
   return value;
 }
 
-export function Counter({ initial, compact = false, poll = 20_000 }: { initial: Figures; compact?: boolean; poll?: number }) {
+export function Counter({ initial, compact = false, hero = false, poll = 20_000 }: { initial: Figures; compact?: boolean; hero?: boolean; poll?: number }) {
   const [figures, setFigures] = useState<Figures>(initial);
   useEffect(() => {
     if (!poll) return;
@@ -59,7 +59,7 @@ export function Counter({ initial, compact = false, poll = 20_000 }: { initial: 
       {items.map(([label, value, red]) => (
         <div key={label} className="min-w-0">
           <dt className="label label-dark">{label}</dt>
-          <dd className={`${big} leading-none font-semibold tracking-tight ${red ? "text-stamp abr-soft" : "abr abr-live"}`}>
+          <dd className={`${hero ? "hero-figure" : big} leading-none font-semibold tracking-tight ${red ? "text-stamp abr-soft" : "abr abr-live"}`}>
             {value.toLocaleString("en-US")}
           </dd>
         </div>
