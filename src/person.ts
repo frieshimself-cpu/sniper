@@ -308,7 +308,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     if (!mint || handled.has(mint)) continue;
     handled.add(mint);
     await until(0.56 + (0.32 * qi) / Math.max(1, queue.length));
-    await progress.step("replay", `replaying ${m.token.startsWith("$") ? m.token : `$${(await src.chain.token(mint).catch(() => null))?.symbol ?? short(mint)}`}: ${m.claims.filter((c) => c.url).length} post${m.claims.filter((c) => c.url).length === 1 ? "" : "s"} about it${isLaunch(m) ? ", launched from the wallets" : ""}; the launch, the first buyers, the exits, the wallets' own trades`);
+    await progress.step("replay", `replaying ${m.token.startsWith("$") ? m.token : `$${(await src.chain.token(mint).catch(() => null))?.symbol ?? short(mint)}`} (${short(mint)}): ${m.claims.filter((c) => c.url).length} post${m.claims.filter((c) => c.url).length === 1 ? "" : "s"} about it${isLaunch(m) ? ", launched from the wallets" : ""}; the launch, the first buyers, the exits, the wallets' own trades`);
     // claims about the same token under another name join this one
     for (const other of mentioned.values()) if (other !== m && (other.mint === mint || (!other.mint && (await resolveMint(other)) === mint))) m.claims.push(...other.claims);
     const info = await src.chain.token(mint).catch(() => null);
