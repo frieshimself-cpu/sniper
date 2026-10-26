@@ -1,7 +1,7 @@
 {
   "state": "idle",
   "mode": "mock",
-  "last_run_at": "2026-10-26T17:50:11Z",
+  "last_run_at": "2026-10-26T18:25:03Z",
   "next_run_at": null,
   "last_case": null,
   "message": "dry run: would open case 0001 on @wen_moon_wendy"

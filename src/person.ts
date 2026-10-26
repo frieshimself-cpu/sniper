@@ -241,7 +241,17 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
 
   // ---- profit per token, from the swap legs --------------------------------------
   const pnl = profitPerToken(all, new Set(wallets.keys()));
-  for (const q of pnl.slice(0, 12)) q.symbol = (await src.chain.token(q.mint).catch(() => null))?.symbol ?? "";
+  // Every token the wallets traded gets its name now, eight at a time, so a post's $TICKER can be matched later
+  // without a wait in the middle of the replay; the panel is told while it happens.
+  const named = new Map<string, string>();
+  {
+    const mints = [...new Set(all.filter((t) => t.kind === "token" && t.mint && t.mint !== WSOL).map((t) => t.mint!))];
+    if (mints.length) await progress.step("replay", `naming the ${mints.length.toLocaleString("en-US")} token${mints.length === 1 ? "" : "s"} the wallets traded, so the posts can be matched to them`);
+    for (let i = 0; i < mints.length; i += 8) {
+      await Promise.all(mints.slice(i, i + 8).map(async (m) => named.set(m, (await src.chain.token(m).catch(() => null))?.symbol ?? "")));
+    }
+  }
+  for (const q of pnl) q.symbol = named.get(q.mint) ?? "";
   log.push(`${pnl.length} tokens traded; biggest: ${pnl.slice(0, 3).map((p) => `${p.symbol || short(p.mint)} ${p.net_sol >= 0 ? "+" : ""}${p.net_sol.toFixed(1)} SOL`).join(", ") || "none"}`);
   await progress.step("replay", `${pnl.length} token${pnl.length === 1 ? "" : "s"} traded across the wallets${pnl.length ? `; biggest ${pnl.slice(0, 2).map((p) => `$${p.symbol || short(p.mint)} ${p.net_sol >= 0 ? "+" : ""}${p.net_sol.toFixed(0)} SOL`).join(", ")}` : ""}`);
 
@@ -256,7 +266,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     mentioned.set(key, m);
   }
   const traded = new Map<string, { symbol?: string }>();
-  for (const t of all) if (t.kind === "token" && t.mint && t.mint !== WSOL) traded.set(t.mint, traded.get(t.mint) ?? {});
+  for (const t of all) if (t.kind === "token" && t.mint && t.mint !== WSOL) traded.set(t.mint, traded.get(t.mint) ?? (named.has(t.mint) ? { symbol: named.get(t.mint)!.toLowerCase() } : {}));
   // The chain talks whether or not the posts do: every launch the wallets paid for is a subject.
   {
     const launched = new Map<string, string>();
@@ -373,6 +383,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     if (checked < MAX_TOKENS) {
       checked++;
       const inv = await investigateToken(mint, src.chain).catch(() => null);
+      await progress.step("replay", inv && inv.findings.length ? `$${symbol}: ${inv.findings.slice(0, 2).map((f) => f.title.toLowerCase()).join(", ")} (weight ${inv.score})` : `$${symbol}: nothing out of order in its launch`);
       if (inv && inv.findings.length) {
         tokenCases.push(inv);
         const launched = m.claims.some((c) => c.type === "launch") || (inv.deployer ? wallets.has(inv.deployer) : false);
