@@ -3,13 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:54:59Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:41:06Z",
+  "updated_at": "2026-10-26T17:42:04Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:01:13Z",
-      "phase": "record",
-      "text": "780 of 2,258 posts read, back to 2022-10-31"
-    },
     {
       "at": "2026-10-26T17:01:42Z",
       "phase": "record",
@@ -302,6 +297,11 @@
     },
     {
       "at": "2026-10-26T17:41:06Z",
+      "phase": "replay",
+      "text": "replaying $sol: 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
+    },
+    {
+      "at": "2026-10-26T17:42:04Z",
       "phase": "replay",
       "text": "replaying $sol: 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
     }
