@@ -3,7 +3,7 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:54:59Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:25:19Z",
+  "updated_at": "2026-10-26T17:25:36Z",
   "steps": [
     {
       "at": "2026-10-26T16:55:01Z",
@@ -289,6 +289,16 @@
       "at": "2026-10-26T17:25:19Z",
       "phase": "wallets",
       "text": "AFzm…sR3V (probable): 1 transactions read; 0 SOL in, 5 SOL out"
+    },
+    {
+      "at": "2026-10-26T17:25:22Z",
+      "phase": "wallets",
+      "text": "20,063 transfers pulled; following the money between wallets"
+    },
+    {
+      "at": "2026-10-26T17:25:36Z",
+      "phase": "wallets",
+      "text": "6 counterparties seen; 1 wallet never admitted, linked by transfers"
     }
   ],
   "wallets": [
