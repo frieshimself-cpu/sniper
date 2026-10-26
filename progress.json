@@ -3,18 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:54:59Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:25:41Z",
+  "updated_at": "2026-10-26T17:29:35Z",
   "steps": [
-    {
-      "at": "2026-10-26T16:55:01Z",
-      "phase": "record",
-      "text": "reading the record of @kimchi1x: every post the API allows, back to the first"
-    },
-    {
-      "at": "2026-10-26T16:55:15Z",
-      "phase": "wallets",
-      "text": "13 wallets already on file: the handle's own, the registry, Arkham's entity"
-    },
     {
       "at": "2026-10-26T16:55:15Z",
       "phase": "record",
@@ -304,6 +294,16 @@
       "at": "2026-10-26T17:25:41Z",
       "phase": "replay",
       "text": "121 tokens traded across the wallets; biggest $STAR +267 SOL, $DADDY +163 SOL"
+    },
+    {
+      "at": "2026-10-26T17:25:43Z",
+      "phase": "replay",
+      "text": "20 tokens to replay, 162 of them launched from the wallets themselves; posts set next to transactions"
+    },
+    {
+      "at": "2026-10-26T17:29:35Z",
+      "phase": "replay",
+      "text": "replaying $Noiz: 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
     }
   ],
   "wallets": [
