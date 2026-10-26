@@ -3,18 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:30:38Z",
+  "updated_at": "2026-10-26T18:37:17Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:50:08Z",
-      "phase": "record",
-      "text": "720 of 2,258 posts read, back to 2023-01-03"
-    },
-    {
-      "at": "2026-10-26T17:50:38Z",
-      "phase": "record",
-      "text": "780 of 2,258 posts read, back to 2022-10-31"
-    },
     {
       "at": "2026-10-26T17:51:07Z",
       "phase": "record",
@@ -304,6 +294,16 @@
       "at": "2026-10-26T18:30:38Z",
       "phase": "replay",
       "text": "replaying $GBPLUG (2X9k…bonk): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
+    },
+    {
+      "at": "2026-10-26T18:30:41Z",
+      "phase": "replay",
+      "text": "replaying $Monanin (BFEN…bonk): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
+    },
+    {
+      "at": "2026-10-26T18:37:17Z",
+      "phase": "replay",
+      "text": "replaying $shadow (F9Yz…pump): 1 post about it; the launch, the first buyers, the exits, the wallets' own trades"
     }
   ],
   "wallets": [
