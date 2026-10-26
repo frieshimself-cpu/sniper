@@ -2,8 +2,19 @@
   "state": "running",
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:38:18Z",
-  "updated_at": "2026-10-26T16:38:18Z",
-  "steps": [],
+  "updated_at": "2026-10-26T16:38:33Z",
+  "steps": [
+    {
+      "at": "2026-10-26T16:38:20Z",
+      "phase": "record",
+      "text": "reading the record of @kimchi1x"
+    },
+    {
+      "at": "2026-10-26T16:38:33Z",
+      "phase": "record",
+      "text": "2258 posts read, back to 2019-09-01"
+    }
+  ],
   "wallets": [],
   "findings": []
 }
