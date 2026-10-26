@@ -48,7 +48,7 @@ async function branch(): Promise<Progress | null> {
   // the raw host caches by URL; a new query string every minute keeps it fresh enough
   const minute = Math.floor(Date.now() / 60_000);
   try {
-    const r = await fetch(`https://raw.githubusercontent.com/${REPO}/progress/progress.json?m=${minute}`, { cache: "no-store", signal: AbortSignal.timeout(6000) });
+    const r = await fetch(`https://raw.githubusercontent.com/${REPO}/refs/heads/progress/progress.json?m=${minute}`, { cache: "no-store", signal: AbortSignal.timeout(6000) });
     if (!r.ok) return null;
     return (await r.json()) as Progress;
   } catch {
