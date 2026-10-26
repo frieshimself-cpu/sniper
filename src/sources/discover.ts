@@ -56,3 +56,11 @@ export async function discover(limit = 12): Promise<Candidate[]> {
   for (const c of await jupiterLaunches()) if (!out.has(c.mint)) out.set(c.mint, c);
   return [...out.values()].slice(0, limit);
 }
+
+/** What Jupiter knows about one mint: its dev wallet and first pool. A cross-check for the chain, free. */
+export async function tokenHints(mint: string): Promise<NonNullable<Candidate["hints"]>> {
+  const j = await getJson<JupToken[] | JupToken>(`https://lite-api.jup.ag/tokens/v2/search?query=${mint}`);
+  const t = Array.isArray(j) ? j.find((x) => x.id === mint) ?? j[0] : j;
+  if (!t || t.id !== mint) return {};
+  return { deployer: t.dev || undefined, created_at: t.firstPool?.createdAt, launchpad: t.launchpad ?? undefined };
+}

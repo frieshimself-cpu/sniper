@@ -22,7 +22,7 @@ import { renderCards } from "./render.js";
 import { investigate as runDetectors, short, type Investigation } from "./detectors.js";
 import { liveSources, liveConfigured } from "./sources/live.js";
 import { mockSources } from "./sources/mock.js";
-import { discover } from "./sources/discover.js";
+import { discover, tokenHints } from "./sources/discover.js";
 import type { Claim, Label, Sources } from "./sources/types.js";
 import type { Case, CasesFile, Registry, RegistryEntry } from "./types.js";
 
@@ -281,7 +281,8 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   let inv: Investigation | null = null;
   if (picked) {
     process.stdout.write(`subject ${picked.mint} via ${picked.via}\n`);
-    inv = await runDetectors(picked.mint, src);
+    const hints = src.name === "live" ? await tokenHints(picked.mint) : {};
+    inv = await runDetectors(picked.mint, src, hints);
     for (const l of inv?.log ?? []) process.stdout.write(`  ${l}\n`);
     await markWatchlist(picked.mint, undefined);
   } else if (src.name === "live") {

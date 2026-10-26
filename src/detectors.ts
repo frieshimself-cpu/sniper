@@ -39,7 +39,7 @@ const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 const fmtSol = (n: number) => `${n.toFixed(n >= 100 ? 0 : 2)} SOL`;
 const pct = (x: number) => `${(x * 100).toFixed(x < 0.01 ? 2 : 0)}%`;
 const minutes = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / MIN);
-const mins = (n: number) => `${n} minute${n === 1 ? "" : "s"}`;
+const mins = (n: number) => (n <= 0 ? "under a minute" : `${n} minute${n === 1 ? "" : "s"}`);
 
 export interface Hints {
   deployer?: string;
@@ -97,6 +97,10 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
       token = { ...t0, deployer, created_at: first.at, deployer_approx: approx };
       if (approx) log.push("history too deep: the deployer is the earliest reachable fee payer, not necessarily the first");
     }
+  }
+  if (hints.deployer && deployer && hints.deployer !== deployer) {
+    log.push(`deployer on chain ${short(deployer)} differs from the feed's dev wallet ${short(hints.deployer)}${token.deployer_approx ? "; history incomplete, using the feed" : "; keeping the chain"}`);
+    if (token.deployer_approx) deployer = hints.deployer;
   }
   const dTx = deployer ? await src.transfers(deployer, 400) : [];
   if (!create) {

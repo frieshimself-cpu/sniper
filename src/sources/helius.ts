@@ -180,7 +180,9 @@ export class Helius {
       }
     }
     const oldest = sigs.slice(-limit).reverse().map((s) => s.signature);
-    const out: Transfer[] = [];
+    // The signature list is chronological; the parser does not keep that order and timestamps tie within a second.
+    const order = new Map(oldest.map((sig, i) => [sig, i]));
+    const parsed: Tx[] = [];
     for (let i = 0; i < oldest.length; i += 100) {
       const r = await this.request(`https://api.helius.xyz/v0/transactions?api-key=${this.key}`, {
         method: "POST",
@@ -188,9 +190,10 @@ export class Helius {
         body: JSON.stringify({ transactions: oldest.slice(i, i + 100) }),
       });
       if (!r.ok) throw new Error(`helius parse ${r.status}`);
-      out.push(...this.parse((await r.json()) as Tx[]));
+      parsed.push(...((await r.json()) as Tx[]));
     }
-    return Object.assign(out.sort((a, b) => a.at.localeCompare(b.at)), { complete });
+    parsed.sort((a, b) => (order.get(a.signature) ?? 0) - (order.get(b.signature) ?? 0));
+    return Object.assign(this.parse(parsed), { complete });
   }
 
   async holders(mint: string, n = 20): Promise<Holder[]> {
