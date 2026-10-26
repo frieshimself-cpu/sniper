@@ -11,6 +11,7 @@ import { Severity } from "@/components/Pills";
 import { EvidenceTable } from "@/components/Evidence";
 import { MoneyTrail } from "@/components/MoneyTrail";
 import { WalletGraph } from "@/components/WalletGraph";
+import { Replay } from "@/components/Replay";
 import { caseGraph } from "@/lib/graph";
 
 type Props = { params: Promise<{ n: string }> };
@@ -52,6 +53,14 @@ export default async function CasePage({ params }: Props) {
       <div className="file">
         <Image src={withBase(cardUrl(c.n))} alt={`Case file ${c.id}: ${c.headline}`} width={1200} height={630} priority unoptimized className="block w-full h-auto" />
       </div>
+
+      <section aria-label="The investigation, played back">
+        <div className="flex items-baseline justify-between gap-4 mb-3">
+          <p className="label label-dark">The investigation, played back</p>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-mute">twelve seconds</span>
+        </div>
+        <Replay c={c} graph={caseGraph(c)} />
+      </section>
 
       <div className="file p-5 md:p-8 overflow-hidden">
         <div className="absolute! right-6 bottom-16 md:right-10 md:bottom-20 hidden sm:block" aria-hidden>

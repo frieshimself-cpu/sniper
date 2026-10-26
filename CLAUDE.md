@@ -1,7 +1,7 @@
 # C.R.I.M.E.
 
-Chain Research & Investigation of Market Exploits. An agent that watches Solana
-token launches, opens a case when it finds something, and publishes the file.
+Chain Research & Investigation of Market Exploits. The public votes on a handle; an agent reads
+that person's whole record, posts and wallets, and publishes the file when the chain contradicts the feed.
 It has opened many cases. It has secured zero convictions. It is not a court.
 
 ## Layout

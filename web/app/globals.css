@@ -405,3 +405,41 @@ body > * { position: relative; z-index: 1; }
 @media (max-width: 639px) {
   .typed { white-space: normal; border-right: 0; animation: none; width: auto; }
 }
+
+/* ---- the ethereal layer: slow colour under everything, a vignette that breathes ----------------- */
+.aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(80px); opacity: 0.55; }
+.aurora span { position: absolute; width: 55vw; height: 55vw; border-radius: 50%; mix-blend-mode: screen; }
+.aurora .a1 { left: -10%; top: -10%; background: radial-gradient(circle, rgba(95, 143, 216, 0.28), transparent 60%); animation: drift1 38s ease-in-out infinite; }
+.aurora .a2 { right: -15%; top: 20%; background: radial-gradient(circle, rgba(179, 18, 27, 0.22), transparent 60%); animation: drift2 46s ease-in-out infinite; }
+.aurora .a3 { left: 25%; bottom: -25%; background: radial-gradient(circle, rgba(95, 207, 138, 0.1), transparent 60%); animation: drift3 54s ease-in-out infinite; }
+@keyframes drift1 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(18vw, 12vh) scale(1.15); } }
+@keyframes drift2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-16vw, -14vh) scale(0.9); } }
+@keyframes drift3 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(10vw, -10vh) scale(1.2); } }
+@keyframes breathe { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.6; } }
+.vignette { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse 80% 70% at 50% 40%, transparent 40%, rgba(0, 0, 0, 0.9) 100%); animation: breathe 12s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .aurora span, .vignette { animation: none; } }
+
+/* ---- the replay: an investigation, played back ---------------------------------------------------- */
+.replay { position: relative; }
+.replay-stage { position: relative; background: #050507; border: 1px solid rgba(226, 221, 209, 0.18); overflow: hidden; }
+.replay-phase { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--color-mute); }
+.replay-phase b { color: var(--color-manila); font-weight: 600; }
+.replay-log { font-size: 11px; line-height: 1.6; color: var(--color-mute); }
+.replay-log .on { color: var(--color-manila); }
+.replay-log li { opacity: 0; transform: translateX(-6px); transition: opacity 320ms ease, transform 320ms ease; }
+.replay-log li.in { opacity: 1; transform: none; }
+.replay-node { transition: opacity 500ms ease, transform 500ms cubic-bezier(0.2, 0.9, 0.3, 1.4); transform-box: fill-box; transform-origin: center; }
+.replay-node.off { opacity: 0; transform: scale(0.4); }
+.replay-edge { transition: opacity 400ms ease; }
+.replay-edge.off { opacity: 0; }
+.replay-edge path.draw-in { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: draw 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.replay-finding { opacity: 0; transform: scale(1.08) rotate(-1.5deg); transition: opacity 260ms ease, transform 380ms cubic-bezier(0.2, 0.9, 0.3, 1.3); }
+.replay-finding.in { opacity: 1; transform: none; }
+.replay-finding.in .replay-weight { animation: stamp-glow 1.2s ease-out 1; }
+@keyframes stamp-glow { 0% { box-shadow: 0 0 0 0 rgba(179, 18, 27, 0.8); } 100% { box-shadow: 0 0 0 18px rgba(179, 18, 27, 0); } }
+.replay-bar { height: 2px; background: rgba(226, 221, 209, 0.12); }
+.replay-bar span { display: block; height: 100%; background: var(--color-stamp); box-shadow: 0 0 10px rgba(179, 18, 27, 0.7); transition: width 200ms linear; }
+.replay-counter { font-family: "Anton", sans-serif; font-size: clamp(28px, 4vw, 48px); line-height: 1; letter-spacing: 0.02em; }
+@keyframes ping { 0% { r: 0; opacity: 0.8; } 100% { r: 60; opacity: 0; } }
+.ping { animation: ping 1.4s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { .replay-node, .replay-edge, .replay-finding, .replay-log li { transition: none; } .replay-edge path.draw-in { animation: none; stroke-dashoffset: 0; } }

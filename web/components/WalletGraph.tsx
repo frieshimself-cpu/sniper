@@ -8,17 +8,17 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CaseGraph, GraphNode } from "@/lib/graph";
 
-const W = 920;
-const H = 480;
+export const W = 920;
+export const H = 480;
 
-interface P {
+export interface P {
   x: number;
   y: number;
   vx: number;
   vy: number;
 }
 
-function layout(g: CaseGraph): Map<string, P> {
+export function layout(g: CaseGraph): Map<string, P> {
   const pos = new Map<string, P>();
   const n = g.nodes.length || 1;
   g.nodes.forEach((node, i) => {
@@ -79,7 +79,7 @@ const MUTE = "#8a8a92";
 const RED = "#b3121b";
 const BLUE = "#5f8fd8";
 
-const STYLE: Record<GraphNode["kind"], { fill: string; stroke: string; text: string; glow: string }> = {
+export const STYLE: Record<GraphNode["kind"], { fill: string; stroke: string; text: string; glow: string }> = {
   deployer: { fill: "#1a0608", stroke: RED, text: BONE, glow: RED },
   funder: { fill: "#1a0608", stroke: RED, text: BONE, glow: RED },
   handle: { fill: "#15151a", stroke: BONE, text: BONE, glow: BLUE },

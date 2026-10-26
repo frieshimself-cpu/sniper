@@ -25,6 +25,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body>
+        <div className="aurora" aria-hidden>
+          <span className="a1" />
+          <span className="a2" />
+          <span className="a3" />
+        </div>
+        <div className="vignette" aria-hidden />
         {children}
         {process.env.VERCEL ? <Analytics /> : null}
       </body>
