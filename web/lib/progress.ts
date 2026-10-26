@@ -45,10 +45,14 @@ function local(): Progress | null {
 
 async function branch(): Promise<Progress | null> {
   if (!REPO) return null;
-  // the raw host caches by URL; a new query string every minute keeps it fresh enough
-  const minute = Math.floor(Date.now() / 60_000);
+  // The raw host caches a branch path for minutes. The repository's own ref list does not: read the branch's
+  // commit from it (git's smart HTTP, public, no token, no API quota) and fetch the file by commit, which never changes.
   try {
-    const r = await fetch(`https://raw.githubusercontent.com/${REPO}/refs/heads/progress/progress.json?m=${minute}`, { cache: "no-store", signal: AbortSignal.timeout(6000) });
+    const refs = await fetch(`https://github.com/${REPO}.git/info/refs?service=git-upload-pack`, { cache: "no-store", signal: AbortSignal.timeout(6000) });
+    if (!refs.ok) return null;
+    const sha = (await refs.text()).match(/([0-9a-f]{40}) refs\/heads\/progress\b/)?.[1];
+    if (!sha) return null;
+    const r = await fetch(`https://raw.githubusercontent.com/${REPO}/${sha}/progress.json`, { signal: AbortSignal.timeout(6000) });
     if (!r.ok) return null;
     return (await r.json()) as Progress;
   } catch {
