@@ -3,7 +3,7 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:45:49Z",
+  "updated_at": "2026-10-26T17:46:03Z",
   "steps": [
     {
       "at": "2026-10-26T17:44:29Z",
@@ -44,6 +44,11 @@
       "at": "2026-10-26T17:45:42Z",
       "phase": "record",
       "text": "180 of 2,258 posts read, back to 2024-12-03"
+    },
+    {
+      "at": "2026-10-26T17:45:51Z",
+      "phase": "record",
+      "text": "posts 181–240 of 2,258 typed: 1 shill"
     }
   ],
   "wallets": [
@@ -260,7 +265,7 @@
   "stats": {
     "posts_total": 2258,
     "posts_read": 180,
-    "typed": 1,
-    "posts_typed": 240
+    "typed": 5,
+    "posts_typed": 300
   }
 }
