@@ -5,7 +5,7 @@ import { short, solscanAccount, solscanTx, time, date } from "@/lib/format";
 
 function Wallet({ address }: { address?: string }) {
   if (!address) return <span>—</span>;
-  if (isHiddenLabel(address)) return <span className="opacity-75">hidden</span>;
+  if (isHiddenLabel(address)) return <span className="redacted" title="disputed, hidden" aria-label="hidden wallet" />;
   const rec = handleForWallet(address);
   return (
     <span className="inline-flex items-center gap-2">
@@ -46,7 +46,7 @@ export function EvidenceTable({ rows }: { rows: Evidence[] }) {
               <td className="uppercase">{e.kind}</td>
               <td>
                 {isHiddenLabel(e.ref) ? (
-                  <span className="opacity-75">hidden</span>
+                  <span className="redacted" title="disputed, hidden" aria-label="hidden wallet" />
                 ) : (
                   <a
                     href={e.kind === "tx" ? solscanTx(e.ref) : solscanAccount(e.ref)}

@@ -8,8 +8,24 @@ import { date, short, solscanAccount, solscanToken } from "@/lib/format";
 import { Severity } from "@/components/Pills";
 import { CaseCard } from "@/components/CaseCard";
 import { DisputeButton } from "@/components/DisputeButton";
+import { WalletGraph } from "@/components/WalletGraph";
+import { caseGraph } from "@/lib/graph";
 
 type Props = { params: Promise<{ handle: string }> };
+
+function mergeGraphs(gs: ReturnType<typeof caseGraph>[]): ReturnType<typeof caseGraph> {
+  const nodes = new Map<string, ReturnType<typeof caseGraph>["nodes"][number]>();
+  const edges: ReturnType<typeof caseGraph>["edges"] = [];
+  for (const g of gs) {
+    for (const n of g.nodes) {
+      const cur = nodes.get(n.id);
+      if (cur) cur.weight += n.weight;
+      else nodes.set(n.id, { ...n });
+    }
+    edges.push(...g.edges);
+  }
+  return { nodes: [...nodes.values()], edges };
+}
 
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -93,6 +109,16 @@ export default async function Person({ params }: Props) {
             </table>
           </div>
         )}
+
+        {p.caseList.length ? (
+          <>
+            <h2 className="mt-10 text-xl">The money</h2>
+            <p className="mt-1 text-xs opacity-70">Every wallet in this handle&apos;s cases, and where the money went. Hover to trace, click to open.</p>
+            <div className="mt-3 -mx-5 md:-mx-8 border-y-2 border-ink bg-page text-manila p-2 md:p-3">
+              <WalletGraph graph={mergeGraphs(p.caseList.map(caseGraph))} />
+            </div>
+          </>
+        ) : null}
 
         <h2 className="mt-10 text-xl">Tokens</h2>
         {p.tokens.length === 0 ? (

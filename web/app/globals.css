@@ -21,6 +21,10 @@ html {
 
 body {
   background: var(--color-page);
+  background-image:
+    radial-gradient(ellipse at top, rgba(179, 18, 27, 0.07), transparent 55%),
+    radial-gradient(ellipse at bottom, rgba(0, 0, 0, 0.55), transparent 60%);
+  background-attachment: fixed;
   color: var(--color-manila);
   font-family: var(--font-mono);
   font-size: 14px;
@@ -119,6 +123,31 @@ table.data tr:last-child td { border-bottom: 0; }
 
 .tally { height: 6px; background: color-mix(in srgb, currentColor 18%, transparent); }
 .tally > span { display: block; height: 100%; background: var(--color-stamp); transition: width 400ms ease; }
+
+/* film grain over the dark page; stays off the manila files */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='1'/></svg>");
+}
+body > * { position: relative; z-index: 1; }
+
+/* a redacted wallet: a bar of ink */
+.redacted {
+  display: inline-block;
+  min-width: 6ch;
+  height: 1em;
+  vertical-align: -0.15em;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+/* the clerk's typewriter: labels tap in */
+.label { font-feature-settings: "tnum"; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }

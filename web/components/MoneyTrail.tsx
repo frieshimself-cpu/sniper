@@ -11,7 +11,7 @@ export function MoneyTrail({ hops }: { hops: Hop[] }) {
           <span className="pill pill-ink normal-case tracking-normal gap-3">
             <span className="uppercase tracking-[0.12em] font-semibold">{h.label}</span>
             {isHiddenLabel(h.address) ? (
-              <span className="opacity-75">hidden</span>
+              <span className="redacted" title="disputed, hidden" aria-label="hidden wallet" />
             ) : (
               <a href={solscanAccount(h.address)} target="_blank" rel="noopener noreferrer" className="underline">
                 {short(h.address)}

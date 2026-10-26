@@ -10,6 +10,8 @@ import { date, time, siteUrl, solscanToken } from "@/lib/format";
 import { Severity } from "@/components/Pills";
 import { EvidenceTable } from "@/components/Evidence";
 import { MoneyTrail } from "@/components/MoneyTrail";
+import { WalletGraph } from "@/components/WalletGraph";
+import { caseGraph } from "@/lib/graph";
 
 type Props = { params: Promise<{ n: string }> };
 
@@ -143,6 +145,9 @@ export default async function CasePage({ params }: Props) {
         <h2 className="mt-10 text-xl">Money trail</h2>
         <div className="mt-3">
           <MoneyTrail hops={c.money_trail} />
+        </div>
+        <div className="mt-4 -mx-5 md:-mx-8 border-y-2 border-ink bg-page text-manila p-2 md:p-3">
+          <WalletGraph graph={caseGraph(c)} />
         </div>
 
         <h2 className="mt-10 text-xl">Narrative</h2>
