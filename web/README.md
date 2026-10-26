@@ -108,20 +108,27 @@ the ballot page says so. Nothing else degrades.
 
 ## Deploy on Vercel (the full site, no server)
 
-The full site runs on Vercel: votes, disputes, `/admin`, request-time data. Mutable state
-lives in Upstash Redis so the agent on GitHub and the site on Vercel share it.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffrieshimself-cpu%2Fsniper&root-directory=web&project-name=crime&env=ADMIN_PASSWORD%2CSITE_URL%2CBALLOT_AUTOBUILD&envDescription=ADMIN_PASSWORD%3A+anything+long.+SITE_URL%3A+this+deployment%27s+URL+%28fix+after+the+first+deploy%29.+BALLOT_AUTOBUILD%3A+on%2C+or+off+once+the+agent+posts+polls+on+X.&envLink=https%3A%2F%2Fgithub.com%2Ffrieshimself-cpu%2Fsniper%2Fblob%2Fclaude%2Fdetermined-sagan-kc8t9v%2Fweb%2FREADME.md&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22upstash%22%2C%22productSlug%22%3A%22upstash-redis%22%7D%5D)
 
-1. Import the repo at vercel.com/new. Root Directory: `web`. Framework: Next.js. Keep
-   "Include source files outside of the Root Directory" on (the site imports `../src`).
-2. Storage, add Upstash Redis (Vercel Marketplace). It sets `KV_REST_API_URL` and
-   `KV_REST_API_TOKEN` on the project. Copy both into the GitHub repository secrets too, so
-   the agent writes ballots and reads leads in the same place.
-3. Environment variables on the project: `SITE_URL` (the Vercel URL), `ADMIN_PASSWORD`,
-   `BALLOT_AUTOBUILD=off` when the agent posts polls on X (otherwise leave it on),
-   `CRIME_MINT`, `MIN_VOTE_BALANCE`, `HELIUS_API_KEY` if on-site wallet voting is used.
-4. Deploy. Every case the agent commits triggers a new deployment, because the build
-   copies `../data`, `../out` and `../fixtures` into the site (`scripts/sync-agent-data.mjs`).
-5. Set `SITE_URL` as a repository variable on GitHub so posts link to the Vercel site.
+The button clones the repo into your Vercel account with Root Directory `web`, asks for the
+three variables, and offers the Upstash Redis store. The full site runs there: votes,
+disputes, `/admin`, request-time data. Mutable state lives in Upstash Redis so the agent on
+GitHub and the site on Vercel share it.
+
+If you import by hand instead: vercel.com/new, Root Directory `web`, Framework Next.js, keep
+"Include source files outside of the Root Directory" on (the site imports `../src`).
+
+After the first deploy:
+
+1. Storage tab: if Upstash Redis is not attached yet, add it (Marketplace, free plan). It
+   sets `KV_REST_API_URL` and `KV_REST_API_TOKEN` on the project.
+2. Settings, Environment Variables: set `SITE_URL` to the deployment URL and redeploy.
+   Optional for on-site wallet voting: `CRIME_MINT`, `MIN_VOTE_BALANCE`, `HELIUS_API_KEY`.
+3. GitHub, Settings, Secrets and variables, Actions: add `KV_REST_API_URL` and
+   `KV_REST_API_TOKEN` (same values, Storage tab shows them) so the agent writes ballots
+   and reads lead approvals in the same place; add the variable `SITE_URL`.
+4. Every case the agent commits triggers a new deployment, because the build copies
+   `../data`, `../out` and `../fixtures` into the site (`scripts/sync-agent-data.mjs`).
 
 ## The site on GitHub Pages, no server## The site on GitHub Pages, no server
 
