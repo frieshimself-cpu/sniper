@@ -295,3 +295,43 @@ body > * { position: relative; z-index: 1; }
 
 /* the small knife in the header */
 .logo-knife { width: 30px; height: 30px; mix-blend-mode: screen; display: block; }
+
+/* words in the wordmark's hand */
+.gtext {
+  position: relative;
+  display: inline-block;
+  font-family: "Anton", "IBM Plex Sans", system-ui, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: #f2f0ea;
+  text-shadow: -1.5px 0 0 rgba(95, 143, 216, 0.9), 1.5px 0 0 rgba(196, 52, 74, 0.85);
+  white-space: nowrap;
+}
+.gtext::before, .gtext::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #f2f0ea;
+  text-shadow: inherit;
+  pointer-events: none;
+}
+/* the two standing tears */
+.gtext::before { clip-path: inset(34% 0 59% 0); transform: translateX(2px); }
+.gtext::after { clip-path: inset(70% 0 22% 0); transform: translateX(-2px); }
+@keyframes gtext-a {
+  0%, 84%, 100% { clip-path: inset(34% 0 59% 0); transform: translateX(2px); }
+  86% { clip-path: inset(8% 0 84% 0); transform: translateX(-5px); }
+  89% { clip-path: inset(46% 0 44% 0); transform: translateX(4px); }
+  92% { clip-path: inset(34% 0 59% 0); transform: translateX(2px); }
+}
+@keyframes gtext-b {
+  0%, 48%, 58%, 100% { clip-path: inset(70% 0 22% 0); transform: translateX(-2px); }
+  50% { clip-path: inset(76% 0 12% 0); transform: translateX(5px); }
+  54% { clip-path: inset(18% 0 74% 0); transform: translateX(-4px); }
+}
+.gtext::before { animation: gtext-a 6s steps(1) infinite; }
+.gtext::after { animation: gtext-b 9s steps(1) infinite 1.5s; }
+@media (prefers-reduced-motion: reduce) { .gtext::before, .gtext::after { animation: none; } }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Glitch } from "@/components/Glitch";
+import { GlitchText } from "@/components/GlitchText";
 import { siteUrl } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -13,11 +14,14 @@ export const metadata: Metadata = {
 export default function ComingSoon() {
   return (
     <div className="curtain min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-10 gap-7 sm:gap-9">
-        <Glitch src="/brand/knife.png" alt="A hand holding a knife, drawn in a blue and red outline" width={400} height={400} priority className="w-[200px] sm:w-[240px] md:w-[280px]" />
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-10 gap-6 sm:gap-8">
+        <Glitch src="/brand/knife.png" alt="A hand holding a knife, drawn in a blue and red outline" width={400} height={400} priority className="w-[180px] sm:w-[220px] md:w-[240px]" />
         <Glitch src="/brand/wordmark.png" alt="CRIME IS LEGAL" width={1500} height={500} priority className="w-full max-w-[640px]" />
+        <h1 className="text-[44px] sm:text-[64px] md:text-[84px]">
+          <GlitchText>Coming soon</GlitchText>
+        </h1>
         <p className="ticker">
-          coming soon · cases <b>hourly</b> · convictions <b className="red">0</b>
+          cases <b>hourly</b> · convictions <b className="red">0</b>
         </p>
         <a href="https://x.com/crimeislegalpf" target="_blank" rel="noopener noreferrer" className="btn">
           @crimeislegalpf
