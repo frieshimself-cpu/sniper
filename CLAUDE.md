@@ -45,7 +45,7 @@ web/                 the public site (Next.js). Reads the three paths above thro
 ## The hour
 
 Every hour `npm run cycle`: the four most nominated handles (web /nominate, signed with a wallet)
-go on the ballot, fresh launches fill empty slots; as a poll on X when X is configured, else a
+go on the ballot, fresh launches fill empty slots; as a poll on X only when `X_WRITE=on`, else a
 coin-gated vote on the site; ten minutes; the winner is investigated; the case is posted on X with
 its card. No votes, nothing opened (`REQUIRE_VOTES`). The runner-up carries to the next hour.
 

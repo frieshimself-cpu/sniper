@@ -106,7 +106,8 @@ async function buildOptions(): Promise<{ options: Option[]; carried?: string }> 
 }
 
 export async function cycle(opts: { dry?: boolean } = {}): Promise<void> {
-  const x = xCreds() ? new X(xCreds()!) : null;
+  // Writing to X is opt-in. Without X_WRITE=on the cycle never posts, whatever keys it has.
+  const x = xCreds() && (process.env.X_WRITE ?? "off").toLowerCase() === "on" ? new X(xCreds()!) : null;
   process.stdout.write(`cycle ${periodId()} · state ${backend()} · polls on ${x ? "X" : "the site"}\n`);
   const { options, carried } = await buildOptions();
   if (options.length < 2) {

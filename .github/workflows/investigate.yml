@@ -64,6 +64,7 @@ jobs:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           SITE_URL: ${{ vars.SITE_URL || 'https://frieshimself-cpu.github.io/sniper' }}
+          X_WRITE: ${{ vars.X_WRITE || 'off' }}
           X_POLL_MINUTES: ${{ vars.X_POLL_MINUTES || '10' }}
           REQUIRE_VOTES: ${{ vars.REQUIRE_VOTES || 'on' }}
           MIN_PUBLISH_SCORE: ${{ vars.MIN_PUBLISH_SCORE || '35' }}
