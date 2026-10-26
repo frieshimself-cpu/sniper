@@ -14,7 +14,7 @@ import { Grok, type PostClaim } from "./sources/grok.js";
 import { X, xCreds, type Post } from "./sources/x.js";
 import { investigate as investigateToken, isService, short, type Investigation } from "./detectors.js";
 import type { Sources, Transfer } from "./sources/types.js";
-import type { Evidence, Finding, Hop, Severity } from "./types.js";
+import type { Evidence, Finding, Hop, Severity, WalletTier } from "./types.js";
 import { normalizeHandle } from "./policy.js";
 
 export interface PersonSources {
@@ -29,7 +29,7 @@ export interface PersonInvestigation {
   handle: string;
   posts: number;
   claims: PostClaim[];
-  wallets: Array<{ address: string; tier: "claimed" | "probable"; source: string; platform?: string }>;
+  wallets: Array<{ address: string; tier: WalletTier; source: string; platform?: string }>;
   findings: Finding[];
   evidence: Evidence[];
   trail: Hop[];
@@ -79,7 +79,9 @@ export function livePersonSources(chain: Sources): PersonSources {
   };
 }
 
-export async function investigatePerson(handleRaw: string, src: PersonSources): Promise<PersonInvestigation> {
+export type KnownWallet = { address: string; tier: WalletTier; source: string; platform?: string };
+
+export async function investigatePerson(handleRaw: string, src: PersonSources, known: KnownWallet[] = []): Promise<PersonInvestigation> {
   const handle = normalizeHandle(handleRaw);
   const log: string[] = [];
   const findings: Finding[] = [];
@@ -96,6 +98,8 @@ export async function investigatePerson(handleRaw: string, src: PersonSources): 
   const wallets = new Map<string, PersonInvestigation["wallets"][number]>();
   for (const c of claims) if (c.type === "wallet" && c.address) wallets.set(c.address, { address: c.address, tier: "claimed", source: c.url });
   for (const w of await src.wallets(handle)) if (!wallets.has(w.address)) wallets.set(w.address, { address: w.address, tier: "probable", source: w.url, platform: w.platform });
+  // already on the record, with a source link: the registry is evidence too
+  for (const w of known) if (w.source && !wallets.has(w.address)) wallets.set(w.address, { address: w.address, tier: w.tier, source: w.source, platform: w.platform });
   log.push(`${wallets.size} wallets (${[...wallets.values()].filter((w) => w.tier === "claimed").length} claimed)`);
 
   const history = new Map<string, Transfer[]>();
@@ -113,6 +117,15 @@ export async function investigatePerson(handleRaw: string, src: PersonSources): 
   }
   const traded = new Map<string, { symbol?: string }>();
   for (const t of all) if (t.kind === "token" && t.mint && t.mint !== WSOL) traded.set(t.mint, traded.get(t.mint) ?? {});
+  // No posts to read (no X or Grok key yet)? The chain still talks: every launch the wallets paid for is a subject.
+  if (mentioned.size === 0) {
+    const launched = new Map<string, string>();
+    for (const t of all) if (t.type === "CREATE" && t.kind === "token" && t.mint && wallets.has(t.feePayer ?? "") && !launched.has(t.mint)) launched.set(t.mint, t.at);
+    for (const [mint, at] of [...launched.entries()].sort((a, b) => b[1].localeCompare(a[1])).slice(0, MAX_TOKENS)) {
+      mentioned.set(mint.toLowerCase(), { token: mint, mint, claims: [{ post_id: "", url: "", at, type: "launch", token: mint, mint, quote: "" }] });
+    }
+    log.push(`no posts read; ${launched.size} launches found on the wallets`);
+  }
   const resolveMint = async (m: { token: string; mint?: string }): Promise<string | null> => {
     if (m.mint) return m.mint;
     const sym = m.token.replace(/^\$/, "").toLowerCase();
@@ -141,8 +154,8 @@ export async function investigatePerson(handleRaw: string, src: PersonSources): 
     const soldAmt = sum(sells.map((t) => t.amount));
     const boughtAmt = sum(buys.map((t) => t.amount));
 
-    // shilled, then sold
-    for (const s of m.claims.filter((c) => c.type === "shill" || c.type === "launch").slice(0, 2)) {
+    // shilled, then sold. Needs a post: a launch the chain found on its own is not a promotion.
+    for (const s of m.claims.filter((c) => (c.type === "shill" || c.type === "launch") && c.url).slice(0, 2)) {
       const after = sells.filter((t) => hours(s.at, t.at) >= 0 && hours(s.at, t.at) <= 72).sort((a, b) => a.at.localeCompare(b.at));
       const before = buys.filter((t) => hours(t.at, s.at) >= 0 && hours(t.at, s.at) <= 72);
       if (after.length && soldAmt > 0) {
@@ -154,7 +167,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources): 
           detail: `Posted "${s.quote.slice(0, 120)}" and sold ${fmt(soldAfter)} $${symbol} (${pct(share)} of what the wallets held) starting ${when(hours(s.at, after[0].at))} after the post.${before.length ? ` The wallets had bought ${when(hours(before[0].at, s.at))} before posting.` : ""}`,
         });
         score += 30 + Math.min(20, Math.round(share * 20)) + (hours(s.at, after[0].at) <= 2 ? 10 : 0);
-        evidence.push({ kind: "post", ref: s.url, at: s.at, note: `Promoted $${symbol}` });
+        if (s.url) evidence.push({ kind: "post", ref: s.url, at: s.at, note: `Promoted $${symbol}` });
         for (const t of after.slice(0, 3)) evidence.push({ kind: "tx", ref: t.signature, wallet: t.from, amount: `${fmt(t.amount)} ${symbol}`, at: t.at, note: "Sold after the post" });
         for (const t of before.slice(0, 2)) evidence.push({ kind: "tx", ref: t.signature, wallet: t.to, amount: `${fmt(t.amount)} ${symbol}`, at: t.at, note: "Bought before the post" });
         break;

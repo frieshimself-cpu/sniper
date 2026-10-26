@@ -443,7 +443,8 @@ function personHeadline(p: PersonInvestigation): string {
 async function runPerson(handle: string, src: Sources, registry: Registry, opts: RunOptions): Promise<{ case?: Case; message: string }> {
   const psrc = src.name === "mock" ? mockPersonSources(handle) : livePersonSources(src);
   process.stdout.write(`subject ${handle} via ${opts.via ?? "argument"}\n`);
-  const p = await investigatePerson(handle, psrc);
+  const known = registry.entries.find((e) => normalizeHandle(e.handle) === normalizeHandle(handle))?.wallets.filter((w) => w.source).map((w) => ({ address: w.address, tier: w.tier, source: w.source! })) ?? [];
+  const p = await investigatePerson(handle, psrc, known);
   for (const l of p.log) process.stdout.write(`  ${l}\n`);
   process.stdout.write(`  score ${p.score}: ${p.findings.map((f) => f.title).join("; ") || "nothing"}\n`);
   const ok = p.score >= MIN_PUBLISH_SCORE && (p.findings.length >= 2 || p.score >= STRONG_SCORE);

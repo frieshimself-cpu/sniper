@@ -11,11 +11,12 @@ src/policy.ts        enforce(): every string that leaves the agent goes through 
 src/types.ts         Case, Finding, Evidence, Registry — the shared schema
 src/demo.ts          npm run demo → fictional archive into web/tests/fixture (the smoke tests read it)
 src/render.ts        case card renderer (HTML → PNG, Playwright/Chromium)
-src/investigate.ts   npm run investigate → one real case from the chain
+src/investigate.ts   npm run investigate → one case: --subject <mint> for a launch, --subject @handle for a person
+src/person.ts        a handle's record: posts (X), claims (Grok), wallets (own posts + Arkham), chain replay, findings
 src/cycle.ts         npm run cycle → ballot, poll on X (10 min), investigate the winner, post the case
 src/schedule.ts      npm run watch → a cycle every hour
 src/state.ts         shared state (ballots, disputes, leads): Turso or Upstash Redis when configured, else files
-src/detectors.ts     what the agent looks for (bundles, exits, LP pulls, dev sells, concentration)
+src/detectors.ts     what the agent looks for in a launch (bundles, exits, LP pulls, dev sells, concentration)
 src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (X posts), x.ts (polls and posting),
                      discover.ts (DexScreener boosts, Jupiter trending), pumpfun.ts (bonding curve PDA), mock.ts
 data/status.json     last run, next run, what happened
@@ -42,9 +43,23 @@ web/                 the public site (Next.js). Reads the three paths above thro
 
 ## The hour
 
-Every hour `npm run cycle`: up to four fresh launches go on the ballot, as a poll on X when X is
-configured (else on the site); ten minutes of voting; the winner is investigated; the case is posted
-on X with its card. No votes, nothing opened (`REQUIRE_VOTES`). The runner-up carries to the next hour.
+Every hour `npm run cycle`: the four most nominated handles (web /nominate, signed with a wallet)
+go on the ballot, fresh launches fill empty slots; as a poll on X when X is configured, else a
+coin-gated vote on the site; ten minutes; the winner is investigated; the case is posted on X with
+its card. No votes, nothing opened (`REQUIRE_VOTES`). The runner-up carries to the next hour.
+
+## How a person's case gets opened
+
+1. The record: the handle's posts from the X API (up to `PERSON_MAX_POSTS`), typed by Grok into
+   claims: shill, holding, lp_locked, sold, launch, wallet. Every claim keeps its post URL.
+2. The wallets: addresses the handle posted itself (tier claimed, the post is the source) and the
+   wallets Arkham ties to the handle (tier probable, the Arkham page is the source).
+3. The replay: every wallet's transfers. Posts go next to transactions by time.
+4. Findings: promoted then sold; said holding while selling; said safe while liquidity left; launched
+   or promoted a token whose own file (the launch detectors) is bad; a claimed wallet funded a bundle;
+   promotions since deleted but quoted by others. Without X and Grok, the wallets' own launches stand in.
+5. Same publish rule as a launch. The case carries kind "person", the handle as subject, and the
+   worst token as its token.
 
 ## How a case gets opened
 

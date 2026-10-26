@@ -125,9 +125,12 @@ export async function resolveHandle(this: Arkham, handle: string): Promise<Handl
     arkhamAddresses?: Array<ArkAddr & { chain?: string }>;
   };
   const j = await this.getPublic<Search>("/intelligence/search", { query: `@${h}` }, true);
-  const ent = (j?.arkhamEntities ?? []).find((e) => (e.twitter ?? "").replace(/^.*\//, "").replace(/^@/, "").toLowerCase() === h && !/impersonat|hacker|scam|phish/i.test(`${e.name} ${e.type}`));
+  const sameHandle = (e: { name?: string; twitter?: string; type?: string }) =>
+    ((e.twitter ?? "").replace(/^.*\//, "").replace(/^@/, "").toLowerCase() === h || new RegExp(`^"${h}" on (pump\\.fun|vector\\.fun)$`, "i").test(e.name ?? "")) &&
+    !/impersonat|hacker|scam|phish/i.test(`${e.name} ${e.type}`);
+  const ent = (j?.arkhamEntities ?? []).find(sameHandle);
   const wallets = (j?.arkhamAddresses ?? [])
-    .filter((a) => a.chain === "solana" && a.address && ent && a.arkhamEntity?.id === ent.id)
+    .filter((a) => a.chain === "solana" && a.address && ((ent && a.arkhamEntity?.id === ent.id) || sameHandle({ name: a.arkhamLabel?.name, twitter: a.arkhamEntity?.twitter, type: a.arkhamEntity?.type })))
     .map((a) => {
       const pf = (a.arkhamLabel?.name ?? "").match(/^"([^"]{1,40})" on (Pump\.fun|Vector\.fun|[A-Za-z.]+)$/i);
       return { address: a.address!, label: pf ? pf[1] : a.arkhamLabel?.name ?? null, platform: pf ? pf[2].toLowerCase() : undefined, url: `https://intel.arkm.com/explorer/address/${a.address}` };

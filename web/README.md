@@ -46,6 +46,7 @@ npm run build && npm test
 | `/cases` | archive. Search by CA, `$symbol` or `@handle`. Filter by severity. Newest first |
 | `/cases/:n` | the card PNG, findings, evidence table with Solscan links, money trail, narrative, CSV, `og:image` |
 | `/persons`, `/persons/:handle` | dossiers. Rollup, wallets on the record (tier + source), tokens, Dispute |
+| `/nominate` | the board: nominate a handle with a wallet signature; the most nominated go on the ballot |
 | `/ballot` | this hour's ballot, the poll on X, tallies, history with the case each winner became |
 | `/stamp` | client-side stamp generator. Upload, drag, rotate, download |
 | `/embed` | iframe snippet for the 600×160 counter at `/embed/counter`, API docs |
@@ -63,6 +64,7 @@ npm run build && npm test
 | GET | `/api/ballot?history=1` | today's ballot and tallies |
 | POST | `/api/vote` | `{ ballot, option, wallet, signature }` |
 | POST | `/api/dispute` | `{ wallet, signature }`. Hides the wallet. Returns `"Noted."` |
+| GET, POST | `/api/nominate` | the board; `{ handle, wallet, signature, note? }` over `CRIME nominate <handle>` |
 | POST | `/api/admin/login`, `/api/admin/logout`, `/api/admin/ballot`, `/api/admin/dispute` | admin cookie |
 
 Signatures are base58, ed25519 over the UTF-8 message, Solana wallet style
