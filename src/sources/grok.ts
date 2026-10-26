@@ -14,7 +14,7 @@ export class Grok {
   /** X live search is an xAI-only feature. Through a reseller (OpenRouter) the model still reads and classifies posts; it cannot search X. */
   readonly canSearch: boolean;
 
-  constructor(key = process.env.XAI_API_KEY ?? "", model = process.env.XAI_MODEL ?? "grok-4", base = process.env.XAI_BASE_URL ?? "https://api.x.ai/v1") {
+  constructor(key = process.env.XAI_API_KEY ?? "", model = process.env.XAI_MODEL ?? "grok-4.3", base = process.env.XAI_BASE_URL ?? "https://api.x.ai/v1") {
     if (!key) throw new Error("XAI_API_KEY is not set");
     this.base = base.replace(/\/+$/, "");
     this.canSearch = /api\.x\.ai/.test(this.base);
