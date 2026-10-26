@@ -1,8 +1,8 @@
 {
-  "state": "running",
+  "state": "idle",
   "mode": "live",
-  "last_run_at": "2026-10-26T04:06:44Z",
-  "next_run_at": "2026-10-26T10:06:44Z",
-  "last_case": 1,
-  "message": ""
+  "last_run_at": "2026-10-26T04:07:36Z",
+  "next_run_at": "2026-10-26T10:07:36Z",
+  "last_case": 5,
+  "message": "Case 0005 opened on $GoonCat: 1 findings, 0 wallets attributed, 0 leads."
 }

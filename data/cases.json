@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T04:06:44Z",
+  "generated_at": "2026-10-26T04:07:36Z",
   "agent": "C.R.I.M.E.",
   "version": 1,
   "cases": [
@@ -133,6 +133,297 @@
         "Convictions: 0."
       ],
       "png": "case-0001.png"
+    },
+    {
+      "n": 2,
+      "id": "0002",
+      "opened_at": "2026-10-26T04:07:08Z",
+      "status": "open",
+      "severity": "medium",
+      "score": 51,
+      "token": {
+        "symbol": "BabyBTC",
+        "name": "Baby BTC",
+        "mint": "D2MSYa6LnnhJ7WdqAfux4DAK7stmYig7DaeuEeKVpump"
+      },
+      "subjects": [
+        "@bcrypto01"
+      ],
+      "headline": "The $BabyBTC deployer, @bcrypto01, sold 11% of supply within a minute of launch. It had taken 21% at creation.",
+      "charge": "Deployer bought at creation",
+      "findings": [
+        {
+          "code": "F-01",
+          "title": "Deployer bought at creation",
+          "detail": "The deployer wallet took 21% of supply in the launch transaction."
+        },
+        {
+          "code": "F-02",
+          "title": "Deployer sold",
+          "detail": "The deployer wallet sold 11% of supply across 4 transactions, the first under a minute after launch."
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "tx",
+          "ref": "4wurCybNqRS4w28tdsJ1z8RAMjUGZLgKjTjFkZuNicptq2pfDW72knyhZn4b9vDU9a1ci7Lspqft4i5wC8JysUPP",
+          "wallet": "ANYKZRdpeZC8EozAx6LgbYvMp6HXUr17Lfu8vVhmiu9D",
+          "amount": "200,000,000 BabyBTC",
+          "at": "2026-10-25T19:27:19.000Z",
+          "note": "Launch, deployer's opening buy"
+        },
+        {
+          "kind": "tx",
+          "ref": "gPjzcQEtSTqMyyiRycruV2oSwGidyepnhLxQJbz9HpKmJH1jcA5QHptW9ZPaSmt7CrpP8UYrEKTgFnUdRRFxNGu",
+          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
+          "amount": "20,880,250 BabyBTC",
+          "at": "2026-10-25T19:27:40.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "3uR7dj8Z9qD1UAd7qVY9xNjEjojtjZbnUvLy9VykU4zvqwxbcnY1x7ec2NnoTXYWBthtjxbyP4kkQsac49d9RUzS",
+          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
+          "amount": "16,704,200 BabyBTC",
+          "at": "2026-10-25T19:27:42.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "4MF2sYmz2Qj1UdwGDWUjqs7Aw2KDu2jUuhcex6HKbWwVYN19TcWh5sj1ZJ7KUhuN83BZiP34G7Lt44uAahRo6bh3",
+          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
+          "amount": "1.49 SOL",
+          "at": "2026-10-26T02:17:58.000Z",
+          "note": "Proceeds leave"
+        }
+      ],
+      "money_trail": [
+        {
+          "label": "deployer",
+          "address": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
+          "amount": "1.49 SOL"
+        },
+        {
+          "label": "hop 1",
+          "address": "4ojTnRxhH4xws23nUWDhtXLSonxX8zU3xbCqjHkcAC7V",
+          "amount": ""
+        }
+      ],
+      "narrative": [
+        "$BabyBTC (Baby BTC) was picked by argument. The pool opened 2026-10-25 19:27Z.",
+        "The deployer wallet took 21% of supply in the launch transaction. The deployer wallet sold 11% of supply across 4 transactions, the first under a minute after launch.",
+        "1.49 SOL left deployer 28MJ…Pz3y after launch. The trail ends at hop 1 4ojT…AC7V.",
+        "@bcrypto01 is on the record for the wallets above, with sources. Disputes are honoured at once.",
+        "Convictions: 0."
+      ],
+      "png": "case-0002.png"
+    },
+    {
+      "n": 3,
+      "id": "0003",
+      "opened_at": "2026-10-26T04:07:17Z",
+      "status": "open",
+      "severity": "medium",
+      "score": 50,
+      "token": {
+        "symbol": "REMUS",
+        "name": "Remus",
+        "mint": "CA8q2mkYWZnUNqYmf6pxyxAPZsmSe2EG9P7hHMW5pump"
+      },
+      "subjects": [],
+      "headline": "The $REMUS deployer 6XWu…nsMA sold 27% of supply within a minute of launch.",
+      "charge": "Deployer sold",
+      "findings": [
+        {
+          "code": "F-01",
+          "title": "Deployer sold",
+          "detail": "The deployer wallet sold 27% of supply across 27 transactions, the first under a minute after launch."
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "tx",
+          "ref": "eJyukrGTyBwrf3bXsSBehjSaZhhV8auDdd6wTjbSoU81xZFor2hDLeo2mvYe4hMx7iDb1F66gbLWfM372c8vpW5",
+          "wallet": "6XWuNJKneu6sA598nfh8XPGWXBxyza9Q4vDSpbZAnsMA",
+          "amount": "122,873,689 REMUS",
+          "at": "2026-10-23T23:10:29.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "3sGk8VEdPtN1hxQteY8jekrBozydJt5abgKk3ri6nPjPkqNJgJcyTiLSP2ijK2VAZNb9Ez42UqVhEBGpp3sPfuPo",
+          "wallet": "6XWuNJKneu6sA598nfh8XPGWXBxyza9Q4vDSpbZAnsMA",
+          "amount": "143,939,945 REMUS",
+          "at": "2026-10-23T23:10:32.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "4xdiFU4fqdRt8d8TdGzzgGmKMeqXNn1Mmo7HEQNp2mQQcDKJZT2SPDLG55R6i8LGcTx6zZeQrYRVPCVqdPsPXpoi",
+          "wallet": "6XWuNJKneu6sA598nfh8XPGWXBxyza9Q4vDSpbZAnsMA",
+          "amount": "1.44 SOL",
+          "at": "2026-10-24T04:04:34.000Z",
+          "note": "Proceeds leave"
+        }
+      ],
+      "money_trail": [
+        {
+          "label": "deployer",
+          "address": "6XWuNJKneu6sA598nfh8XPGWXBxyza9Q4vDSpbZAnsMA",
+          "amount": "1.44 SOL"
+        },
+        {
+          "label": "hop 1",
+          "address": "FQPdu6wTMuZhov7UQ7yjXojqQYSZVBYpnyZYkARWrHDB",
+          "amount": ""
+        }
+      ],
+      "narrative": [
+        "$REMUS (Remus) was picked by argument. The pool opened 2026-10-23 23:10Z.",
+        "The deployer wallet sold 27% of supply across 27 transactions, the first under a minute after launch.",
+        "1.44 SOL left deployer 6XWu…nsMA after launch. The trail ends at hop 1 FQPd…rHDB.",
+        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
+        "Convictions: 0."
+      ],
+      "png": "case-0003.png"
+    },
+    {
+      "n": 4,
+      "id": "0004",
+      "opened_at": "2026-10-26T04:07:25Z",
+      "status": "open",
+      "severity": "medium",
+      "score": 50,
+      "token": {
+        "symbol": "Hellcat",
+        "name": "Hellcat",
+        "mint": "CsovxRtEM6g4jcVGtcTB3xwycoAuPjEafpUTR6zrpump"
+      },
+      "subjects": [],
+      "headline": "The $Hellcat deployer jC4L…ofEJ sold 18% of supply within a minute of launch.",
+      "charge": "Deployer sold",
+      "findings": [
+        {
+          "code": "F-01",
+          "title": "Deployer sold",
+          "detail": "The deployer wallet sold 18% of supply across 9 transactions, the first under a minute after launch."
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "tx",
+          "ref": "3sNLQBwHmfpG8Dw3zh88T5idHGsyb9GBtdbgZXhGKt3YhNLU1i7UVbmXmFW4AA7N7TfYikGwLtdHFnUJQsiuCJA1",
+          "wallet": "jC4LbpoCDffM7zQKXbfvSprDVkNNNjHfWDGQcH2ofEJ",
+          "amount": "35,766,667 Hellcat",
+          "at": "2026-10-25T21:29:50.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "4g5gwjSAyDvC4efHZNdLWt5ZXxSj8mzAQBtQtWqUSoQJS1AxkMkh6kjyL6PHy3dytwJpGsS8DPqRaaiKWbvzjSdW",
+          "wallet": "jC4LbpoCDffM7zQKXbfvSprDVkNNNjHfWDGQcH2ofEJ",
+          "amount": "28,613,333 Hellcat",
+          "at": "2026-10-25T21:30:03.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "ScPF8vbCLxGM5SNgU7iQDM6BNqZHora2u7J2Lvx3H99bJtbh9ii8wtWa59JwPwGrotzVe8kE2WneZCcESW1nAg8",
+          "wallet": "jC4LbpoCDffM7zQKXbfvSprDVkNNNjHfWDGQcH2ofEJ",
+          "amount": "5.21 SOL",
+          "at": "2026-10-25T21:42:56.000Z",
+          "note": "Proceeds leave"
+        }
+      ],
+      "money_trail": [
+        {
+          "label": "deployer",
+          "address": "jC4LbpoCDffM7zQKXbfvSprDVkNNNjHfWDGQcH2ofEJ",
+          "amount": "5.21 SOL"
+        },
+        {
+          "label": "hop 1",
+          "address": "F4GdASsExZYkEuzS2i7zKjypW1HYWuAaB8Ze2GbdC9ci",
+          "amount": ""
+        }
+      ],
+      "narrative": [
+        "$Hellcat (Hellcat) was picked by argument. The pool opened 2026-10-25 21:29Z.",
+        "The deployer wallet sold 18% of supply across 9 transactions, the first under a minute after launch.",
+        "5.21 SOL left deployer jC4L…ofEJ after launch. The trail ends at hop 1 F4Gd…C9ci.",
+        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
+        "Convictions: 0."
+      ],
+      "png": "case-0004.png"
+    },
+    {
+      "n": 5,
+      "id": "0005",
+      "opened_at": "2026-10-26T04:07:36Z",
+      "status": "open",
+      "severity": "medium",
+      "score": 50,
+      "token": {
+        "symbol": "GoonCat",
+        "name": "Goon Cat",
+        "mint": "5QUazVwndVyQLiTrFg75ZX9NmYHuwW8mZvxwQym9pump"
+      },
+      "subjects": [],
+      "headline": "The $GoonCat deployer Adz2…kkWH sold 26% of supply within a minute of launch.",
+      "charge": "Deployer sold",
+      "findings": [
+        {
+          "code": "F-01",
+          "title": "Deployer sold",
+          "detail": "The deployer wallet sold 26% of supply across 2 transactions, the first under a minute after launch."
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "tx",
+          "ref": "2qebpv9DAGcvrPgRrNuYr3FpcZqDDE9EcFxiPneYa57LLC8iA3bAenFMxfnrjV5832wEBZbvnnESiCBKy1JFesWf",
+          "wallet": "Adz2FSNQsBBZNYLZULpYcs2t6iQJDuaKJtxr7mh5kkWH",
+          "amount": "129,632,083 GoonCat",
+          "at": "2026-10-25T15:00:39.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "47JVcw2ys9S8tzeXN8hvr5inR7YCeYkjHDqe7JAUNfExSvmr6imKDMjXpKiKHtCFmvsCrSEvc7Ju3Z1huBQCkUXd",
+          "wallet": "Adz2FSNQsBBZNYLZULpYcs2t6iQJDuaKJtxr7mh5kkWH",
+          "amount": "126,036,745 GoonCat",
+          "at": "2026-10-25T15:00:43.000Z",
+          "note": "Deployer sell"
+        },
+        {
+          "kind": "tx",
+          "ref": "4iPnwNpD9L7mCzm5chgrLSZgSjVjDCbwuRDr2KinXjznd6kvZCW6DTcwnwQHFFXCysSnMdeFnsLDEfauqxZ1nnNe",
+          "wallet": "Adz2FSNQsBBZNYLZULpYcs2t6iQJDuaKJtxr7mh5kkWH",
+          "amount": "1.22 SOL",
+          "at": "2026-10-25T19:38:26.000Z",
+          "note": "Proceeds leave"
+        }
+      ],
+      "money_trail": [
+        {
+          "label": "deployer",
+          "address": "Adz2FSNQsBBZNYLZULpYcs2t6iQJDuaKJtxr7mh5kkWH",
+          "amount": "1.22 SOL"
+        },
+        {
+          "label": "hop 1",
+          "address": "4791YNAU9TMTwKbyPzub42Fmvf8TKR1rAyWsxyq2hc4N",
+          "amount": ""
+        }
+      ],
+      "narrative": [
+        "$GoonCat (Goon Cat) was picked by argument. The pool opened 2026-10-25 15:00Z.",
+        "The deployer wallet sold 26% of supply across 2 transactions, the first under a minute after launch.",
+        "1.22 SOL left deployer Adz2…kkWH after launch. The trail ends at hop 1 4791…hc4N.",
+        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
+        "Convictions: 0."
+      ],
+      "png": "case-0005.png"
     }
   ]
 }
