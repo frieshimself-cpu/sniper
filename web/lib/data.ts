@@ -268,11 +268,13 @@ export interface Stats {
 export function getStats(): Stats {
   const file = readCases();
   const cases = file.cases;
+  // an investigation under way is a case opened, with no file yet
+  const underWay = readStatus().state === "running" ? 1 : 0;
   return {
-    cases_opened: cases.length,
+    cases_opened: cases.length + underWay,
     crimes_found: cases.reduce((n, c) => n + c.findings.length, 0),
     convictions: 0,
-    open_cases: cases.filter((c) => c.status === "open").length,
+    open_cases: cases.filter((c) => c.status === "open").length + underWay,
     persons_on_record: getPersons().length,
     last_case_at: cases.map((c) => c.opened_at).sort().at(-1) ?? null,
     generated_at: enforce(file.generated_at),
