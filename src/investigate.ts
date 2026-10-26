@@ -84,9 +84,13 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
 }
 const writeJson = (file: string, v: unknown) => writeFile(file, JSON.stringify(v, null, 2) + "\n");
 
+// A dry or mock run never touches the public status: the site reads this file, and a rehearsal is not news.
+const QUIET = process.argv.includes("--dry") || process.argv.includes("--mock");
+
 export async function writeStatus(patch: Partial<Status>): Promise<Status> {
   const cur = await readJson<Status>(STATUS, { state: "idle", mode: "none", last_run_at: null, next_run_at: null, last_case: null, message: "" });
   const next = { ...cur, ...patch };
+  if (QUIET) return next;
   await mkdir(dirname(STATUS), { recursive: true });
   await writeJson(STATUS, next);
   return next;
