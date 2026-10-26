@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getCases, getCase, getPersons, getPerson, getStats, cardPath } from "../lib/data";
 import { ensureCurrentBallot } from "../lib/ballot";
+import { currentPoll, pollHistory } from "../lib/polls";
 import { primeHidden } from "../lib/store";
 import { getBallots, tally } from "../lib/store";
 import { enforceDeep } from "../lib/policy";
@@ -31,6 +32,7 @@ async function main() {
 await primeHidden();
 let n = 0;
 write("api/stats.json", getStats());
+write("api/poll.json", { poll: await currentPoll(), history: pollHistory().slice(0, 50) });
 write(
   "api/cases.json",
   {

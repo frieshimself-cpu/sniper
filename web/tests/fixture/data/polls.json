@@ -1,0 +1,22 @@
+{
+  "updated_at": "2026-10-13T14:00:00Z",
+  "polls": [
+    {
+      "id": "1890000000000009001",
+      "url": "https://x.com/crimeislegalpf/status/1890000000000009001",
+      "opened_at": "2026-10-13T13:30:00Z",
+      "closes_at": "2026-10-13T13:40:00Z",
+      "options": [
+        { "label": "@wen_moon_wendy", "votes": 41, "subject": "@wen_moon_wendy" },
+        { "label": "@bundle_bob", "votes": 17, "subject": "@bundle_bob" },
+        { "label": "@larp_capital", "votes": 9, "subject": "@larp_capital" },
+        { "label": "@kol_kevin", "votes": 4, "subject": "@kol_kevin" }
+      ],
+      "total": 71,
+      "winner": "@wen_moon_wendy",
+      "case_n": 1,
+      "message": "Case 0001 opened.",
+      "processed_at": "2026-10-13T13:44:00Z"
+    }
+  ]
+}

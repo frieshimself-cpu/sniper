@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { dyn } from "@/lib/request";
 import Link from "next/link";
 import { getStats, latestCases, getAgentStatus } from "@/lib/data";
-import { ensureCurrentBallot } from "@/lib/ballot";
-import { tally } from "@/lib/store";
+import { currentPoll } from "@/lib/polls";
 import { getBoard } from "@/lib/nominations";
 import { ago, until, siteUrl } from "@/lib/format";
 import { Counter } from "@/components/Counter";
@@ -30,9 +29,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Home() {
   await dyn();
   const stats = getStats();
-  const ballot = await ensureCurrentBallot();
-  const t = ballot ? tally(ballot) : {};
-  const total = Object.values(t).reduce((a, b) => a + b, 0);
+  const poll = await currentPoll();
+  const account = (process.env.X_ACCOUNT ?? "crimeislegalpf").replace(/^@/, "");
   const latest = latestCases(3);
   const agent = getAgentStatus();
   const board = (await getBoard()).slice(0, 6);
@@ -68,8 +66,14 @@ export default async function Home() {
       {/* ---- who gets exposed first -------------------------------------------------- */}
       <section id="exposed" className="scroll-mt-20">
         <h2 className="text-2xl md:text-3xl">Who gets exposed first</h2>
-        <p className="mt-1 mb-8 text-[13px] text-mute">Four names an hour. Ten minutes to vote. The winner gets read, wallet by wallet, post by post.</p>
-        <Exposed initial={{ ballot, tally: t, total }} lastSubject={lastSubject} />
+        <p className="mt-1 mb-8 text-[13px] text-mute">
+          A poll on{" "}
+          <a href={`https://x.com/${account}`} target="_blank" rel="noopener noreferrer" className="underline">
+            @{account}
+          </a>
+          . Four names, ten minutes. The winner gets read, wallet by wallet, post by post.
+        </p>
+        <Exposed initial={poll} account={account} lastSubject={lastSubject} />
       </section>
 
       {/* ---- the latest files -------------------------------------------------------- */}
@@ -96,8 +100,8 @@ export default async function Home() {
         <h2 className="text-2xl md:text-3xl">How it works</h2>
         <ol className="mt-6 grid gap-4 md:grid-cols-3">
           {[
-            ["01", "Nominate", "Sign a message with your wallet. The four most nominated handles go on the hour's ballot."],
-            ["02", "Vote", "A poll on X, ten minutes. The winner is the subject. No votes, no case."],
+            ["01", "Nominate", "Sign a message with your wallet. The most nominated handles are the ones put up for a vote."],
+            ["02", "Vote", `A poll on @${account}, four names, ten minutes. The winner is the subject. No votes, no case.`],
             ["03", "Exposed", "Every post read by Grok, every wallet from Arkham replayed on chain through Helius. Posts next to transactions, by time. Findings scored. A case opens only when the evidence clears the bar."],
           ].map(([n, title, body]) => (
             <li key={n} className="file p-5">

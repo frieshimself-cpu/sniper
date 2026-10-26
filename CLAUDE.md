@@ -13,15 +13,16 @@ src/demo.ts          npm run demo → fictional archive into web/tests/fixture (
 src/render.ts        case card renderer (HTML → PNG, Playwright/Chromium)
 src/investigate.ts   npm run investigate → one case: --subject <mint> for a launch, --subject @handle for a person
 src/person.ts        a handle's record: posts (X), claims (Grok), wallets (own posts + Arkham), chain replay, findings
-src/cycle.ts         npm run cycle → ballot, poll on X (10 min), investigate the winner, post the case
+src/cycle.ts         npm run cycle → read the polls a human posted on X, settle the closed ones, investigate the winner
 src/schedule.ts      npm run watch → a cycle every hour
 src/state.ts         shared state (ballots, disputes, leads): Turso or Upstash Redis when configured, else files
 src/detectors.ts     what the agent looks for in a launch (bundles, exits, LP pulls, dev sells, concentration)
 src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (reads posts), claims.ts (reads posts by rule),
-                     x.ts (timelines, polls and posting),
+                     x.ts (read only: timelines and polls),
                      discover.ts (DexScreener boosts, Jupiter trending), pumpfun.ts (bonding curve PDA), mock.ts
 data/status.json     last run, next run, what happened
-data/watchlist.json  mints to investigate when the ballot has no new winner
+data/polls.json      the polls read from X and what came of them (generated)
+data/watchlist.json  mints to investigate when there is nothing else
 fixtures/registry.json   handles on the record, wallets with tier + source link
 data/cases.json      the case archive (generated)
 out/case-NNNN.png    one card per case (generated)
@@ -42,12 +43,14 @@ web/                 the public site (Next.js). Reads the three paths above thro
   finds things. Courts decide what they are. See `docs/RULES_OF_ENGAGEMENT.md`.
 - Convictions: 0. Always. It is the joke and it is also true.
 
-## The hour
+## The poll
 
-Every hour `npm run cycle`: the four most nominated handles (web /nominate, signed with a wallet)
-go on the ballot, fresh launches fill empty slots; as a poll on X only when `X_WRITE=on`, else a
-coin-gated vote on the site; ten minutes; the winner is investigated; the case is posted on X with
-its card. No votes, nothing opened (`REQUIRE_VOTES`). The runner-up carries to the next hour.
+A human posts a poll on the X account by hand: up to four names, ten minutes. Every quarter hour
+`npm run cycle` reads the account's polls (read only; the agent never writes to X, and
+`src/sources/x.ts` has no method that could), waits for one closing soon, settles the ones that
+closed: the winner is investigated and the case goes on the site, the poll and its outcome go to
+`data/polls.json`. No votes, nothing opened (`REQUIRE_VOTES`). The site shows the live poll from X
+(`X_BEARER_TOKEN`, read only) and the settled ones from `data/polls.json`.
 
 ## How a person's case gets opened
 
@@ -89,7 +92,8 @@ npm install
 npm run demo                              # fictional archive into web/tests/fixture (needs Chromium: npx playwright install chromium)
 npm run investigate -- --mock --dry       # full pipeline on a fake chain, prints the case, writes nothing
 npm run investigate -- --subject <mint>   # one real case (HELIUS_API_KEY required)
-npm run cycle                             # one hour's cycle (ballot, poll, investigation, post)
+npm run cycle                             # read the account's polls, settle the closed ones
+npm run cycle -- --poll <url>             # settle one poll now
 npm run watch                             # a cycle every INVESTIGATE_INTERVAL_HOURS, forever
 npm run typecheck
 npm run policy:test

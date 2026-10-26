@@ -29,8 +29,9 @@ test("/ is one page: counters, who gets exposed first, latest files, how it work
   await expect(page.getByText("Convictions", { exact: true })).toBeVisible();
   await expect(page.getByText("Agent watching", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Who gets exposed first" })).toBeVisible();
-  await expect(page.locator(".gtext").first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Vote" })).toHaveCount(4);
+  await expect(page.locator(".gtext").first()).toContainText("@wen_moon_wendy");
+  await expect(page.getByRole("link", { name: "The poll on X" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Read case 0001" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Latest files" })).toBeVisible();
   await expect(page.locator("a.file")).toHaveCount(3);
   await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();

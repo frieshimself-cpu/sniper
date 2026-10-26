@@ -1,22 +1,22 @@
-# The agent, online, with no server: once an hour GitHub runs a cycle.
-#   ballot of fresh launches -> poll on X for X_POLL_MINUTES -> winner investigated -> case posted and committed.
-# Secrets: HELIUS_API_KEY (required), ARKHAM_API_KEY, XAI_API_KEY, X_BEARER_TOKEN, TURSO_DATABASE_URL + TURSO_AUTH_TOKEN (or KV_*),
-#   and either X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN,
-#   X_ACCESS_SECRET (OAuth 1.0a) or X_CLIENT_ID, X_CLIENT_SECRET, X_USER_TOKEN, X_REFRESH_TOKEN (OAuth 2.0, needs a shared store),
-# X_ACCESS_SECRET (polls on X), KV_REST_API_URL + KV_REST_API_TOKEN (shared state with the Vercel site).
-name: investigate
-
+# The cycle, every quarter hour: read the polls a human posted on the account, settle the ones that closed,
+# investigate the winner, commit the case. The agent never writes to X.
+# Secrets: HELIUS_API_KEY (required), X_BEARER_TOKEN (required, read only), ARKHAM_API_KEY, XAI_API_KEY,
+#   TURSO_DATABASE_URL + TURSO_AUTH_TOKEN (or KV_*) for shared state. Variables: SITE_URL, X_ACCOUNT.
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
+      poll:
+        description: "A poll on the account to settle now (post URL or id). Blank: read the account's recent polls."
+        required: false
+        default: ""
       subject:
-        description: "Mint to investigate now, skipping the ballot (blank = run a full cycle)"
+        description: "Investigate this mint or @handle now, no poll"
         required: false
         default: ""
       dry:
-        description: "Dry run: print, commit nothing"
+        description: "Dry run: read and print, open nothing, commit nothing"
         type: boolean
         default: false
 
@@ -64,8 +64,8 @@ jobs:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           SITE_URL: ${{ vars.SITE_URL || 'https://frieshimself-cpu.github.io/sniper' }}
-          X_WRITE: ${{ vars.X_WRITE || 'off' }}
-          X_POLL_MINUTES: ${{ vars.X_POLL_MINUTES || '10' }}
+          X_ACCOUNT: ${{ vars.X_ACCOUNT || 'crimeislegalpf' }}
+          POLL_WAIT_MINUTES: ${{ vars.POLL_WAIT_MINUTES || '15' }}
           REQUIRE_VOTES: ${{ vars.REQUIRE_VOTES || 'on' }}
           MIN_PUBLISH_SCORE: ${{ vars.MIN_PUBLISH_SCORE || '35' }}
           CRIME_STATE_DIR: web/.data
@@ -74,10 +74,11 @@ jobs:
             ARGS="--subject ${{ inputs.subject }}"
             if [ "${{ inputs.dry }}" = "true" ]; then ARGS="$ARGS --dry"; fi
             npm run investigate -- $ARGS
-          elif [ "${{ inputs.dry }}" = "true" ]; then
-            npm run cycle -- --dry
           else
-            npm run cycle
+            ARGS=""
+            if [ -n "${{ inputs.poll }}" ]; then ARGS="--poll ${{ inputs.poll }}"; fi
+            if [ "${{ inputs.dry }}" = "true" ]; then ARGS="$ARGS --dry"; fi
+            npm run cycle -- $ARGS
           fi
 
       - name: Commit the case
@@ -85,7 +86,7 @@ jobs:
         run: |
           git config user.name "C.R.I.M.E."
           git config user.email "crime@users.noreply.github.com"
-          git add data/cases.json data/status.json data/watchlist.json fixtures/registry.json out/
+          git add data/cases.json data/polls.json data/status.json data/watchlist.json fixtures/registry.json out/
           if git diff --cached --quiet; then
             echo "nothing to commit"
           else

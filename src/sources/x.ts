@@ -1,16 +1,13 @@
 /**
- * X (Twitter) API v2. Three jobs:
- *   postPoll     put the hour's ballot up as a poll
- *   pollResults  read the votes when it closes
- *   postCase     publish the case card
- * Two ways in, from developer.x.com with Read and Write:
- *   OAuth 1.0a   X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET. Never expire.
- *   OAuth 2.0    X_CLIENT_ID, X_CLIENT_SECRET, X_USER_TOKEN, X_REFRESH_TOKEN. The user token lives two
- *                hours; the agent refreshes it and keeps the rotated pair in shared state (key x_oauth2).
- * X_BEARER_TOKEN (app-only) is used for reads when present, so a stale user token never blocks a read.
+ * X (Twitter) API v2, read only. The agent never writes to the account: no post, no poll, no reply,
+ * no upload. There is no method here that could. Three jobs:
+ *   userPosts    a handle's posts, for the person investigator
+ *   latestPolls  the account's own polls, which a human posts by hand
+ *   pollResults  one poll's options and votes
+ * Keys from developer.x.com. Reads go through the app-only bearer when present; OAuth 1.0a or 2.0 user
+ * keys serve the few reads that need a user context.
  */
 import { createHmac, randomBytes } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { readState, writeState } from "../state.js";
 
 const enc = (s: string) => encodeURIComponent(s).replace(/[!'()*]/g, (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase());
@@ -20,6 +17,22 @@ export interface Post {
   text: string;
   at: string;
   urls: string[];
+}
+
+export interface PollOption {
+  position: number;
+  label: string;
+  votes: number;
+}
+
+export interface Poll {
+  id: string; // the post id
+  url: string;
+  text: string;
+  opened_at: string; // the post's created_at
+  closes_at: string; // end_datetime
+  status: "open" | "closed";
+  options: PollOption[];
 }
 
 export interface OAuth1Creds {
@@ -40,17 +53,22 @@ export interface OAuth2Creds {
   bearer?: string;
 }
 
-export type XCreds = OAuth1Creds | OAuth2Creds;
+export interface BearerCreds {
+  kind: "bearer";
+  bearer: string;
+}
+
+export type XCreds = OAuth1Creds | OAuth2Creds | BearerCreds;
 
 export function xCreds(): XCreds | null {
   const { X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET, X_CLIENT_ID, X_CLIENT_SECRET, X_USER_TOKEN, X_REFRESH_TOKEN, X_BEARER_TOKEN } = process.env;
   const bearer = X_BEARER_TOKEN || undefined;
   if (X_API_KEY && X_API_SECRET && X_ACCESS_TOKEN && X_ACCESS_SECRET) return { kind: "oauth1", key: X_API_KEY, secret: X_API_SECRET, token: X_ACCESS_TOKEN, tokenSecret: X_ACCESS_SECRET, bearer };
   if (X_CLIENT_ID && X_CLIENT_SECRET && X_USER_TOKEN && X_REFRESH_TOKEN) return { kind: "oauth2", clientId: X_CLIENT_ID, clientSecret: X_CLIENT_SECRET, userToken: X_USER_TOKEN, refreshToken: X_REFRESH_TOKEN, bearer };
+  if (bearer) return { kind: "bearer", bearer };
   return null;
 }
 
-/** OAuth 1.0a HMAC-SHA1 Authorization header. Body params are included only for form bodies. */
 export function oauthHeader(c: OAuth1Creds, method: string, url: string, params: Record<string, string> = {}): string {
   const u = new URL(url);
   const oauth: Record<string, string> = {
@@ -69,17 +87,9 @@ export function oauthHeader(c: OAuth1Creds, method: string, url: string, params:
   return "OAuth " + Object.keys(oauth).sort().map((k) => `${enc(k)}="${enc(oauth[k])}"`).join(", ");
 }
 
-/** X allows one cashtag a post. The first $SYMBOL stays; the rest lose their dollar sign. */
-export function oneCashtag(text: string): string {
-  let seen = false;
-  return text.replace(/\$([A-Za-z][A-Za-z0-9_]{0,24})\b/g, (m, sym: string) => {
-    if (seen) return sym;
-    seen = true;
-    return m;
-  });
-}
-
 type StoredPair = { userToken: string; refreshToken: string; at: string; scope?: string };
+
+const POLL_FIELDS = "expansions=attachments.poll_ids&poll.fields=options,voting_status,end_datetime&tweet.fields=created_at,attachments";
 
 export class X {
   private loaded = false;
@@ -118,39 +128,36 @@ export class X {
     return { scope: j.scope };
   }
 
-  private async auth(method: string, url: string, read: boolean): Promise<string> {
-    if (read && this.c.bearer) return `Bearer ${this.c.bearer}`;
-    if (this.c.kind === "oauth1") return oauthHeader(this.c, method, url);
+  private async auth(url: string, user: boolean): Promise<string> {
+    if (!user && this.c.bearer) return `Bearer ${this.c.bearer}`;
+    if (this.c.kind === "bearer") return `Bearer ${this.c.bearer}`;
+    if (this.c.kind === "oauth1") return oauthHeader(this.c, "GET", url);
     await this.load();
     return `Bearer ${this.c.userToken}`;
   }
 
-  private async json<T>(method: string, url: string, body?: unknown, retried = false): Promise<T> {
-    const read = method === "GET" && !/\/users\/me$/.test(new URL(url).pathname); // who am I is a user-context question
-    const r = await fetch(url, {
-      method,
-      headers: { authorization: await this.auth(method, url, read), "content-type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: AbortSignal.timeout(30_000),
-    });
+  /** GET only. There is no other verb in this class. */
+  private async get<T>(url: string, user = false, retried = false): Promise<T> {
+    const r = await fetch(url, { method: "GET", headers: { authorization: await this.auth(url, user) }, signal: AbortSignal.timeout(30_000) });
     const text = await r.text();
-    if (r.status === 401 && this.c.kind === "oauth2" && !(read && this.c.bearer) && !retried) {
+    if (r.status === 401 && this.c.kind === "oauth2" && user && !retried) {
       await this.refresh();
-      return this.json<T>(method, url, body, true);
+      return this.get<T>(url, user, true);
     }
-    if (!r.ok) throw new Error(`x ${method} ${new URL(url).pathname} ${r.status}: ${text.slice(0, 200)}`);
+    if (!r.ok) throw new Error(`x GET ${new URL(url).pathname} ${r.status}: ${text.slice(0, 200)}`);
     return JSON.parse(text) as T;
   }
 
+  /** Who the keys belong to. Needs a user context; with only a bearer, set X_ACCOUNT instead. */
   async me(): Promise<{ id: string; username: string }> {
-    const j = await this.json<{ data: { id: string; username: string } }>("GET", "https://api.x.com/2/users/me");
+    if (this.c.kind === "bearer") throw new Error("me() needs user keys; set X_ACCOUNT to the account's handle");
+    const j = await this.get<{ data: { id: string; username: string } }>("https://api.x.com/2/users/me", true);
     return j.data;
   }
 
   async userByUsername(username: string): Promise<{ id: string; username: string; name: string; followers: number; created_at: string } | null> {
     const u = username.replace(/^@/, "");
-    const j = await this.json<{ data?: { id: string; username: string; name: string; created_at?: string; public_metrics?: { followers_count?: number } } }>(
-      "GET",
+    const j = await this.get<{ data?: { id: string; username: string; name: string; created_at?: string; public_metrics?: { followers_count?: number } } }>(
       `https://api.x.com/2/users/by/username/${encodeURIComponent(u)}?user.fields=created_at,public_metrics`,
     );
     if (!j.data) return null;
@@ -169,7 +176,7 @@ export class X {
       u.searchParams.set("tweet.fields", "created_at,entities,public_metrics,referenced_tweets");
       u.searchParams.set("exclude", "retweets");
       if (pagination) u.searchParams.set("pagination_token", pagination);
-      const j = await this.json<{ data?: Array<{ id: string; text: string; created_at: string; entities?: { urls?: Array<{ expanded_url?: string }> } }>; meta?: { next_token?: string } }>("GET", u.toString());
+      const j = await this.get<{ data?: Array<{ id: string; text: string; created_at: string; entities?: { urls?: Array<{ expanded_url?: string }> } }>; meta?: { next_token?: string } }>(u.toString());
       for (const t of j.data ?? []) out.push({ id: t.id, text: t.text, at: t.created_at, urls: (t.entities?.urls ?? []).map((x) => x.expanded_url ?? "").filter(Boolean) });
       if (process.env.X_DEBUG) process.stderr.write(`x timeline page: ${(j.data ?? []).length} posts, next ${j.meta?.next_token ? "yes" : "no"}\n`);
       token = j.meta?.next_token;
@@ -185,64 +192,42 @@ export class X {
     return out;
   }
 
-  /** Post a poll. Options: 2 to 4, 25 characters each. Returns the post id and URL. */
-  async postPoll(text: string, options: string[], durationMinutes: number): Promise<{ id: string; url: string }> {
-    // poll options carry no cashtags at all: X counts them against the one-cashtag limit
-    const opts = options.slice(0, 4).map((o) => o.replace(/\$([A-Za-z])/g, "$1").slice(0, 25));
-    if (opts.length < 2) throw new Error("a poll needs two options");
-    const j = await this.json<{ data: { id: string } }>("POST", "https://api.x.com/2/tweets", {
-      text: oneCashtag(text).slice(0, 280),
-      poll: { options: opts, duration_minutes: Math.max(5, Math.min(10080, Math.round(durationMinutes))) },
-    });
-    const me = await this.me().catch(() => ({ username: "i" }));
-    return { id: j.data.id, url: `https://x.com/${me.username}/status/${j.data.id}` };
+  /** The account's recent posts that carry a poll, newest first. */
+  async latestPolls(userId: string, username: string, max = 20): Promise<Poll[]> {
+    const j = await this.get<{
+      data?: Array<{ id: string; text: string; created_at: string; attachments?: { poll_ids?: string[] } }>;
+      includes?: { polls?: Array<{ id: string; options: PollOption[]; voting_status: string; end_datetime: string }> };
+    }>(`https://api.x.com/2/users/${userId}/tweets?max_results=${Math.min(100, Math.max(5, max))}&exclude=retweets,replies&${POLL_FIELDS}`);
+    const polls = new Map((j.includes?.polls ?? []).map((p) => [p.id, p]));
+    const out: Poll[] = [];
+    for (const t of j.data ?? []) {
+      const p = polls.get(t.attachments?.poll_ids?.[0] ?? "");
+      if (!p) continue;
+      out.push(toPoll(t.id, username, t.text, t.created_at, p));
+    }
+    return out;
   }
 
-  /** Votes per option, in option order. */
-  async pollResults(tweetId: string): Promise<{ options: Array<{ label: string; votes: number }>; status: string; ends: string } | null> {
-    const j = await this.json<{ includes?: { polls?: Array<{ options: Array<{ position: number; label: string; votes: number }>; voting_status: string; end_datetime: string }> } }>(
-      "GET",
-      `https://api.x.com/2/tweets/${tweetId}?expansions=attachments.poll_ids&poll.fields=options,voting_status,end_datetime`,
-    );
+  /** One poll by its post id. */
+  async pollResults(tweetId: string, username = "i"): Promise<Poll | null> {
+    const j = await this.get<{
+      data?: { id: string; text: string; created_at: string };
+      includes?: { polls?: Array<{ id: string; options: PollOption[]; voting_status: string; end_datetime: string }> };
+    }>(`https://api.x.com/2/tweets/${tweetId}?${POLL_FIELDS}`);
     const p = j.includes?.polls?.[0];
-    if (!p) return null;
-    return { options: p.options.sort((a, b) => a.position - b.position).map((o) => ({ label: o.label, votes: o.votes })), status: p.voting_status, ends: p.end_datetime };
+    if (!p || !j.data) return null;
+    return toPoll(j.data.id, username, j.data.text, j.data.created_at, p);
   }
+}
 
-  /** Upload a PNG, then post text with it. Falls back to text only if the upload fails. */
-  async postCase(text: string, pngPath: string | null, replyTo?: string): Promise<{ id: string }> {
-    let mediaId: string | null = null;
-    if (pngPath) {
-      try {
-        mediaId = await this.uploadPng(pngPath);
-      } catch (err) {
-        process.stderr.write(`x media upload failed: ${(err as Error).message}\n`);
-      }
-    }
-    const body: Record<string, unknown> = { text: oneCashtag(text).slice(0, 280) };
-    if (mediaId) body.media = { media_ids: [mediaId] };
-    if (replyTo) body.reply = { in_reply_to_tweet_id: replyTo };
-    const j = await this.json<{ data: { id: string } }>("POST", "https://api.x.com/2/tweets", body);
-    return j.data;
-  }
-
-  private async uploadPng(path: string): Promise<string> {
-    const bytes = await readFile(path);
-    const form = new FormData();
-    form.append("media", new Blob([bytes], { type: "image/png" }), "card.png");
-    form.append("media_category", "tweet_image");
-    // v2 first, then the long-standing v1.1 endpoint (OAuth 1.0a only)
-    const urls = this.c.kind === "oauth1" ? ["https://api.x.com/2/media/upload", "https://upload.twitter.com/1.1/media/upload.json"] : ["https://api.x.com/2/media/upload"];
-    for (const url of urls) {
-      const r = await fetch(url, { method: "POST", headers: { authorization: await this.auth("POST", url, false) }, body: form, signal: AbortSignal.timeout(60_000) });
-      const text = await r.text();
-      if (r.ok) {
-        const j = JSON.parse(text) as { data?: { id?: string }; media_id_string?: string; id?: string };
-        const id = j.data?.id ?? j.media_id_string ?? j.id;
-        if (id) return String(id);
-      }
-      process.stderr.write(`x upload ${url} ${r.status}: ${text.slice(0, 120)}\n`);
-    }
-    throw new Error("media upload failed on both endpoints");
-  }
+function toPoll(id: string, username: string, text: string, at: string, p: { options: PollOption[]; voting_status: string; end_datetime: string }): Poll {
+  return {
+    id,
+    url: `https://x.com/${username}/status/${id}`,
+    text,
+    opened_at: at,
+    closes_at: p.end_datetime,
+    status: p.voting_status === "open" ? "open" : "closed",
+    options: [...p.options].sort((a, b) => a.position - b.position).map((o) => ({ position: o.position, label: o.label, votes: o.votes })),
+  };
 }

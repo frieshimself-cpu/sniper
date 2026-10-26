@@ -1,194 +1,162 @@
 /**
- * One cycle, once an hour:
- *   1. four fresh launches go on the ballot; on X as a poll when X is configured, else on the site
- *   2. ten minutes of voting
- *   3. the winner is investigated
- *   4. the case goes back out on X with its card
+ * The cycle. A human posts a poll on the account by hand: four names, ten minutes. The agent reads it.
+ *   1. read the account's recent polls
+ *   2. a poll still open and closing soon: wait for it; one that closed: read the result
+ *   3. the winner is investigated; the case goes on the site
+ *   4. the poll and its outcome are written to data/polls.json, so the site can show them
+ * The agent never writes to X. There is no code path here, or in src/sources/x.ts, that could.
  *
- *   npm run cycle              one cycle
- *   npm run cycle -- --dry     build the ballot, read nothing, investigate nothing
+ *   npm run cycle                   read the polls, settle the ones that closed
+ *   npm run cycle -- --poll <url>   settle this one, open or closed
+ *   npm run cycle -- --dry          read and print, investigate nothing, write nothing
  */
 import { join } from "node:path";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { X, xCreds, type Poll } from "./sources/x.js";
 import { discover, describe } from "./sources/discover.js";
-import { X, xCreds } from "./sources/x.js";
-import { readState, updateState, backend } from "./state.js";
 import { run, writeStatus, ROOT } from "./investigate.js";
-import { enforce } from "./policy.js";
-import type { CasesFile } from "./types.js";
-import { readFile } from "node:fs/promises";
+import { normalizeHandle } from "./policy.js";
 
-interface Option {
-  key: string;
-  kind: "token" | "handle";
-  label: string;
-  ref: string;
-}
-interface Ballot {
+export interface PollRecord {
   id: string;
+  url: string;
   opened_at: string;
   closes_at: string;
-  options: Option[];
-  votes: Record<string, string>;
-  closed: boolean;
+  options: Array<{ label: string; votes: number; subject?: string }>;
+  total: number;
   winner?: string;
-  runner_up?: string;
-  carried?: string;
-  source?: "x" | "site";
-  poll_tweet_id?: string;
-  poll_url?: string;
-  x_tally?: Record<string, number>;
   case_n?: number;
+  message?: string;
+  processed_at?: string;
 }
 
-const POLL_MINUTES = Math.max(5, Number(process.env.X_POLL_MINUTES ?? 10));
-const PERIOD_MS = Math.max(0.25, Number(process.env.BALLOT_PERIOD_HOURS ?? 1)) * 3_600_000;
-const SITE = (process.env.SITE_URL ?? "https://frieshimself-cpu.github.io/sniper").replace(/\/$/, "");
-const REQUIRE_VOTES = (process.env.REQUIRE_VOTES ?? "on").toLowerCase() !== "off";
-const POST_CASES = (process.env.X_POST_CASES ?? "on").toLowerCase() !== "off";
+export interface PollsFile {
+  updated_at: string;
+  polls: PollRecord[];
+}
 
+const POLLS = join(ROOT, "data/polls.json");
+const REQUIRE_VOTES = (process.env.REQUIRE_VOTES ?? "on").toLowerCase() !== "off";
+const WAIT_MINUTES = Math.max(0, Number(process.env.POLL_WAIT_MINUTES ?? 15)); // wait for a poll closing within this long
 const iso = (d = new Date()) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
-const periodId = (t = Date.now()) => new Date(Math.floor(t / PERIOD_MS) * PERIOD_MS).toISOString().slice(0, 13);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-function tally(b: Ballot): Record<string, number> {
-  const t: Record<string, number> = {};
-  for (const o of b.options) t[o.key] = 0;
-  if (b.x_tally) {
-    for (const [k, v] of Object.entries(b.x_tally)) if (k in t) t[k] = v;
+async function readPolls(): Promise<PollsFile> {
+  try {
+    return JSON.parse(await readFile(POLLS, "utf8")) as PollsFile;
+  } catch {
+    return { updated_at: "", polls: [] };
+  }
+}
+
+async function writePolls(f: PollsFile): Promise<void> {
+  await mkdir(join(ROOT, "data"), { recursive: true });
+  f.updated_at = iso();
+  await writeFile(POLLS, JSON.stringify(f, null, 2) + "\n");
+}
+
+const HANDLE = /@([A-Za-z0-9_]{1,15})\b/;
+const MINT = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/;
+
+/** What an option names: a handle, a mint, or a token symbol the discovery feeds can place. */
+async function resolve(label: string): Promise<string | null> {
+  const h = label.match(HANDLE);
+  if (h) return normalizeHandle("@" + h[1]);
+  const m = label.match(MINT);
+  if (m) return m[0];
+  const sym = label.replace(/^\$/, "").trim().toUpperCase();
+  if (!sym) return null;
+  try {
+    const found = await describe(await discover());
+    for (const f of found) if ((f.symbol ?? "").toUpperCase() === sym) return f.mint;
+  } catch {
+    /* no feeds, no match */
+  }
+  return null;
+}
+
+function record(p: Poll): PollRecord {
+  const total = p.options.reduce((a, o) => a + o.votes, 0);
+  return { id: p.id, url: p.url, opened_at: p.opened_at, closes_at: p.closes_at, options: p.options.map((o) => ({ label: o.label, votes: o.votes })), total };
+}
+
+export async function cycle(opts: { dry?: boolean; poll?: string } = {}): Promise<void> {
+  const creds = xCreds();
+  if (!creds) {
+    await writeStatus({ state: "unconfigured", last_run_at: iso(), message: "No X keys. The agent reads polls from the account; it needs X_BEARER_TOKEN at least." });
+    process.stdout.write("no X keys; nothing to read\n");
+    return;
+  }
+  const x = new X(creds);
+  const account = process.env.X_ACCOUNT ? { username: process.env.X_ACCOUNT.replace(/^@/, "") } : await x.me();
+  const user = await x.userByUsername(account.username);
+  if (!user) throw new Error(`@${account.username} not found`);
+  process.stdout.write(`cycle ${iso()} · reading polls on @${user.username}\n`);
+
+  const file = await readPolls();
+  const done = new Map(file.polls.map((p) => [p.id, p]));
+  let polls: Poll[];
+  if (opts.poll) {
+    const id = opts.poll.match(/(\d{15,})/)?.[1];
+    if (!id) throw new Error("--poll wants a post URL or id");
+    const p = await x.pollResults(id, user.username);
+    if (!p) throw new Error(`no poll on post ${id}`);
+    polls = [p];
+    done.delete(id); // by hand means again
   } else {
-    for (const k of Object.values(b.votes)) if (k in t) t[k] += 1;
+    polls = await x.latestPolls(user.id, user.username);
   }
-  return t;
-}
+  process.stdout.write(`  ${polls.length} poll${polls.length === 1 ? "" : "s"} on the account, ${polls.filter((p) => !done.has(p.id)).length} new\n`);
 
-interface Nomination {
-  handle: string;
-  wallet: string;
-  at: string;
-}
-
-/** The board: handles nominated in the last week, most nominated first. */
-async function nominated(): Promise<Array<{ handle: string; n: number }>> {
-  const all = await readState<Nomination[]>("nominations", []);
-  const cutoff = Date.now() - 7 * 86_400_000;
-  const m = new Map<string, number>();
-  for (const x of all) if (Date.parse(x.at) >= cutoff) m.set(x.handle, (m.get(x.handle) ?? 0) + 1);
-  return [...m.entries()].map(([handle, n]) => ({ handle, n })).sort((a, b) => b.n - a.n);
-}
-
-async function buildOptions(): Promise<{ options: Option[]; carried?: string }> {
-  const ballots = await readState<Ballot[]>("ballots", []);
-  const cases = JSON.parse(await readFile(join(ROOT, "data/cases.json"), "utf8").catch(() => '{"cases":[]}')) as CasesFile;
-  const covered = new Set(cases.cases.map((c) => c.token.mint));
-  const dayAgo = Date.now() - 86_400_000;
-  const recent = new Set(ballots.filter((b) => Date.parse(b.opened_at) >= dayAgo).flatMap((b) => b.options.map((o) => o.key)));
-  const prev = ballots.sort((a, b) => b.id.localeCompare(a.id)).find((b) => b.closed);
-  const carried = prev?.runner_up ? prev.options.find((o) => o.key === prev.runner_up) : undefined;
-  const options: Option[] = [];
-  if (carried && !covered.has(carried.ref)) options.push(carried);
-  // people first: the board. Handles already on file in the last 7 days sit out.
-  const recentHandles = new Set(cases.cases.filter((c) => c.kind === "person" && Date.parse(c.opened_at) >= Date.now() - 7 * 86_400_000).flatMap((c) => c.subjects));
-  for (const { handle } of await nominated()) {
-    if (options.length >= 4) break;
-    const key = `handle:${handle}`;
-    if (recent.has(key) || recentHandles.has(handle) || options.some((o) => o.key === key)) continue;
-    options.push({ key, kind: "handle", label: enforce(handle), ref: handle });
-  }
-  // then fresh launches, if the board is short
-  const fresh = options.length >= 4 ? [] : await describe((await discover(60)).filter((c) => !covered.has(c.mint)).slice(0, 40));
-  for (const c of fresh) {
-    if (!c.symbol || options.length >= 4) continue;
-    const key = `token:${c.mint}`;
-    if (recent.has(key) || options.some((o) => o.key === key)) continue;
-    options.push({ key, kind: "token", label: enforce(`$${c.symbol}`), ref: c.mint });
-  }
-  return { options, carried: carried?.key };
-}
-
-export async function cycle(opts: { dry?: boolean } = {}): Promise<void> {
-  // Writing to X is opt-in. Without X_WRITE=on the cycle never posts, whatever keys it has.
-  const x = xCreds() && (process.env.X_WRITE ?? "off").toLowerCase() === "on" ? new X(xCreds()!) : null;
-  process.stdout.write(`cycle ${periodId()} · state ${backend()} · polls on ${x ? "X" : "the site"}\n`);
-  const { options, carried } = await buildOptions();
-  if (options.length < 2) {
-    await writeStatus({ state: "idle", last_run_at: iso(), message: "Not enough fresh subjects for a ballot. Nothing opened.", next_run_at: iso(new Date(Date.now() + PERIOD_MS)) });
-    return;
-  }
-  const id = periodId();
-  const now = Date.now();
-  let ballot: Ballot = {
-    id,
-    opened_at: iso(new Date(now)),
-    closes_at: iso(new Date(now + POLL_MINUTES * 60_000)),
-    options,
-    votes: {},
-    closed: false,
-    carried,
-    source: x ? "x" : "site",
-  };
-  if (x && !opts.dry) {
-    // one cashtag a post is X's rule: the names go without their dollar signs
-    const text = `Who gets exposed first? ${POLL_MINUTES} minutes to vote.\n\n${options.map((o, i) => `${i + 1}. ${o.label.replace(/^\$/, "")}`).join("\n")}\n\nCases opened, crimes found, convictions 0.\n${SITE}`;
-    const poll = await x.postPoll(text, options.map((o) => o.label), POLL_MINUTES);
-    ballot.poll_tweet_id = poll.id;
-    ballot.poll_url = poll.url;
-    process.stdout.write(`poll posted ${poll.url}\n`);
-  }
-  await updateState<Ballot[]>("ballots", [], (all) => [ballot, ...all.filter((b) => b.id !== id)].slice(0, 500));
-  await writeStatus({ state: "running", message: `Ballot ${id} open for ${POLL_MINUTES} minutes: ${options.map((o) => o.label).join(", ")}.` });
-  if (opts.dry) {
-    process.stdout.write(`dry: ballot ${id} ${options.map((o) => o.label).join(", ")}\n`);
-    return;
-  }
-
-  // ---- wait for the poll -------------------------------------------------
-  await sleep(POLL_MINUTES * 60_000 + 20_000);
-  if (x && ballot.poll_tweet_id) {
-    const res = await x.pollResults(ballot.poll_tweet_id).catch((e) => {
-      process.stderr.write(`poll read failed: ${(e as Error).message}\n`);
-      return null;
-    });
-    if (res) {
-      ballot.x_tally = {};
-      res.options.forEach((o, i) => (ballot.x_tally![options[i]?.key ?? o.label] = o.votes));
+  for (const p0 of polls) {
+    if (done.has(p0.id)) continue;
+    let p = p0;
+    const left = Date.parse(p.closes_at) - Date.now();
+    if (p.status === "open" && left > WAIT_MINUTES * 60_000) {
+      process.stdout.write(`  ${p.id}: open, closes ${p.closes_at}; later\n`);
+      continue;
     }
-  } else {
-    const latest = (await readState<Ballot[]>("ballots", [])).find((b) => b.id === id);
-    if (latest) ballot.votes = latest.votes;
-  }
-  const t = tally(ballot);
-  const ordered = options.map((o) => o.key).sort((a, b) => t[b] - t[a]);
-  ballot = { ...ballot, closed: true, winner: ordered[0], runner_up: ordered[1] };
-  await updateState<Ballot[]>("ballots", [], (all) => all.map((b) => (b.id === id ? ballot : b)));
-  const winner = options.find((o) => o.key === ballot.winner)!;
-  const votes = t[winner.key] ?? 0;
-  process.stdout.write(`ballot closed: ${options.map((o) => `${o.label} ${t[o.key]}`).join(" · ")} → ${winner.label}\n`);
-  if (REQUIRE_VOTES && votes === 0) {
-    await writeStatus({ state: "idle", last_run_at: iso(), message: `Ballot ${id} closed with no votes. Nothing opened.`, next_run_at: iso(new Date(Date.now() + PERIOD_MS)) });
-    return;
-  }
-
-  // ---- investigate the winner ---------------------------------------------
-  const result = await run({ subject: winner.ref, via: `ballot ${id}, ${votes} vote${votes === 1 ? "" : "s"} on ${x ? "X" : "the site"}` });
-  // (a handle option starts with "@" and run() takes the person path)
-  if (result.case) {
-    await updateState<Ballot[]>("ballots", [], (all) => all.map((b) => (b.id === id ? { ...b, case_n: result.case!.n } : b)));
-    if (x && POST_CASES) {
-      const c = result.case;
-      const text = `${c.headline}\n\nCase ${c.id} · ${c.findings.length} finding${c.findings.length === 1 ? "" : "s"} · severity ${c.severity}\nConvictions: 0.\n${SITE}/cases/${c.n}`;
-      await x.postCase(enforce(text), join(ROOT, "out", c.png), ballot.poll_tweet_id).catch((e) => process.stderr.write(`x post failed: ${(e as Error).message}\n`));
+    if (opts.dry) {
+      process.stdout.write(`  dry: ${p.id} ${p.status} · ${p.options.map((o) => `${o.label} ${o.votes}`).join(" · ")}\n`);
+      continue;
     }
-  } else if (x && POST_CASES) {
-    await x
-      .postCase(enforce(`${winner.label} won the hour and was read, wallet by wallet. Nothing met the bar. No case. Convictions: 0.\n${SITE}`), null, ballot.poll_tweet_id)
-      .catch((e) => process.stderr.write(`x post failed: ${(e as Error).message}\n`));
+    if (p.status === "open") {
+      process.stdout.write(`  ${p.id}: open, closes in ${Math.ceil(left / 60_000)} min; waiting\n`);
+      await writeStatus({ state: "running", message: `Poll ${p.id} closes ${p.closes_at}. Waiting.` });
+      await sleep(Math.max(0, left) + 30_000);
+      p = (await x.pollResults(p.id, user.username)) ?? p;
+    }
+    const rec = record(p);
+    const ordered = [...p.options].sort((a, b) => b.votes - a.votes || a.position - b.position);
+    const winner = ordered[0];
+    rec.winner = winner.label;
+    process.stdout.write(`  ${p.id} closed: ${p.options.map((o) => `${o.label} ${o.votes}`).join(" · ")} → ${winner.label}\n`);
+    for (const o of rec.options) o.subject = (await resolve(o.label)) ?? undefined;
+    const subject = rec.options.find((o) => o.label === winner.label)?.subject;
+    if (REQUIRE_VOTES && rec.total === 0) {
+      rec.message = "No votes. Nothing opened.";
+    } else if (!subject) {
+      rec.message = `Could not place "${winner.label}": not a handle, a mint or a symbol on the feeds. Nothing opened.`;
+    } else {
+      const result = await run({ subject, via: `poll on X, ${winner.votes} vote${winner.votes === 1 ? "" : "s"}` });
+      rec.case_n = result.case?.n;
+      rec.message = result.case ? `Case ${result.case.id} opened.` : result.message;
+    }
+    rec.processed_at = iso();
+    process.stdout.write(`  ${rec.message}\n`);
+    file.polls = [rec, ...file.polls.filter((q) => q.id !== rec.id)].slice(0, 500);
+    await writePolls(file);
+    await writeStatus({ state: "idle", last_run_at: iso(), message: `Poll ${p.id}: ${winner.label} won with ${winner.votes} vote${winner.votes === 1 ? "" : "s"}. ${rec.message}` });
   }
-  await writeStatus({ next_run_at: iso(new Date(Math.floor(Date.now() / PERIOD_MS) * PERIOD_MS + PERIOD_MS)) });
+  if (!opts.dry && polls.every((p) => done.has(p.id) || (p.status === "open" && Date.parse(p.closes_at) - Date.now() > WAIT_MINUTES * 60_000))) {
+    await writeStatus({ state: "idle", last_run_at: iso(), message: "No new closed poll on the account. Nothing opened." });
+  }
 }
 
 const argv = process.argv.slice(2);
-cycle({ dry: argv.includes("--dry") }).catch(async (err) => {
-  await writeStatus({ state: "error", last_run_at: iso(), message: String((err as Error).message) });
-  process.stderr.write(`${(err as Error).stack ?? err}\n`);
-  process.exitCode = 1;
+const pollArg = argv.includes("--poll") ? argv[argv.indexOf("--poll") + 1] : undefined;
+cycle({ dry: argv.includes("--dry"), poll: pollArg }).catch(async (err) => {
+  process.stderr.write(`${(err as Error).message}\n`);
+  await writeStatus({ state: "error", last_run_at: iso(), message: (err as Error).message.slice(0, 200) }).catch(() => {});
+  process.exit(1);
 });
