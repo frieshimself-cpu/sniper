@@ -268,8 +268,21 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       added++;
     }
     if (launched.size) log.push(`${launched.size} launches found on the wallets, ${added} added to the list`);
+    // a serial launcher is a finding on its own, whatever each launch did
+    if (launched.size >= 3) {
+      const newest = [...launched.entries()].sort((a, b) => b[1].localeCompare(a[1]));
+      const w = Math.min(30, 5 + launched.size);
+      findings.push({
+        code: code(),
+        title: `${launched.size} tokens launched from the wallets`,
+        detail: `Pools or curves created from the wallets on record, the newest on ${newest[0][1].slice(0, 10)}, the oldest on ${newest[newest.length - 1][1].slice(0, 10)}. ${added ? `The newest ${added} are replayed below.` : ""}`.trim(),
+        score: w,
+      });
+      score += w;
+      for (const [mint, at] of newest.slice(0, 5)) evidence.push({ kind: "account", ref: mint, at, note: "Token launched from the wallets" });
+    }
     await progress.stats({ tokens: mentioned.size, launches: launched.size });
-    await progress.step("replay", `${mentioned.size} token${mentioned.size === 1 ? "" : "s"} to replay${launched.size ? `, ${launched.size} of them launched from the wallets themselves` : ""}; posts set next to transactions`);
+    await progress.step("replay", `${launched.size ? `${launched.size} launch${launched.size === 1 ? "" : "es"} found on the wallets; ` : ""}${mentioned.size} token${mentioned.size === 1 ? "" : "s"} to replay, the wallets' own launches first; posts set next to transactions`);
   }
   const resolveMint = async (m: { token: string; mint?: string }): Promise<string | null> => {
     if (m.mint) return m.mint;
