@@ -21,3 +21,4 @@ web/agent-data/
 
 data/progress.json
 .progress/
+logs/

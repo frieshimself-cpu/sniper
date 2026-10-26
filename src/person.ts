@@ -59,7 +59,7 @@ const WSOL = "So11111111111111111111111111111111111111112";
 // the majors: a post about these is market talk, not a promotion, and a symbol match on them is always a wrapper
 const MAJORS = new Set(["SOL", "BTC", "ETH", "USDC", "USDT", "BNB", "XRP", "DOGE", "ADA", "WBTC", "WETH", "JUP", "RAY", "BONK", "WIF", "HYPE", "SUI", "AVAX", "LINK", "TRX", "TON", "DOT", "LTC", "PEPE", "SHIB", "USD1", "PYUSD"]);
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
-const pct = (x: number) => `${(x * 100).toFixed(x < 0.01 ? 2 : 0)}%`;
+const pct = (x: number) => `${(Math.min(1, x) * 100).toFixed(x < 0.01 ? 2 : 0)}%`;
 const hours = (a: string, b: string) => (Date.parse(b) - Date.parse(a)) / HOUR;
 const when = (h: number) => (h < 1 ? `${Math.max(1, Math.round(h * 60))} minutes` : h < 48 ? `${Math.round(h)} hours` : `${Math.round(h / 24)} days`);
 const fmt = (n: number) => Math.round(n).toLocaleString("en-US");

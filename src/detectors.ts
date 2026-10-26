@@ -41,7 +41,7 @@ const uniqBy = <T,>(xs: T[], key: (x: T) => string) => {
 };
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 const fmtSol = (n: number) => `${n.toFixed(n >= 100 ? 0 : 2)} SOL`;
-const pct = (x: number) => `${(x * 100).toFixed(x < 0.01 ? 2 : 0)}%`;
+const pct = (x: number) => `${(Math.min(1, x) * 100).toFixed(x < 0.01 ? 2 : 0)}%`;
 const minutes = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / MIN);
 const mins = (n: number) => (n <= 0 ? "under a minute" : `${n} minute${n === 1 ? "" : "s"}`);
 
@@ -118,12 +118,15 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
   const seed = dTx
     .filter((t) => t.kind === "token" && t.mint === mint && t.to !== deployer && t.amount >= token.supply * 0.2 && (t.from === deployer || t.feePayer === deployer))
     .sort((a, b) => a.at.localeCompare(b.at))[0];
+  // Percentages are of the supply the token had when it moved, not what is left after burns: the largest single
+  // movement of the mint through the deployer's hands is the floor. A deployer's sell is never "331,802% of supply".
+  const supplyBasis = Math.max(token.supply, ...dTx.filter((t) => t.kind === "token" && t.mint === mint).map((t) => t.amount), create?.amount ?? 0);
   const pool = create?.from ?? seed?.to ?? null;
   const launch_at = create?.at ?? seed?.at ?? token.created_at;
   log.push(`deployer ${deployer ?? "?"} pool ${pool ?? "?"} launch ${launch_at ?? "?"}${curveFirst.length && isPumpMint(mint) ? " (pump.fun curve)" : create ? " (first transactions)" : ""}`);
   if (create) {
     if (create.amount > 0) evidence.push(ev(create, "Launch, deployer's opening buy"));
-    const devShare = create.amount / token.supply;
+    const devShare = create.amount / supplyBasis;
     devBuyShare = devShare;
     if (devShare >= 0.05) {
       findings.push({ code: "F-01", title: "Deployer bought at creation", detail: `The deployer wallet took ${pct(devShare)} of supply in the launch transaction.` });
@@ -163,7 +166,7 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
       funder = top[0];
       bundle = top[1];
       const bundleBuys = buys.filter((t) => bundle.includes(t.to));
-      const share = sum(bundleBuys.map((t) => t.amount)) / token.supply;
+      const share = sum(bundleBuys.map((t) => t.amount)) / supplyBasis;
       const sameSlot = uniq(bundleBuys.map((t) => t.at)).length === 1;
       findings.push({
         code: `F-${String(findings.length + 1).padStart(2, "0")}`,
@@ -230,8 +233,8 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
     const outflows = dTx.filter((t) => t.kind === "token" && t.mint === mint && t.from === deployer);
     const devSells = outflows.filter((t) => t.type === "SWAP" || t.to === pool);
     const moves = outflows.filter((t) => !devSells.includes(t));
-    const sold = sum(devSells.map((t) => t.amount)) / token.supply;
-    const moved = sum(moves.map((t) => t.amount)) / token.supply;
+    const sold = sum(devSells.map((t) => t.amount)) / supplyBasis;
+    const moved = sum(moves.map((t) => t.amount)) / supplyBasis;
     if (sold >= 0.02) {
       const firstSellMin = launch_at && devSells[0] ? minutes(launch_at, devSells.slice().sort((a, b) => a.at.localeCompare(b.at))[0].at) : null;
       devSoldShare = sold;

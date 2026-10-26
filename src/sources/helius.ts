@@ -74,17 +74,18 @@ export class Helius {
     } catch {
       asset = null;
     }
+    // The supply comes from the token program itself; the asset index has been seen to carry a fraction of it,
+    // which turned a deployer's sell into "331,802% of supply". The index is only the fallback.
     let decimals = asset?.token_info?.decimals ?? 6;
-    let supply = (asset?.token_info?.supply ?? 0) / 10 ** decimals;
-    if (!supply) {
-      try {
-        const s = await this.call<{ value: { uiAmount: number | null; decimals: number } }>("getTokenSupply", [mint]);
-        supply = s.value.uiAmount ?? 0;
-        decimals = s.value.decimals;
-      } catch {
-        return null; // not a token
-      }
+    let supply = 0;
+    try {
+      const s = await this.call<{ value: { uiAmount: number | null; decimals: number } }>("getTokenSupply", [mint]);
+      supply = s.value.uiAmount ?? 0;
+      decimals = s.value.decimals;
+    } catch {
+      supply = (asset?.token_info?.supply ?? 0) / 10 ** decimals;
     }
+    if (!supply) return null; // not a token
     const first = null as { feePayer: string; at: string; approx: boolean } | null; // the detectors derive the launch
     return {
       mint,
