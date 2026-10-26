@@ -296,12 +296,12 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       const w = Math.min(30, 5 + launched.size);
       findings.push({
         code: code(),
-        title: `${launched.size} tokens launched from the wallets`,
-        detail: `Pools or curves created from the wallets on record, the newest on ${newest[0][1].slice(0, 10)}, the oldest on ${newest[newest.length - 1][1].slice(0, 10)}. ${added ? `The newest ${added} are replayed below.` : ""}`.trim(),
+        title: `${launched.size} token launch${launched.size === 1 ? "" : "es"} touched the wallets`,
+        detail: `Pools or curves created in transactions that involve the wallets on record (on a launchpad a token's creator fees can be pointed at a wallet), the newest on ${newest[0][1].slice(0, 10)}, the oldest on ${newest[newest.length - 1][1].slice(0, 10)}. ${added ? `The newest ${added} are replayed below.` : ""}`.trim(),
         score: w,
       });
       score += w;
-      for (const [mint, at] of newest.slice(0, 5)) evidence.push({ kind: "account", ref: mint, at, note: "Token launched from the wallets" });
+      for (const [mint, at] of newest.slice(0, 5)) evidence.push({ kind: "account", ref: mint, at, note: "Token launch that touched the wallets" });
     }
     await progress.stats({ tokens: mentioned.size, launches: launched.size });
     await progress.step("replay", `${launched.size ? `${launched.size} launch${launched.size === 1 ? "" : "es"} found on the wallets; ` : ""}${mentioned.size} token${mentioned.size === 1 ? "" : "s"} to replay, the wallets' own launches first; posts set next to transactions`);
@@ -386,13 +386,15 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       await progress.step("replay", inv && inv.findings.length ? `$${symbol}: ${inv.findings.slice(0, 2).map((f) => f.title.toLowerCase()).join(", ")} (weight ${inv.score})` : `$${symbol}: nothing out of order in its launch`);
       if (inv && inv.findings.length) {
         tokenCases.push(inv);
-        const launched = m.claims.some((c) => c.type === "launch") || (inv.deployer ? wallets.has(inv.deployer) : false);
+        // their own launch only when they said so in a post, or the deployer is a wallet on the record. A pool creation
+        // that merely involves the wallets (a launchpad pointing creator fees at them) is not their launch.
+        const launched = m.claims.some((c) => c.type === "launch" && !!c.url) || (inv.deployer ? wallets.has(inv.deployer) : false);
         const made = pnl.find((p) => p.mint === mint);
         const w = Math.round(inv.score * (launched ? 0.6 : 0.3)) + (launched && made && made.net_sol >= 5 ? Math.min(20, Math.round(made.net_sol / 10)) : 0);
         findings.push({
           code: code(),
-          title: `${launched ? "Launched" : "Promoted"} $${symbol}: ${inv.charge.toLowerCase()}${launched && made && made.net_sol >= 5 ? `, ${fmt(made.net_sol)} SOL out` : ""}`,
-          detail: `${launched ? "Their own launch." : "A launch they promoted."} The token's file: ${inv.findings.map((f) => f.title.toLowerCase()).join("; ")}. Score ${inv.score}.${made ? ` The wallets' trades: bought for ${made.bought_sol.toFixed(1)} SOL, sold for ${made.sold_sol.toFixed(1)} SOL, net ${made.net_sol >= 0 ? "+" : ""}${made.net_sol.toFixed(1)} SOL.` : ""}`,
+          title: `${launched ? "Launched " : isLaunch(m) ? "" : "Promoted "}$${symbol}: ${inv.charge.toLowerCase()}${launched && made && made.net_sol >= 5 ? `, ${fmt(made.net_sol)} SOL out` : ""}`,
+          detail: `${launched ? "Their own launch." : isLaunch(m) ? "The launch touched the wallets; the deployer is not a wallet on the record." : "A launch they promoted."} The token's file: ${inv.findings.map((f) => f.title.toLowerCase()).join("; ")}. Score ${inv.score}.${made ? ` The wallets' trades: bought for ${made.bought_sol.toFixed(1)} SOL, sold for ${made.sold_sol.toFixed(1)} SOL, net ${made.net_sol >= 0 ? "+" : ""}${made.net_sol.toFixed(1)} SOL.` : ""}`,
           score: w,
         });
         score += w;

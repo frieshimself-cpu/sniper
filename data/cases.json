@@ -13,7 +13,7 @@
       "score": 99,
       "token": {
         "symbol": "NOSWCH",
-        "name": "Palantir Nato Switch⚡",
+        "name": "Palantir Nato Switch\u26a1",
         "mint": "Ak343AMxqvHyK4wChpatRArGrgaAXSLaJjmXwPkBAGS"
       },
       "subjects": [
@@ -25,79 +25,79 @@
         {
           "code": "F-01",
           "title": "6 wallets never admitted, linked by transfers",
-          "detail": "Found by following SOL between the wallets on record and the rest of the chain: Ex7T…oMS3 (5 transfers with 2yu3…mBMC); H4Bn…5AiG (2 transfers with HyjS…amFi); Fogx…nUhF (2 transfers with HyjS…amFi); 5uAN…R6Rg (1 transfer with HyjS…amFi); 2f7U…q1ot (1 transfer with HyjS…amFi); cBVA…pDdg (1 transfer with HyjS…amFi).",
+          "detail": "Found by following SOL between the wallets on record and the rest of the chain: Ex7T\u2026oMS3 (5 transfers with 2yu3\u2026mBMC); H4Bn\u20265AiG (2 transfers with HyjS\u2026amFi); Fogx\u2026nUhF (2 transfers with HyjS\u2026amFi); 5uAN\u2026R6Rg (1 transfer with HyjS\u2026amFi); 2f7U\u2026q1ot (1 transfer with HyjS\u2026amFi); cBVA\u2026pDdg (1 transfer with HyjS\u2026amFi).",
           "score": 40
         },
         {
           "code": "F-02",
-          "title": "Launched $NOSWCH: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65.",
-          "score": 39
+          "title": "159 token launches touched the wallets",
+          "detail": "Pools or curves created in transactions that involve the wallets on record, the newest on 2026-10-26, the oldest on 2024-05-24. On a launchpad a token's creator fees can be pointed at a wallet; who deployed each one is in its own file. The newest 12 are replayed below.",
+          "score": 30
         },
         {
           "code": "F-03",
-          "title": "Launched $Horgho: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65.",
-          "score": 39
+          "title": "$NOSWCH: the deployer sold",
+          "detail": "The pool for $NOSWCH was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65.",
+          "score": 20
         },
         {
           "code": "F-04",
-          "title": "Launched $ABJSIR: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold; deployer bought at creation. Score 55.",
-          "score": 33
+          "title": "$Horgho: the deployer sold",
+          "detail": "The pool for $Horgho was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65.",
+          "score": 20
         },
         {
           "code": "F-05",
-          "title": "159 tokens launched from the wallets",
-          "detail": "Pools or curves created from the wallets on record, the newest on 2026-10-26, the oldest on 2024-05-24. The newest 12 are replayed below.",
-          "score": 30
+          "title": "$ABJSIR: the deployer sold",
+          "detail": "The pool for $ABJSIR was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold; deployer bought at creation. Score 55.",
+          "score": 16
         },
         {
           "code": "F-06",
-          "title": "Launched $Ibmblu: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
-          "score": 30
+          "title": "$Ibmblu: the deployer sold",
+          "detail": "The pool for $Ibmblu was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold. Score 50.",
+          "score": 15
         },
         {
           "code": "F-07",
-          "title": "Launched $Headcap: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
-          "score": 30
+          "title": "$Headcap: the deployer sold",
+          "detail": "The pool for $Headcap was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold. Score 50.",
+          "score": 15
         },
         {
           "code": "F-08",
-          "title": "Launched $Snohlove: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
-          "score": 30
+          "title": "$Snohlove: the deployer sold",
+          "detail": "The pool for $Snohlove was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold. Score 50.",
+          "score": 15
         },
         {
           "code": "F-09",
-          "title": "Launched $Trshield: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
-          "score": 30
+          "title": "$Trshield: the deployer sold",
+          "detail": "The pool for $Trshield was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold. Score 50.",
+          "score": 15
         },
         {
           "code": "F-10",
-          "title": "Launched $METBAL: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
-          "score": 30
+          "title": "$METBAL: the deployer sold",
+          "detail": "The pool for $METBAL was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold. Score 50.",
+          "score": 15
         },
         {
           "code": "F-11",
-          "title": "Launched $Abydrn: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
-          "score": 30
+          "title": "$Abydrn: the deployer sold",
+          "detail": "The pool for $Abydrn was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold. Score 50.",
+          "score": 15
         },
         {
           "code": "F-12",
-          "title": "Launched $Halbr: deployer sold",
-          "detail": "Their own launch. The token's file: deployer sold. Score 50.",
-          "score": 30
+          "title": "$Halbr: the deployer sold",
+          "detail": "The pool for $Halbr was created in a transaction that involves a wallet on the record. The deployer is not a wallet on the record. The token's file: deployer sold. Score 50.",
+          "score": 15
         },
         {
           "code": "F-13",
           "title": "Called out by 7 other accounts",
-          "detail": "\"The situation about @kimchi1x for example. ... They just rugging and don't even feel accountable eno\" · \"If it can be proven according to Californian law, “THEFT BY FALSE PRETENCES” that @kimchi1x even onl\" (kimchi) · \"even scammers like @kimchi1x and PF shady ones don't scam with their main wallets!\".",
+          "detail": "\"The situation about @kimchi1x for example. ... They just rugging and don't even feel accountable eno\" \u00b7 \"even scammers like @kimchi1x and PF shady ones don't scam with their main wallets!\".",
           "score": 15
         }
       ],
@@ -132,7 +132,7 @@
           "wallet": "Ex7TLXb3goYqP2aqJ4uhyjGQAiUCVyqMRCY4UzxnoMS3",
           "amount": "461.49 SOL",
           "at": "2024-06-12T19:35:32.000Z",
-          "note": "Linked wallet: 5 transfers with 2yu3…mBMC (2 in, 3 out)"
+          "note": "Linked wallet: 5 transfers with 2yu3\u2026mBMC (2 in, 3 out)"
         },
         {
           "kind": "tx",
@@ -140,7 +140,7 @@
           "wallet": "5uAN7vfK5tpr1rgpauxbieyhLyfQp5fwAdNxNGMaR6Rg",
           "amount": "6.47 SOL",
           "at": "2025-06-05T23:50:07.000Z",
-          "note": "Linked wallet: 1 transfer with HyjS…amFi (1 in, 0 out)"
+          "note": "Linked wallet: 1 transfer with HyjS\u2026amFi (1 in, 0 out)"
         },
         {
           "kind": "tx",
@@ -148,7 +148,7 @@
           "wallet": "2f7Ujb8uABrGbX1jCuqoWXARx8Bc2M2Ur8cLJjXtq1ot",
           "amount": "5.99 SOL",
           "at": "2025-06-05T23:50:16.000Z",
-          "note": "Linked wallet: 1 transfer with HyjS…amFi (1 in, 0 out)"
+          "note": "Linked wallet: 1 transfer with HyjS\u2026amFi (1 in, 0 out)"
         },
         {
           "kind": "tx",
@@ -156,7 +156,7 @@
           "wallet": "H4BnRsR8QPnaNiLRGyTMYTNJpHMbhj5awbPin9dE5AiG",
           "amount": "33.77 SOL",
           "at": "2025-06-06T01:33:09.000Z",
-          "note": "Linked wallet: 2 transfers with HyjS…amFi (1 in, 1 out)"
+          "note": "Linked wallet: 2 transfers with HyjS\u2026amFi (1 in, 1 out)"
         },
         {
           "kind": "tx",
@@ -164,7 +164,7 @@
           "wallet": "cBVAT9CXwu7aArdsFGqWfFbTFYs5QXvn2qUKRFopDdg",
           "amount": "5.94 SOL",
           "at": "2025-06-10T23:43:14.000Z",
-          "note": "Linked wallet: 1 transfer with HyjS…amFi (1 in, 0 out)"
+          "note": "Linked wallet: 1 transfer with HyjS\u2026amFi (1 in, 0 out)"
         },
         {
           "kind": "tx",
@@ -172,7 +172,7 @@
           "wallet": "FogxVNs6Mm2w9rnGL1vkARSwJxvLE8mujTv3LK8RnUhF",
           "amount": "0.10 SOL",
           "at": "2025-06-11T02:12:28.000Z",
-          "note": "Linked wallet: 2 transfers with HyjS…amFi (0 in, 2 out)"
+          "note": "Linked wallet: 2 transfers with HyjS\u2026amFi (0 in, 2 out)"
         },
         {
           "kind": "tx",
@@ -527,10 +527,10 @@
       ],
       "narrative": [
         "@kimchi1x was picked by hand. The agent read 2258 posts and found 11 claims about tokens, 20 wallets on the record (1 claimed by the handle itself, 6 found by following the money).",
-        "The worst of it, in order: 1. 6 wallets never admitted, linked by transfers 2. Launched $NOSWCH: deployer sold 3. Launched $Horgho: deployer sold.",
-        "Found by following SOL between the wallets on record and the rest of the chain: Ex7T…oMS3 (5 transfers with 2yu3…mBMC); H4Bn…5AiG (2 transfers with HyjS…amFi); Fogx…nUhF (2 transfers with HyjS…amFi); 5uAN…R6Rg (1 transfer with HyjS…amFi); 2f7U…q1ot (1 transfer with HyjS…amFi); cBVA…pDdg (1 transfer with HyjS…amFi). Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65. Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65. Their own launch. The token's file: deployer sold; deployer bought at creation. Score 55. Pools or curves created from the wallets on record, the newest on 2026-10-26, the oldest on 2024-05-24. The newest 12 are replayed below. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. \"The situation about @kimchi1x for example. ... They just rugging and don't even feel accountable eno\" · \"If it can be proven according to Californian law, “THEFT BY FALSE PRETENCES” that @kimchi1x even onl\" (kimchi) · \"even scammers like @kimchi1x and PF shady ones don't scam with their main wallets!\".",
+        "The worst of it, in order: 1. 6 wallets never admitted, linked by transfers 2. 159 token launches touched the wallets 3. $NOSWCH: the deployer sold.",
+        "Found by following SOL between the wallets on record and the rest of the chain: Ex7T\u2026oMS3 (5 transfers with 2yu3\u2026mBMC); H4Bn\u20265AiG (2 transfers with HyjS\u2026amFi); Fogx\u2026nUhF (2 transfers with HyjS\u2026amFi); 5uAN\u2026R6Rg (1 transfer with HyjS\u2026amFi); 2f7U\u2026q1ot (1 transfer with HyjS\u2026amFi); cBVA\u2026pDdg (1 transfer with HyjS\u2026amFi). Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65. Their own launch. The token's file: deployer sold; supply concentrated; deployer bought at creation. Score 65. Their own launch. The token's file: deployer sold; deployer bought at creation. Score 55. Pools or curves created from the wallets on record, the newest on 2026-10-26, the oldest on 2024-05-24. The newest 12 are replayed below. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. Their own launch. The token's file: deployer sold. Score 50. \"The situation about @kimchi1x for example. ... They just rugging and don't even feel accountable eno\" \u00b7 \"If it can be proven according to Californian law, \u201cTHEFT BY FALSE PRETENCES\u201d that @kimchi1x even onl\" (kimchi) \u00b7 \"even scammers like @kimchi1x and PF shady ones don't scam with their main wallets!\".",
         "What the wallets made, in SOL, from the swap legs: $STAR +267.3, $DADDY +163.0, $MUVA +103.4, $MOTHER +75.3, $MINI -37.2. What is still held is not priced.",
-        "460 SOL left 2yu3…mBMC. The trail ends at hop 1 Ex7T…oMS3.",
+        "460 SOL left 2yu3\u2026mBMC. The trail ends at hop 1 Ex7T\u2026oMS3.",
         "Every post and every transaction above is linked. Disputes are honoured at once. Convictions: 0."
       ],
       "png": "case-0001.png"
