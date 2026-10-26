@@ -3,13 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:19:03Z",
+  "updated_at": "2026-10-26T18:27:33Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:48:34Z",
-      "phase": "record",
-      "text": "posts 1,861–1,920 of 2,258 typed: nothing claimed"
-    },
     {
       "at": "2026-10-26T17:48:38Z",
       "phase": "record",
@@ -304,6 +299,11 @@
       "at": "2026-10-26T18:19:03Z",
       "phase": "replay",
       "text": "replaying $Ibmblu (FfjG…bonk): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
+    },
+    {
+      "at": "2026-10-26T18:27:33Z",
+      "phase": "replay",
+      "text": "replaying $NOSWCH (Ak34…BAGS): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
     }
   ],
   "wallets": [
