@@ -3,18 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:14:52Z",
+  "updated_at": "2026-10-26T18:15:33Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:48:09Z",
-      "phase": "record",
-      "text": "posts 1,621–1,680 of 2,258 typed: nothing claimed"
-    },
-    {
-      "at": "2026-10-26T17:48:09Z",
-      "phase": "record",
-      "text": "480 of 2,258 posts read, back to 2023-05-15"
-    },
     {
       "at": "2026-10-26T17:48:15Z",
       "phase": "record",
@@ -304,6 +294,16 @@
       "at": "2026-10-26T18:14:52Z",
       "phase": "wallets",
       "text": "AFzm…sR3V (probable): 1 transactions read; 0 SOL in, 5 SOL out"
+    },
+    {
+      "at": "2026-10-26T18:14:55Z",
+      "phase": "wallets",
+      "text": "20,639 transfers pulled; following the money between wallets"
+    },
+    {
+      "at": "2026-10-26T18:15:33Z",
+      "phase": "wallets",
+      "text": "21 counterparties seen; 6 wallets never admitted, linked by transfers"
     }
   ],
   "wallets": [
@@ -584,9 +584,9 @@
     "typed": 9,
     "posts_typed": 2258,
     "wallets": 14,
-    "wallets_read": 13,
-    "transfers": 20634,
+    "wallets_read": 14,
+    "transfers": 20639,
     "sol_in": 1270,
-    "sol_out": 1151
+    "sol_out": 1156
   }
 }
