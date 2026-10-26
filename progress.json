@@ -3,13 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:37:17Z",
+  "updated_at": "2026-10-26T18:38:29Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:51:07Z",
-      "phase": "record",
-      "text": "840 of 2,258 posts read, back to 2022-10-01"
-    },
     {
       "at": "2026-10-26T17:51:37Z",
       "phase": "record",
@@ -304,6 +299,11 @@
       "at": "2026-10-26T18:37:17Z",
       "phase": "replay",
       "text": "replaying $shadow (F9Yz…pump): 1 post about it; the launch, the first buyers, the exits, the wallets' own trades"
+    },
+    {
+      "at": "2026-10-26T18:38:29Z",
+      "phase": "findings",
+      "text": "asking X what the handle deleted and what other accounts posted about it; only cited posts count"
     }
   ],
   "wallets": [
