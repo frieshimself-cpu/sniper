@@ -18,6 +18,7 @@ import type { Sources, Transfer } from "./sources/types.js";
 import type { Evidence, Finding, Hop, Severity, TokenPnl, WalletTier } from "./types.js";
 import { isWallet } from "./sources/pumpfun.js";
 import { normalizeHandle } from "./policy.js";
+import { progress } from "./progress.js";
 
 export interface PersonSources {
   posts(handle: string): Promise<Post[]>;
@@ -107,9 +108,12 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   const code = () => `F-${String(findings.length + 1).padStart(2, "0")}`;
 
   // ---- the record ---------------------------------------------------------
+  await progress.step("record", `reading the record of ${handle}`);
   const posts = await src.posts(handle);
+  await progress.step("record", `${posts.length} post${posts.length === 1 ? "" : "s"} read, back to ${posts[posts.length - 1]?.at.slice(0, 10) ?? "nothing"}`);
   const claims = await src.claims(handle, posts);
   log.push(`${posts.length} posts, ${claims.length} claims`);
+  await progress.step("record", `${claims.length} claim${claims.length === 1 ? "" : "s"} about tokens in the posts`);
 
   // ---- the wallets --------------------------------------------------------
   const wallets = new Map<string, PersonInvestigation["wallets"][number]>();
@@ -123,10 +127,13 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     for (const a of [...wallets.keys()]) if (!ok.has(a)) wallets.delete(a);
   }
   log.push(`${wallets.size} wallets (${[...wallets.values()].filter((w) => w.tier === "claimed").length} claimed)`);
+  await progress.step("wallets", `${wallets.size} wallet${wallets.size === 1 ? "" : "s"} on the record, ${[...wallets.values()].filter((w) => w.tier === "claimed").length} claimed by the handle itself`);
+  await progress.wallets([...wallets.values()].map((w) => ({ address: w.address, tier: w.tier })));
 
   const history = new Map<string, Transfer[]>();
   for (const w of wallets.keys()) history.set(w, await src.chain.transfers(w, TX_LIMIT).catch(() => []));
   log.push(`${sum([...history.values()].map((h) => h.length))} transfers on ${wallets.size} wallet${wallets.size === 1 ? "" : "s"}`);
+  await progress.step("wallets", `${sum([...history.values()].map((h) => h.length)).toLocaleString("en-US")} transfers pulled; following the money between wallets`);
 
   // ---- the wallets they never admitted: follow the money ----------------------
   // Plain SOL transfers between a wallet on the record and another wallet, both ways, counted. Two transfers,
@@ -167,6 +174,8 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       score += 10 + 5 * linked;
     }
     log.push(`${cand.size} counterparties, ${linked} linked wallet${linked === 1 ? "" : "s"} added`);
+    await progress.step("wallets", `${cand.size} counterpart${cand.size === 1 ? "y" : "ies"} seen; ${linked} wallet${linked === 1 ? "" : "s"} never admitted, linked by transfers`);
+    await progress.wallets([...wallets.values()].map((w) => ({ address: w.address, tier: w.tier, via: w.via })));
   }
   const all = dedupe([...history.values()].flat());
 
@@ -174,6 +183,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   const pnl = profitPerToken(all, new Set(wallets.keys()));
   for (const q of pnl.slice(0, 12)) q.symbol = (await src.chain.token(q.mint).catch(() => null))?.symbol ?? "";
   log.push(`${pnl.length} tokens traded; biggest: ${pnl.slice(0, 3).map((p) => `${p.symbol || short(p.mint)} ${p.net_sol >= 0 ? "+" : ""}${p.net_sol.toFixed(1)} SOL`).join(", ") || "none"}`);
+  await progress.step("replay", `${pnl.length} token${pnl.length === 1 ? "" : "s"} traded across the wallets${pnl.length ? `; biggest ${pnl.slice(0, 2).map((p) => `$${p.symbol || short(p.mint)} ${p.net_sol >= 0 ? "+" : ""}${p.net_sol.toFixed(0)} SOL`).join(", ")}` : ""}`);
 
   // ---- tokens the posts talk about ----------------------------------------
   const mentioned = new Map<string, { token: string; mint?: string; claims: PostClaim[] }>();
@@ -199,6 +209,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       added++;
     }
     if (launched.size) log.push(`${launched.size} launches found on the wallets, ${added} added to the list`);
+    await progress.step("replay", `${mentioned.size} token${mentioned.size === 1 ? "" : "s"} to replay, posts set next to transactions`);
   }
   const resolveMint = async (m: { token: string; mint?: string }): Promise<string | null> => {
     if (m.mint) return m.mint;
@@ -335,6 +346,8 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   // worst first: the rap sheet reads down from the heaviest finding
   findings.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   findings.forEach((f, i) => (f.code = `F-${String(i + 1).padStart(2, "0")}`));
+  await progress.findings(findings.map((f) => ({ title: f.title, score: f.score })));
+  await progress.step("findings", findings.length ? `${findings.length} finding${findings.length === 1 ? "" : "s"}, worst first: ${findings[0].title}` : "nothing met the bar");
   evidence.sort((a, b) => (a.at || "").localeCompare(b.at || ""));
   const severity: Severity = score >= 85 ? "critical" : score >= 60 ? "high" : score >= 35 ? "medium" : "low";
   return {

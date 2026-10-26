@@ -16,6 +16,7 @@ import { X, xCreds, type Poll } from "./sources/x.js";
 import { discover, describe } from "./sources/discover.js";
 import { run, writeStatus, ROOT } from "./investigate.js";
 import { normalizeHandle } from "./policy.js";
+import { progress } from "./progress.js";
 
 export interface PollRecord {
   id: string;
@@ -121,6 +122,8 @@ export async function cycle(opts: { dry?: boolean; poll?: string } = {}): Promis
       continue;
     }
     if (p.status === "open") {
+      await progress.begin(`poll ${p.id}`, { id: p.id, url: p.url });
+      await progress.step("poll", `the vote is open on X: ${p.options.map((o) => o.label).join(" · ")}; closes ${p.closes_at.slice(11, 16)} UTC`);
       process.stdout.write(`  ${p.id}: open, closes in ${Math.ceil(left / 60_000)} min; waiting\n`);
       await writeStatus({ state: "running", message: `Poll ${p.id} closes ${p.closes_at}. Waiting.` });
       await sleep(Math.max(0, left) + 30_000);
@@ -130,15 +133,21 @@ export async function cycle(opts: { dry?: boolean; poll?: string } = {}): Promis
     const ordered = [...p.options].sort((a, b) => b.votes - a.votes || a.position - b.position);
     const winner = ordered[0];
     rec.winner = winner.label;
+    if (progress.get().state !== "running") await progress.begin(winner.label, { id: p.id, url: p.url });
+    await progress.step("poll", `poll closed: ${p.options.map((o) => `${o.label} ${o.votes}`).join(" · ")} → ${winner.label}`);
     process.stdout.write(`  ${p.id} closed: ${p.options.map((o) => `${o.label} ${o.votes}`).join(" · ")} → ${winner.label}\n`);
     for (const o of rec.options) o.subject = (await resolve(o.label)) ?? undefined;
     const subject = rec.options.find((o) => o.label === winner.label)?.subject;
     if (REQUIRE_VOTES && rec.total === 0) {
       rec.message = "No votes. Nothing opened.";
+      await progress.finish({ message: rec.message });
     } else if (!subject) {
       rec.message = `Could not place "${winner.label}": not a handle, a mint or a symbol on the feeds. Nothing opened.`;
+      await progress.finish({ message: rec.message });
     } else {
+      progress.get().subject = subject;
       const result = await run({ subject, via: `poll on X, ${winner.votes} vote${winner.votes === 1 ? "" : "s"}` });
+      if (progress.get().state === "running") await progress.finish({ case_n: result.case?.n, message: result.case ? `Case ${result.case.id} opened.` : result.message });
       rec.case_n = result.case?.n;
       rec.message = result.case ? `Case ${result.case.id} opened.` : result.message;
     }

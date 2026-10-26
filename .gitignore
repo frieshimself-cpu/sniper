@@ -18,3 +18,6 @@ web/agent-data/
 
 # workflow worktrees
 .claude/worktrees/
+
+data/progress.json
+.progress/

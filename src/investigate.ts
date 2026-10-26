@@ -24,6 +24,7 @@ import { liveSources, liveConfigured } from "./sources/live.js";
 import { mockSources } from "./sources/mock.js";
 import { discover, tokenHints } from "./sources/discover.js";
 import { investigatePerson, livePersonSources, type PersonInvestigation } from "./person.js";
+import { progress } from "./progress.js";
 import { mockPersonSources } from "./sources/mock-person.js";
 import { readState, updateState, backend } from "./state.js";
 import type { Claim, Label, Sources } from "./sources/types.js";
@@ -447,6 +448,7 @@ async function runPerson(handle: string, src: Sources, registry: Registry, opts:
   const psrc = src.name === "mock" ? mockPersonSources(handle) : livePersonSources(src);
   process.stdout.write(`subject ${handle} via ${opts.via ?? "argument"}\n`);
   const known = registry.entries.find((e) => normalizeHandle(e.handle) === normalizeHandle(handle))?.wallets.filter((w) => w.source).map((w) => ({ address: w.address, tier: w.tier, source: w.source! })) ?? [];
+  if (progress.get().state !== "running") await progress.begin(normalizeHandle(handle));
   const p = await investigatePerson(handle, psrc, known);
   for (const l of p.log) process.stdout.write(`  ${l}\n`);
   process.stdout.write(`  score ${p.score}: ${p.findings.map((f) => f.title).join("; ") || "nothing"}\n`);
@@ -454,6 +456,7 @@ async function runPerson(handle: string, src: Sources, registry: Registry, opts:
   if (!ok) {
     const msg = `${handle}: score ${p.score}, ${p.findings.length} finding${p.findings.length === 1 ? "" : "s"}. Not enough for a case.`;
     await writeStatus({ state: "idle", last_run_at: iso(), message: msg, next_run_at: nextRun() });
+    await progress.finish({ message: msg });
     return { message: msg };
   }
   // wallets with a source go on the record
@@ -501,8 +504,10 @@ async function runPerson(handle: string, src: Sources, registry: Registry, opts:
   if (opts.dry) {
     process.stdout.write(JSON.stringify({ case: c, added }, null, 2) + "\n");
     await writeStatus({ state: "idle", last_run_at: iso(), message: `dry run: would open case ${c.id} on ${h}` });
+    await progress.finish({ message: `dry run: would open case ${c.id} on ${h}` });
     return { case: c, message: "dry run" };
   }
+  await progress.step("file", `writing case ${c.id}: ${c.headline}`);
   file.cases.push(c);
   file.generated_at = iso();
   await mkdir(join(ROOT, "data"), { recursive: true });
@@ -519,6 +524,7 @@ async function runPerson(handle: string, src: Sources, registry: Registry, opts:
   }
   const msg = `Case ${c.id} opened on ${h}: ${c.findings.length} findings, ${added.length} wallets on the record.`;
   await writeStatus({ state: "idle", last_run_at: iso(), last_case: n, message: msg, next_run_at: nextRun() });
+  await progress.finish({ case_n: n, message: msg });
   process.stdout.write(msg + "\n");
   return { case: c, message: msg };
 }

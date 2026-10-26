@@ -69,6 +69,7 @@ jobs:
           REQUIRE_VOTES: ${{ vars.REQUIRE_VOTES || 'on' }}
           MIN_PUBLISH_SCORE: ${{ vars.MIN_PUBLISH_SCORE || '35' }}
           CRIME_STATE_DIR: web/.data
+          PROGRESS_PUSH: "on"
         run: |
           if [ -n "${{ inputs.subject }}" ]; then
             ARGS="--subject ${{ inputs.subject }}"
