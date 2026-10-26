@@ -7,6 +7,7 @@ import "@fontsource/anton/400.css";
 import "./globals.css";
 import { siteUrl } from "@/lib/format";
 import { dyn } from "@/lib/request";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -23,7 +24,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await dyn();
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        {process.env.VERCEL ? <Analytics /> : null}
+      </body>
     </html>
   );
 }
