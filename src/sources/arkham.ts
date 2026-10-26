@@ -6,6 +6,7 @@
  *   - a label naming a person is dropped; only a handle or an organisation survives
  *   - an entity prediction (Arkham's ~80% tier) is never treated as confirmed
  */
+import { isWallet } from "./pumpfun.js";
 import type { Label, Transfer } from "./types.js";
 
 const SLEEP = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -118,6 +119,8 @@ export interface HandleWallets {
 }
 
 /** The Solana wallets Arkham ties to a handle. Impersonator and hacker entities are left out. */
+const ENTITY_WALLET_CAP = Number(process.env.PERSON_MAX_WALLETS ?? 12);
+
 export async function resolveHandle(this: Arkham, handle: string): Promise<HandleWallets> {
   const h = handle.replace(/^@/, "").toLowerCase();
   type Search = {
@@ -135,6 +138,15 @@ export async function resolveHandle(this: Arkham, handle: string): Promise<Handl
       const pf = (a.arkhamLabel?.name ?? "").match(/^"([^"]{1,40})" on (Pump\.fun|Vector\.fun|[A-Za-z.]+)$/i);
       return { address: a.address!, label: pf ? pf[1] : a.arkhamLabel?.name ?? null, platform: pf ? pf[2].toLowerCase() : undefined, url: `https://intel.arkm.com/explorer/address/${a.address}` };
     });
+  // The entity's own address list. Arkham files token accounts under the entity too (thousands of them);
+  // only addresses on the curve are wallets a person signs with. Capped: a case replays each one on chain.
+  if (ent) {
+    const e = await this.getPublic<{ addresses?: Record<string, string[]> }>(`/intelligence/entity/${encodeURIComponent(ent.id)}/addresses`, {}, true).catch(() => null);
+    const seen = new Set(wallets.map((w) => w.address));
+    for (const a of (e?.addresses?.solana ?? []).filter((x) => isWallet(x) && !seen.has(x)).slice(0, Math.max(0, ENTITY_WALLET_CAP - wallets.length))) {
+      wallets.push({ address: a, label: ent.name ?? null, platform: undefined, url: `https://intel.arkm.com/explorer/entity/${ent.id}` });
+    }
+  }
   return { handle: `@${h}`, entityId: ent?.id ?? null, wallets };
 }
 

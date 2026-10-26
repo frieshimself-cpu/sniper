@@ -151,15 +151,25 @@ export class X {
   async userPosts(userId: string, max = 800): Promise<Post[]> {
     const out: Post[] = [];
     let token: string | undefined;
+    let pagination: string | undefined;
+    let tries = 0;
     while (out.length < max) {
       const u = new URL(`https://api.x.com/2/users/${userId}/tweets`);
       u.searchParams.set("max_results", "100");
       u.searchParams.set("tweet.fields", "created_at,entities,public_metrics,referenced_tweets");
       u.searchParams.set("exclude", "retweets");
-      if (token) u.searchParams.set("pagination_token", token);
+      if (pagination) u.searchParams.set("pagination_token", pagination);
       const j = await this.json<{ data?: Array<{ id: string; text: string; created_at: string; entities?: { urls?: Array<{ expanded_url?: string }> } }>; meta?: { next_token?: string } }>("GET", u.toString());
       for (const t of j.data ?? []) out.push({ id: t.id, text: t.text, at: t.created_at, urls: (t.entities?.urls ?? []).map((x) => x.expanded_url ?? "").filter(Boolean) });
+      if (process.env.X_DEBUG) process.stderr.write(`x timeline page: ${(j.data ?? []).length} posts, next ${j.meta?.next_token ? "yes" : "no"}\n`);
       token = j.meta?.next_token;
+      // The same page sometimes comes back short and final (14 posts, no next). A short first page is asked for again,
+      // twice at most; the same resource within a day is billed once.
+      if (!token && !pagination && (j.data ?? []).length < 50 && tries++ < 2) {
+        out.length = 0;
+        continue;
+      }
+      pagination = token;
       if (!token || !(j.data ?? []).length) break;
     }
     return out;
