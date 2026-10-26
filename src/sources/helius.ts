@@ -139,6 +139,21 @@ export class Helius {
     return out;
   }
 
+  /** The addresses among these that the System Program owns: wallets a person signs with. 100 a call. */
+  async wallets(addresses: string[]): Promise<Set<string>> {
+    const out = new Set<string>();
+    const uniq = [...new Set(addresses)];
+    for (let i = 0; i < uniq.length; i += 100) {
+      const slice = uniq.slice(i, i + 100);
+      const r = await this.call<{ value: Array<{ owner: string } | null> }>("getMultipleAccounts", [slice, { encoding: "base64", dataSlice: { offset: 0, length: 0 } }]);
+      r.value.forEach((a, k) => {
+        // an account that does not exist yet is still a wallet address, just an empty one
+        if (a === null || a.owner === "11111111111111111111111111111111") out.add(slice[k]);
+      });
+    }
+    return out;
+  }
+
   async transfers(address: string, limit = 300): Promise<Transfer[]> {
     const out: Transfer[] = [];
     let before: string | undefined;

@@ -164,8 +164,43 @@ export class X {
     return { id: j.data.id, username: j.data.username, name: j.data.name, followers: j.data.public_metrics?.followers_count ?? 0, created_at: j.data.created_at ?? "" };
   }
 
-  /** The user's own posts, newest first, up to `max` (the API stops at 3,200). Replies kept, retweets dropped. */
-  async userPosts(userId: string, max = 800): Promise<Post[]> {
+  /**
+   * The whole record: a handle's own posts, newest first, up to `max`, through the full-archive search
+   * (the timeline endpoint stops after a week on pay-per-use). Replies kept, retweets dropped.
+   * Falls back to the timeline when the archive is not available to these keys.
+   */
+  async userPosts(userId: string, max = 3200, username?: string): Promise<Post[]> {
+    if (username) {
+      try {
+        return await this.archive(username, max);
+      } catch (e) {
+        process.stderr.write(`x archive search failed (${(e as Error).message}); reading the timeline\n`);
+      }
+    }
+    return this.timeline(userId, max);
+  }
+
+  private async archive(username: string, max: number): Promise<Post[]> {
+    const out: Post[] = [];
+    let next: string | undefined;
+    for (let page = 0; page < 64 && out.length < max; page++) {
+      const u = new URL("https://api.x.com/2/tweets/search/all");
+      u.searchParams.set("query", `from:${username.replace(/^@/, "")} -is:retweet`);
+      u.searchParams.set("max_results", String(Math.min(100, Math.max(10, max - out.length))));
+      u.searchParams.set("tweet.fields", "created_at,entities");
+      u.searchParams.set("start_time", "2010-01-01T00:00:00Z");
+      if (next) u.searchParams.set("next_token", next);
+      const j = await this.get<{ data?: Array<{ id: string; text: string; created_at: string; entities?: { urls?: Array<{ expanded_url?: string }> } }>; meta?: { next_token?: string } }>(u.toString());
+      for (const t of j.data ?? []) out.push({ id: t.id, text: t.text, at: t.created_at, urls: (t.entities?.urls ?? []).map((x) => x.expanded_url ?? "").filter(Boolean) });
+      if (process.env.X_DEBUG) process.stderr.write(`x archive page ${page + 1}: ${(j.data ?? []).length} posts, oldest ${out[out.length - 1]?.at ?? "-"}\n`);
+      next = j.meta?.next_token;
+      if (!next || !(j.data ?? []).length) break;
+    }
+    return out;
+  }
+
+  /** The timeline endpoint: the last week or so on pay-per-use. */
+  private async timeline(userId: string, max: number): Promise<Post[]> {
     const out: Post[] = [];
     let token: string | undefined;
     let pagination: string | undefined;

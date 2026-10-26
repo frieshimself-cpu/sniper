@@ -90,6 +90,7 @@ export function mockSources(seedText: string, handle = "@wen_moon_wendy"): Sourc
   };
 
   return {
+    wallets: async (as: string[]) => new Set(as),
     name: "mock",
     async token(m): Promise<TokenInfo> {
       return { mint: m, symbol: seedText.startsWith("@") ? "MOCK" : "MOCK", name: "Mock Token", decimals: 6, supply: SUPPLY, deployer, created_at: iso(t0), deployer_approx: false };

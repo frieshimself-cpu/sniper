@@ -64,4 +64,6 @@ export interface Sources {
   label(address: string): Promise<Label | null>;
   labels(addresses: string[]): Promise<Map<string, Label>>;
   claims(address: string): Promise<Claim[]>;
+  /** Which of these addresses are plain wallets (system-owned accounts), as opposed to mints, token accounts and programs. */
+  wallets(addresses: string[]): Promise<Set<string>>;
 }

@@ -48,6 +48,7 @@ export interface PersonInvestigation {
 
 const MAX_POSTS = Number(process.env.PERSON_MAX_POSTS ?? 3200); // the whole record; X bills per post read, and stops at 3,200
 const MAX_LINKED = Number(process.env.PERSON_MAX_LINKED ?? 6); // wallets found by following the money
+const TX_LIMIT = Number(process.env.PERSON_TX_LIMIT ?? 800); // transfers read per wallet, newest first
 const MAX_TOKENS = Number(process.env.PERSON_MAX_TOKENS ?? 5);
 const HOUR = 3_600_000;
 const WSOL = "So11111111111111111111111111111111111111112";
@@ -67,7 +68,7 @@ export function livePersonSources(chain: Sources): PersonSources {
     async posts(handle) {
       if (!x) return [];
       const u = await x.userByUsername(handle);
-      return u ? x.userPosts(u.id, MAX_POSTS) : [];
+      return u ? x.userPosts(u.id, MAX_POSTS, u.username) : [];
     },
     async claims(handle, posts) {
       if (!posts.length) return [];
@@ -114,10 +115,16 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   for (const w of await src.wallets(handle)) if (!wallets.has(w.address)) wallets.set(w.address, { address: w.address, tier: "probable", source: w.url, platform: w.platform });
   // already on the record, with a source link: the registry is evidence too
   for (const w of known) if (w.source && !wallets.has(w.address)) wallets.set(w.address, { address: w.address, tier: w.tier, source: w.source, platform: w.platform });
+  // only accounts a person signs with: a token mint or a token account filed under the entity is not a wallet
+  {
+    const ok = await src.chain.wallets([...wallets.keys()]).catch(() => new Set([...wallets.keys()]));
+    for (const a of [...wallets.keys()]) if (!ok.has(a)) wallets.delete(a);
+  }
   log.push(`${wallets.size} wallets (${[...wallets.values()].filter((w) => w.tier === "claimed").length} claimed)`);
 
   const history = new Map<string, Transfer[]>();
-  for (const w of wallets.keys()) history.set(w, await src.chain.transfers(w, 400).catch(() => []));
+  for (const w of wallets.keys()) history.set(w, await src.chain.transfers(w, TX_LIMIT).catch(() => []));
+  log.push(`${sum([...history.values()].map((h) => h.length))} transfers on ${wallets.size} wallet${wallets.size === 1 ? "" : "s"}`);
 
   // ---- the wallets they never admitted: follow the money ----------------------
   // Plain SOL transfers between a wallet on the record and another wallet, both ways, counted. Two transfers,
@@ -140,15 +147,17 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     }
     const ranked = [...cand.entries()].filter(([, c]) => c.n >= 2 || c.sol >= 5).sort((a, b) => b[1].n - a[1].n || b[1].sol - a[1].sol).slice(0, MAX_LINKED * 3);
     const labels = ranked.length ? await src.chain.labels(ranked.map(([a]) => a)).catch(() => new Map()) : new Map();
+    const real = ranked.length ? await src.chain.wallets(ranked.map(([a]) => a)).catch(() => new Set(ranked.map(([a]) => a))) : new Set<string>();
     let linked = 0;
     for (const [a, c] of ranked) {
       if (linked >= MAX_LINKED) break;
+      if (!real.has(a)) continue;
       const l = labels.get(a);
       if (isService(l) || (l?.entity && !l?.handle)) continue; // somebody else's, or a service
       if (l?.handle && normalizeHandle(l.handle) !== handle) continue; // on record as another handle
       wallets.set(a, { address: a, tier: "probable", source: `https://solscan.io/tx/${c.sig}`, via: `${c.n} transfer${c.n === 1 ? "" : "s"} with ${short(c.with)}` });
       evidence.push({ kind: "tx", ref: c.sig, wallet: a, amount: `${c.sol.toFixed(2)} SOL`, at: c.at, note: `Linked wallet: ${c.n} transfer${c.n === 1 ? "" : "s"} with ${short(c.with)} (${c.ins} in, ${c.outs} out)` });
-      history.set(a, await src.chain.transfers(a, 400).catch(() => []));
+      history.set(a, await src.chain.transfers(a, TX_LIMIT).catch(() => []));
       linked++;
     }
     if (linked) {
@@ -367,8 +376,13 @@ export function profitPerToken(all: Transfer[], set: Set<string>): TokenPnl[] {
   for (const t of all) byTx.set(t.signature, [...(byTx.get(t.signature) ?? []), t]);
   const acc = new Map<string, TokenPnl>();
   for (const legs of byTx.values()) {
-    const solOut = sum(legs.filter((l) => l.kind === "sol" && set.has(l.from) && !set.has(l.to)).map((l) => l.amount));
-    const solIn = sum(legs.filter((l) => l.kind === "sol" && set.has(l.to) && !set.has(l.from)).map((l) => l.amount));
+    // SOL moves as native lamports or as wrapped SOL; a routed swap often shows both for the same money, so take the larger
+    const nativeOut = sum(legs.filter((l) => l.kind === "sol" && set.has(l.from) && !set.has(l.to)).map((l) => l.amount));
+    const wrappedOut = sum(legs.filter((l) => l.kind === "token" && l.mint === WSOL && set.has(l.from) && !set.has(l.to)).map((l) => l.amount));
+    const nativeIn = sum(legs.filter((l) => l.kind === "sol" && set.has(l.to) && !set.has(l.from)).map((l) => l.amount));
+    const wrappedIn = sum(legs.filter((l) => l.kind === "token" && l.mint === WSOL && set.has(l.to) && !set.has(l.from)).map((l) => l.amount));
+    const solOut = Math.max(nativeOut, wrappedOut);
+    const solIn = Math.max(nativeIn, wrappedIn);
     const mints = new Set(legs.filter((l) => l.kind === "token" && l.mint && l.mint !== WSOL).map((l) => l.mint!));
     for (const mint of mints) {
       const tokIn = sum(legs.filter((l) => l.kind === "token" && l.mint === mint && set.has(l.to) && !set.has(l.from)).map((l) => l.amount));

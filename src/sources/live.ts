@@ -21,6 +21,7 @@ export function liveSources(): Sources {
     holders: (m, n) => memo(`h:${m}:${n}`, () => helius.holders(m, n)),
     label: (a) => memo(`l:${a}`, () => (arkham ? arkham.label(a).catch(() => null) : Promise.resolve(null))),
     labels: (as) => (arkham ? arkham.labels(as).catch(() => new Map()) : Promise.resolve(new Map())),
+    wallets: (as) => helius.wallets(as),
     claims: (a) => memo(`c:${a}`, () => (grok ? grok.claims(a).catch(() => []) : Promise.resolve([]))),
   };
 }
