@@ -3,9 +3,20 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:44:27Z",
-  "steps": [],
+  "updated_at": "2026-10-26T17:44:39Z",
+  "steps": [
+    {
+      "at": "2026-10-26T17:44:29Z",
+      "phase": "record",
+      "text": "reading the record of @kimchi1x: every post the API allows, back to the first"
+    }
+  ],
   "wallets": [],
   "posts": [],
-  "findings": []
+  "findings": [],
+  "stats": {
+    "posts_total": 2258,
+    "posts_read": 0,
+    "typed": 0
+  }
 }
