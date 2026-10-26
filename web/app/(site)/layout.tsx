@@ -6,12 +6,10 @@ import { until } from "@/lib/format";
 import { dyn } from "@/lib/request";
 
 const NAV = [
-  ["/cases", "cases"],
-  ["/persons", "persons"],
-  ["/nominate", "nominate"],
-  ["/ballot", "ballot"],
-  ["/stamp", "stamp"],
-  ["/embed", "embed"],
+  ["/#exposed", "exposed"],
+  ["/cases", "files"],
+  ["/#how", "how it works"],
+  ["/#nominate", "nominate"],
   ["/rules", "rules"],
   ["/about", "about"],
 ] as const;
@@ -48,7 +46,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           <Link href="/" className="flex items-center gap-3 no-underline">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={withBase("/brand/knife.png")} alt="" className="logo-knife" width={30} height={30} />
-            <span className="headline abr text-base tracking-[0.18em]">C.R.I.M.E.</span>
+            <span className="headline abr text-base tracking-[0.18em]">CRIME IS LEGAL</span>
           </Link>
           <nav aria-label="Primary" className="w-full sm:w-auto -mx-2 sm:mx-0 flex flex-wrap gap-x-1 gap-y-1 text-[12px] tracking-[0.08em] whitespace-nowrap">
             {NAV.map(([href, label]) => (

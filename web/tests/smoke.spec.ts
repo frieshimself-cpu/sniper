@@ -22,16 +22,19 @@ test.beforeAll(() => {
   fs.rmSync(STATE_DIR, { recursive: true, force: true });
 });
 
-test("/ shows the counter, pills, ballot and latest cases", async ({ page }) => {
+test("/ is one page: counters, who gets exposed first, latest files, how it works, nominate", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Cases opened")).toBeVisible();
   await expect(page.getByText("Crimes found", { exact: true })).toBeVisible();
   await expect(page.getByText("Convictions", { exact: true })).toBeVisible();
   await expect(page.getByText("Agent watching", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "This hour's ballot" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Who gets exposed first" })).toBeVisible();
+  await expect(page.locator(".gtext").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Vote" })).toHaveCount(4);
-  await expect(page.getByRole("heading", { name: "Latest cases" })).toBeVisible();
-  await expect(page.locator("a.file")).toHaveCount(6);
+  await expect(page.getByRole("heading", { name: "Latest files" })).toBeVisible();
+  await expect(page.locator("a.file")).toHaveCount(3);
+  await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Put a name on the block" })).toBeVisible();
   await clean(page);
 });
 
