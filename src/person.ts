@@ -48,9 +48,12 @@ export interface PersonInvestigation {
 }
 
 const MAX_POSTS = Number(process.env.PERSON_MAX_POSTS ?? 3200); // the whole record; X bills per post read, and stops at 3,200
-const MAX_LINKED = Number(process.env.PERSON_MAX_LINKED ?? 6); // wallets found by following the money
-const TX_LIMIT = Number(process.env.PERSON_TX_LIMIT ?? 800); // transfers read per wallet, newest first
-const MAX_TOKENS = Number(process.env.PERSON_MAX_TOKENS ?? 5);
+const MAX_LINKED = Number(process.env.PERSON_MAX_LINKED ?? 10); // wallets found by following the money
+const TX_LIMIT = Number(process.env.PERSON_TX_LIMIT ?? 2000); // transfers read per wallet, newest first
+const MAX_TOKENS = Number(process.env.PERSON_MAX_TOKENS ?? 10);
+// A person gets the hour: the work is spread across it and every step is reported as it is done. Mock runs get none.
+const RUN_MINUTES = Number(process.env.PERSON_RUN_MINUTES ?? 60);
+const SLEEP = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const HOUR = 3_600_000;
 const WSOL = "So11111111111111111111111111111111111111112";
 // the majors: a post about these is market talk, not a promotion, and a symbol match on them is always a wrapper
@@ -106,22 +109,48 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   const evidence: Evidence[] = [];
   let score = 0;
   const code = () => `F-${String(findings.length + 1).padStart(2, "0")}`;
+  const budget = src.chain.name === "mock" ? 0 : RUN_MINUTES * 60_000;
+  const t0 = Date.now();
+  /** Wait until this much of the hour has passed. Work that is already late never waits. */
+  const until = async (frac: number) => {
+    const wait = t0 + budget * frac - Date.now();
+    if (wait > 0) await SLEEP(wait);
+  };
+  /** Hand a list over a slice at a time, the slices spread out until this much of the hour has passed. */
+  const drip = async <T>(items: T[], frac: number, size: number, fn: (sofar: T[], i: number, chunks: number) => Promise<void>) => {
+    const chunks = Math.max(1, Math.ceil(items.length / size));
+    for (let i = 0; i < chunks; i++) {
+      await fn(items.slice(0, (i + 1) * size), i, chunks);
+      const remaining = t0 + budget * frac - Date.now();
+      if (remaining > 0 && i < chunks - 1) await SLEEP(remaining / (chunks - i));
+    }
+  };
 
   // ---- the record ---------------------------------------------------------
-  await progress.step("record", `reading the record of ${handle}`);
+  await progress.step("record", `reading the record of ${handle}: every post the API allows, back to the first`);
   const walletsP = src.wallets(handle).catch(() => []); // Arkham, while X is read
   const posts = await src.posts(handle);
   const postUrl = (p: Post) => `https://x.com/${handle.replace(/^@/, "")}/status/${p.id}`;
-  await progress.posts(posts.slice(0, 40).map((p) => ({ at: p.at, text: p.text, url: postUrl(p) })));
-  await progress.step("record", `${posts.length} post${posts.length === 1 ? "" : "s"} read, back to ${posts[posts.length - 1]?.at.slice(0, 10) ?? "nothing"}`);
+  const claimsP = src.claims(handle, posts); // Grok types the posts while they are shown being read
   const early = await walletsP;
   if (early.length || known.length) {
     const seen = new Set<string>();
     await progress.wallets([...known.map((w) => ({ address: w.address, tier: w.tier as string })), ...early.map((w) => ({ address: w.address, tier: "probable" }))].filter((w) => !seen.has(w.address) && seen.add(w.address)));
-    await progress.step("wallets", `${seen.size} wallet${seen.size === 1 ? "" : "s"} on file while the posts are typed`);
+    await progress.step("wallets", `${seen.size} wallet${seen.size === 1 ? "" : "s"} already on file: the handle's own, the registry, Arkham's entity`);
   }
-  const claims = await src.claims(handle, posts);
+  await drip(posts, 0.3, 60, async (sofar, i, chunks) => {
+    await progress.posts(sofar.slice(-40).reverse().map((p) => ({ at: p.at, text: p.text, url: postUrl(p) })));
+    const last = sofar[sofar.length - 1];
+    await progress.step("record", `${sofar.length.toLocaleString("en-US")} of ${posts.length.toLocaleString("en-US")} posts read, back to ${last?.at.slice(0, 10) ?? "nothing"}${i === chunks - 1 ? ". The whole record." : ""}`);
+  });
+  await progress.step("record", `${posts.length} post${posts.length === 1 ? "" : "s"} read, back to ${posts[posts.length - 1]?.at.slice(0, 10) ?? "nothing"}. Typing every one: shill, holding, LP locked, sold, launch, wallet`);
+  const claims = await claimsP;
   await progress.posts([...claims.map((c) => ({ at: c.at, text: c.quote, url: c.url, type: c.type })), ...posts.map((p) => ({ at: p.at, text: p.text, url: postUrl(p) }))].slice(0, 40));
+  {
+    const by = new Map<string, number>();
+    for (const c of claims) by.set(c.type, (by.get(c.type) ?? 0) + 1);
+    if (by.size) await progress.step("record", `typed: ${[...by.entries()].map(([k, n]) => `${n} ${k.replace(/_/g, " ")}`).join(", ")}`);
+  }
   log.push(`${posts.length} posts, ${claims.length} claims`);
   await progress.step("record", `${claims.length} claim${claims.length === 1 ? "" : "s"} about tokens in the posts`);
 
@@ -141,7 +170,17 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   await progress.wallets([...wallets.values()].map((w) => ({ address: w.address, tier: w.tier })));
 
   const history = new Map<string, Transfer[]>();
-  for (const w of wallets.keys()) history.set(w, await src.chain.transfers(w, TX_LIMIT).catch(() => []));
+  await drip([...wallets.keys()], 0.52, 1, async (sofar) => {
+    const w = sofar[sofar.length - 1];
+    const tx = await src.chain.transfers(w, TX_LIMIT).catch(() => []);
+    history.set(w, tx);
+    const sigs = new Set(tx.map((t) => t.signature)).size;
+    const swaps = new Set(tx.filter((t) => t.type === "SWAP").map((t) => t.signature)).size;
+    const pools = new Set(tx.filter((t) => t.type === "CREATE_POOL" || t.type === "CREATE").map((t) => t.signature)).size;
+    const inflow = sum(tx.filter((t) => t.kind === "sol" && t.to === w).map((t) => t.amount));
+    const outflow = sum(tx.filter((t) => t.kind === "sol" && t.from === w).map((t) => t.amount));
+    await progress.step("wallets", `${short(w)} (${wallets.get(w)?.tier}): ${sigs.toLocaleString("en-US")} transactions read${swaps ? `, ${swaps} swaps` : ""}${pools ? `, ${pools} launch${pools === 1 ? "" : "es"}` : ""}; ${fmt(inflow)} SOL in, ${fmt(outflow)} SOL out`);
+  });
   log.push(`${sum([...history.values()].map((h) => h.length))} transfers on ${wallets.size} wallet${wallets.size === 1 ? "" : "s"}`);
   await progress.step("wallets", `${sum([...history.values()].map((h) => h.length)).toLocaleString("en-US")} transfers pulled; following the money between wallets`);
 
@@ -210,7 +249,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   // The chain talks whether or not the posts do: every launch the wallets paid for is a subject.
   {
     const launched = new Map<string, string>();
-    for (const t of all) if (t.type === "CREATE" && t.kind === "token" && t.mint && wallets.has(t.feePayer ?? "") && !launched.has(t.mint)) launched.set(t.mint, t.at);
+    for (const [, txs] of history) for (const t of txs) if ((t.type === "CREATE" || t.type === "CREATE_POOL") && t.kind === "token" && t.mint && t.mint !== WSOL && !launched.has(t.mint)) launched.set(t.mint, t.at);
     let added = 0;
     for (const [mint, at] of [...launched.entries()].sort((a, b) => b[1].localeCompare(a[1]))) {
       if (mentioned.size >= MAX_TOKENS * 2) break;
@@ -219,7 +258,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       added++;
     }
     if (launched.size) log.push(`${launched.size} launches found on the wallets, ${added} added to the list`);
-    await progress.step("replay", `${mentioned.size} token${mentioned.size === 1 ? "" : "s"} to replay, posts set next to transactions`);
+    await progress.step("replay", `${mentioned.size} token${mentioned.size === 1 ? "" : "s"} to replay${launched.size ? `, ${launched.size} of them launched from the wallets themselves` : ""}; posts set next to transactions`);
   }
   const resolveMint = async (m: { token: string; mint?: string }): Promise<string | null> => {
     if (m.mint) return m.mint;
@@ -236,10 +275,16 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   const tokenCases: Investigation[] = [];
   let checked = 0;
   const handled = new Set<string>();
-  for (const m of [...mentioned.values()].sort((a, b) => b.claims.length - a.claims.length)) {
+  const isLaunch = (m: { claims: PostClaim[] }) => m.claims.some((c) => c.type === "launch" && !c.url);
+  const queue = [...mentioned.values()].sort((a, b) => Number(isLaunch(b)) - Number(isLaunch(a)) || b.claims.length - a.claims.length);
+  let qi = 0;
+  for (const m of queue) {
+    qi++;
     const mint = await resolveMint(m);
     if (!mint || handled.has(mint)) continue;
     handled.add(mint);
+    await until(0.56 + (0.32 * qi) / Math.max(1, queue.length));
+    await progress.step("replay", `replaying ${m.token.startsWith("$") ? m.token : `$${(await src.chain.token(mint).catch(() => null))?.symbol ?? short(mint)}`}: ${m.claims.filter((c) => c.url).length} post${m.claims.filter((c) => c.url).length === 1 ? "" : "s"} about it${isLaunch(m) ? ", launched from the wallets" : ""}; the launch, the first buyers, the exits, the wallets' own trades`);
     // claims about the same token under another name join this one
     for (const other of mentioned.values()) if (other !== m && (other.mint === mint || (!other.mint && (await resolveMint(other)) === mint))) m.claims.push(...other.claims);
     const info = await src.chain.token(mint).catch(() => null);
@@ -316,7 +361,10 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   }
 
   // ---- what was deleted ---------------------------------------------------
+  await until(0.9);
+  await progress.step("findings", "asking X what the handle deleted and what other accounts posted about it; only cited posts count");
   const deleted = await src.deleted(handle);
+  if (deleted.length) await progress.step("findings", `${deleted.length} promotion${deleted.length === 1 ? "" : "s"} since deleted, quoted by others`);
   if (deleted.length) {
     findings.push({ code: code(), title: `${deleted.length} promotion${deleted.length === 1 ? "" : "s"} since deleted`, detail: `Quoted by others: ${deleted.slice(0, 3).map((d) => `"${d.quote.slice(0, 80)}"`).join(" · ")}.`, score: Math.min(15, deleted.length * 5) });
     score += Math.min(15, deleted.length * 5);
@@ -326,6 +374,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   // ---- what others said ------------------------------------------------------
   // Accusations are not findings on their own; they are low weight, and every one carries the post that made it.
   const said = await src.said(handle);
+  await progress.step("findings", said.length ? `called out by ${said.length} other account${said.length === 1 ? "" : "s"}: ${said.slice(0, 3).map((d) => `"${d.quote.slice(0, 60)}"`).join(" · ")}` : "nobody on X has called the handle out in a cited post");
   if (said.length) {
     findings.push({ code: code(), title: `Called out by ${said.length} other account${said.length === 1 ? "" : "s"}`, detail: said.slice(0, 3).map((d) => `"${d.quote.slice(0, 100)}"${d.about ? ` (${d.about})` : ""}`).join(" · ") + ".", score: Math.min(15, said.length * 5) });
     score += Math.min(15, said.length * 5);

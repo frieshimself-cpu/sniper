@@ -137,12 +137,17 @@ export class X {
   }
 
   /** GET only. There is no other verb in this class. */
-  private async get<T>(url: string, user = false, retried = false): Promise<T> {
+  private async get<T>(url: string, user = false, retried = false, attempt = 0): Promise<T> {
     const r = await fetch(url, { method: "GET", headers: { authorization: await this.auth(url, user) }, signal: AbortSignal.timeout(30_000) });
     const text = await r.text();
     if (r.status === 401 && this.c.kind === "oauth2" && user && !retried) {
       await this.refresh();
       return this.get<T>(url, user, true);
+    }
+    // the archive search answers 503 now and then; a read is safe to ask again
+    if ((r.status >= 500 || r.status === 429) && attempt < 4) {
+      await new Promise((res) => setTimeout(res, 2000 * 2 ** attempt));
+      return this.get<T>(url, user, retried, attempt + 1);
     }
     if (!r.ok) throw new Error(`x GET ${new URL(url).pathname} ${r.status}: ${text.slice(0, 200)}`);
     return JSON.parse(text) as T;
