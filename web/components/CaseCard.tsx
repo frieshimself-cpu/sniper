@@ -21,7 +21,7 @@ export function CaseCard({ c }: { c: Case }) {
         {c.subjects.map((s) => (
           <span key={s}>{s}</span>
         ))}
-        <span className="ml-auto">{c.findings.length} findings</span>
+        <span className="ml-auto">{c.findings.length} finding{c.findings.length === 1 ? "" : "s"}</span>
       </div>
     </Link>
   );
