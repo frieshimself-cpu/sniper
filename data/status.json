@@ -1,8 +1,8 @@
 {
-  "state": "running",
+  "state": "idle",
   "mode": "live",
-  "last_run_at": "2026-10-26T10:58:31Z",
-  "next_run_at": "2026-10-26T11:58:31Z",
+  "last_run_at": "2026-10-26T12:58:17Z",
+  "next_run_at": "2026-10-26T13:00:00Z",
   "last_case": 5,
-  "message": "Ballot 2026-10-26T12 open for 10 minutes: $LARPY, $Shitcoin, $GUST, $BRO."
+  "message": "H7VZNCBynDK5ikBS9krDJ2Tx8CUr1wxedV19ZgkWpump: score 0, 0 findings. Not enough for a case."
 }
