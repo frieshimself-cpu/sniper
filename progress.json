@@ -3,13 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:38:29Z",
+  "updated_at": "2026-10-26T18:39:17Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:51:37Z",
-      "phase": "record",
-      "text": "900 of 2,258 posts read, back to 2022-09-09"
-    },
     {
       "at": "2026-10-26T17:52:07Z",
       "phase": "record",
@@ -304,6 +299,11 @@
       "at": "2026-10-26T18:38:29Z",
       "phase": "findings",
       "text": "asking X what the handle deleted and what other accounts posted about it; only cited posts count"
+    },
+    {
+      "at": "2026-10-26T18:39:17Z",
+      "phase": "findings",
+      "text": "called out by 7 other accounts: \"The situation about @kimchi1x for example. ... They just rug\" · \"If it can be proven according to Californian law, “THEFT BY \" · \"even scammers like @kimchi1x and PF shady ones don't scam wi\""
     }
   ],
   "wallets": [
