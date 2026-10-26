@@ -2,8 +2,19 @@
   "state": "running",
   "subject": "@blknoiz06",
   "started_at": "2026-10-26T16:28:35Z",
-  "updated_at": "2026-10-26T16:28:35Z",
-  "steps": [],
+  "updated_at": "2026-10-26T16:28:47Z",
+  "steps": [
+    {
+      "at": "2026-10-26T16:28:37Z",
+      "phase": "record",
+      "text": "reading the record of @blknoiz06"
+    },
+    {
+      "at": "2026-10-26T16:28:47Z",
+      "phase": "record",
+      "text": "3200 posts read, back to 2026-07-24"
+    }
+  ],
   "wallets": [],
   "findings": []
 }
