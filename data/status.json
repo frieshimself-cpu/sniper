@@ -1,8 +1,8 @@
 {
   "state": "idle",
   "mode": "live",
-  "last_run_at": "2026-10-26T09:22:42Z",
-  "next_run_at": "2026-10-26T10:22:42Z",
+  "last_run_at": "2026-10-26T09:28:07Z",
+  "next_run_at": "2026-10-26T10:28:07Z",
   "last_case": 5,
-  "message": "@blknoiz06: score 0, 0 findings. Not enough for a case."
+  "message": "@hazymarlin60444: score 36, 1 finding. Not enough for a case."
 }

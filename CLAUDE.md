@@ -53,8 +53,10 @@ its card. No votes, nothing opened (`REQUIRE_VOTES`). The runner-up carries to t
 
 1. The record: the handle's posts from the X API (up to `PERSON_MAX_POSTS`), typed into
    claims by Grok, or by rule when there is no Grok: shill, holding, lp_locked, sold, launch, wallet. Every claim keeps its post URL.
-2. The wallets: addresses the handle posted itself (tier claimed, the post is the source) and the
-   wallets Arkham ties to the handle (tier probable, the Arkham page is the source).
+2. The wallets: addresses the handle posted itself (tier claimed, the post is the source), the wallets
+   already on the registry, and the wallets Arkham ties to the handle's entity (tier probable, the Arkham
+   page is the source; on-curve only, since Arkham files token accounts under the entity too; capped by
+   `PERSON_MAX_WALLETS`).
 3. The replay: every wallet's transfers. Posts go next to transactions by time.
 4. Findings: promoted then sold; said holding while selling; said safe while liquidity left; launched
    or promoted a token whose own file (the launch detectors) is bad; a claimed wallet funded a bundle;

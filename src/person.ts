@@ -122,14 +122,18 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   }
   const traded = new Map<string, { symbol?: string }>();
   for (const t of all) if (t.kind === "token" && t.mint && t.mint !== WSOL) traded.set(t.mint, traded.get(t.mint) ?? {});
-  // No posts to read (no X or Grok key yet)? The chain still talks: every launch the wallets paid for is a subject.
-  if (mentioned.size === 0) {
+  // The chain talks whether or not the posts do: every launch the wallets paid for is a subject.
+  {
     const launched = new Map<string, string>();
     for (const t of all) if (t.type === "CREATE" && t.kind === "token" && t.mint && wallets.has(t.feePayer ?? "") && !launched.has(t.mint)) launched.set(t.mint, t.at);
-    for (const [mint, at] of [...launched.entries()].sort((a, b) => b[1].localeCompare(a[1])).slice(0, MAX_TOKENS)) {
+    let added = 0;
+    for (const [mint, at] of [...launched.entries()].sort((a, b) => b[1].localeCompare(a[1]))) {
+      if (mentioned.size >= MAX_TOKENS * 2) break;
+      if (mentioned.has(mint.toLowerCase()) || [...mentioned.values()].some((m) => m.mint === mint)) continue;
       mentioned.set(mint.toLowerCase(), { token: mint, mint, claims: [{ post_id: "", url: "", at, type: "launch", token: mint, mint, quote: "" }] });
+      added++;
     }
-    log.push(`no posts read; ${launched.size} launches found on the wallets`);
+    if (launched.size) log.push(`${launched.size} launches found on the wallets, ${added} added to the list`);
   }
   const resolveMint = async (m: { token: string; mint?: string }): Promise<string | null> => {
     if (m.mint) return m.mint;
