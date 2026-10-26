@@ -69,6 +69,16 @@ export function oauthHeader(c: OAuth1Creds, method: string, url: string, params:
   return "OAuth " + Object.keys(oauth).sort().map((k) => `${enc(k)}="${enc(oauth[k])}"`).join(", ");
 }
 
+/** X allows one cashtag a post. The first $SYMBOL stays; the rest lose their dollar sign. */
+export function oneCashtag(text: string): string {
+  let seen = false;
+  return text.replace(/\$([A-Za-z][A-Za-z0-9_]{0,24})\b/g, (m, sym: string) => {
+    if (seen) return sym;
+    seen = true;
+    return m;
+  });
+}
+
 type StoredPair = { userToken: string; refreshToken: string; at: string; scope?: string };
 
 export class X {
@@ -177,10 +187,11 @@ export class X {
 
   /** Post a poll. Options: 2 to 4, 25 characters each. Returns the post id and URL. */
   async postPoll(text: string, options: string[], durationMinutes: number): Promise<{ id: string; url: string }> {
-    const opts = options.slice(0, 4).map((o) => o.slice(0, 25));
+    // poll options carry no cashtags at all: X counts them against the one-cashtag limit
+    const opts = options.slice(0, 4).map((o) => o.replace(/\$([A-Za-z])/g, "$1").slice(0, 25));
     if (opts.length < 2) throw new Error("a poll needs two options");
     const j = await this.json<{ data: { id: string } }>("POST", "https://api.x.com/2/tweets", {
-      text: text.slice(0, 280),
+      text: oneCashtag(text).slice(0, 280),
       poll: { options: opts, duration_minutes: Math.max(5, Math.min(10080, Math.round(durationMinutes))) },
     });
     const me = await this.me().catch(() => ({ username: "i" }));
@@ -208,7 +219,7 @@ export class X {
         process.stderr.write(`x media upload failed: ${(err as Error).message}\n`);
       }
     }
-    const body: Record<string, unknown> = { text: text.slice(0, 280) };
+    const body: Record<string, unknown> = { text: oneCashtag(text).slice(0, 280) };
     if (mediaId) body.media = { media_ids: [mediaId] };
     if (replyTo) body.reply = { in_reply_to_tweet_id: replyTo };
     const j = await this.json<{ data: { id: string } }>("POST", "https://api.x.com/2/tweets", body);

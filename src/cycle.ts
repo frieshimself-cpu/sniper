@@ -126,7 +126,8 @@ export async function cycle(opts: { dry?: boolean } = {}): Promise<void> {
     source: x ? "x" : "site",
   };
   if (x && !opts.dry) {
-    const text = `Who gets investigated this hour? ${POLL_MINUTES} minutes to vote.\n\n${options.map((o, i) => `${i + 1}. ${o.label}`).join("\n")}\n\nCases opened, crimes found, convictions 0.\n${SITE}/ballot`;
+    // one cashtag a post is X's rule: the names go without their dollar signs
+    const text = `Who gets exposed first? ${POLL_MINUTES} minutes to vote.\n\n${options.map((o, i) => `${i + 1}. ${o.label.replace(/^\$/, "")}`).join("\n")}\n\nCases opened, crimes found, convictions 0.\n${SITE}`;
     const poll = await x.postPoll(text, options.map((o) => o.label), POLL_MINUTES);
     ballot.poll_tweet_id = poll.id;
     ballot.poll_url = poll.url;
