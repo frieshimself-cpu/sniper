@@ -1,20 +1,10 @@
 {
-  "state": "running",
+  "state": "done",
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:39:23Z",
+  "updated_at": "2026-10-26T18:39:26Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:52:07Z",
-      "phase": "record",
-      "text": "960 of 2,258 posts read, back to 2022-08-26"
-    },
-    {
-      "at": "2026-10-26T17:52:36Z",
-      "phase": "record",
-      "text": "1,020 of 2,258 posts read, back to 2022-08-08"
-    },
     {
       "at": "2026-10-26T17:53:06Z",
       "phase": "record",
@@ -304,6 +294,21 @@
       "at": "2026-10-26T18:39:17Z",
       "phase": "findings",
       "text": "called out by 7 other accounts: \"The situation about @kimchi1x for example. ... They just rug\" · \"If it can be proven according to Californian law, “THEFT BY \" · \"even scammers like @kimchi1x and PF shady ones don't scam wi\""
+    },
+    {
+      "at": "2026-10-26T18:39:25Z",
+      "phase": "findings",
+      "text": "13 findings, worst first: 6 wallets never admitted, linked by transfers"
+    },
+    {
+      "at": "2026-10-26T18:39:25Z",
+      "phase": "file",
+      "text": "writing case 0001: @kimchi1x has 6 wallets the posts never mention. The transfers do."
+    },
+    {
+      "at": "2026-10-26T18:39:26Z",
+      "phase": "file",
+      "text": "Case 0001 opened on @kimchi1x: 13 findings, 7 wallets on the record."
     }
   ],
   "wallets": [
@@ -613,7 +618,60 @@
       "url": "https://x.com/kimchi1x/status/1969137390766768524"
     }
   ],
-  "findings": [],
+  "findings": [
+    {
+      "title": "6 wallets never admitted, linked by transfers",
+      "score": 40
+    },
+    {
+      "title": "Launched $NOSWCH: deployer sold",
+      "score": 39
+    },
+    {
+      "title": "Launched $Horgho: deployer sold",
+      "score": 39
+    },
+    {
+      "title": "Launched $ABJSIR: deployer sold",
+      "score": 33
+    },
+    {
+      "title": "159 tokens launched from the wallets",
+      "score": 30
+    },
+    {
+      "title": "Launched $Ibmblu: deployer sold",
+      "score": 30
+    },
+    {
+      "title": "Launched $Headcap: deployer sold",
+      "score": 30
+    },
+    {
+      "title": "Launched $Snohlove: deployer sold",
+      "score": 30
+    },
+    {
+      "title": "Launched $Trshield: deployer sold",
+      "score": 30
+    },
+    {
+      "title": "Launched $METBAL: deployer sold",
+      "score": 30
+    },
+    {
+      "title": "Launched $Abydrn: deployer sold",
+      "score": 30
+    },
+    {
+      "title": "Launched $Halbr: deployer sold",
+      "score": 30
+    },
+    {
+      "title": "Called out by 7 other accounts",
+      "score": 15
+    }
+  ],
   "stats": {
     "posts_total": 2258,
     "posts_read": 2258,
@@ -628,5 +686,7 @@
     "launches": 159,
     "findings": 13,
     "score": 406
-  }
+  },
+  "case_n": 1,
+  "message": "Case 0001 opened on @kimchi1x: 13 findings, 7 wallets on the record."
 }
