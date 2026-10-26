@@ -3,7 +3,7 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:52:00Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T16:52:53Z",
+  "updated_at": "2026-10-26T16:53:16Z",
   "steps": [
     {
       "at": "2026-10-26T16:52:04Z",
@@ -19,13 +19,24 @@
       "at": "2026-10-26T16:52:19Z",
       "phase": "wallets",
       "text": "13 wallets on file while the posts are typed"
+    },
+    {
+      "at": "2026-10-26T16:52:55Z",
+      "phase": "record",
+      "text": "0 claims about tokens in the posts"
+    },
+    {
+      "at": "2026-10-26T16:52:56Z",
+      "phase": "wallets",
+      "text": "13 wallets on the record, 0 claimed by the handle itself"
+    },
+    {
+      "at": "2026-10-26T16:53:16Z",
+      "phase": "wallets",
+      "text": "8,439 transfers pulled; following the money between wallets"
     }
   ],
   "wallets": [
-    {
-      "address": "2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC",
-      "tier": "probable"
-    },
     {
       "address": "Gs5FHwYLrDBmCmiv5VhBLCvyiBmBYfcPedZDqR88GYeX",
       "tier": "probable"
@@ -72,6 +83,10 @@
     },
     {
       "address": "AFzmh2TYRFyhMcv9T32pjqPg2zdjCHMsRwxUMJcTsR3V",
+      "tier": "probable"
+    },
+    {
+      "address": "2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC",
       "tier": "probable"
     }
   ],
