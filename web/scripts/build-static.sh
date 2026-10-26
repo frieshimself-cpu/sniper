@@ -15,6 +15,7 @@ restore() {
   [ -d "$ASIDE/feed.xml" ] && rm -rf app/feed.xml && mv "$ASIDE/feed.xml" app/feed.xml
   [ -d "$ASIDE/admin" ] && rm -rf "app/(site)/admin" && mv "$ASIDE/admin" "app/(site)/admin"
   [ -d "$ASIDE/nominate" ] && rm -rf "app/(site)/nominate" && mv "$ASIDE/nominate" "app/(site)/nominate"
+  [ -f "$ASIDE/proxy.ts" ] && mv "$ASIDE/proxy.ts" proxy.ts
   rm -rf "$ASIDE" .next/types
 }
 trap restore EXIT
@@ -23,6 +24,7 @@ mv app/cases "$ASIDE/cases"
 mv app/feed.xml "$ASIDE/feed.xml"
 mv "app/(site)/admin" "$ASIDE/admin"
 mv "app/(site)/nominate" "$ASIDE/nominate"
+[ -f proxy.ts ] && mv proxy.ts "$ASIDE/proxy.ts"
 # An export needs at least one param per dynamic route. With none, the route is left out.
 COUNTS=$(STATIC_EXPORT=1 NEXT_PUBLIC_STATIC=1 npx tsx scripts/count.ts)
 CASES=${COUNTS%% *}; HANDLES=${COUNTS##* }

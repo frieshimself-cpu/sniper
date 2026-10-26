@@ -93,6 +93,7 @@ Hard rules enforced in code, not by convention:
 | Var | Default | Meaning |
 | --- | --- | --- |
 | `SITE_URL` | `http://localhost:3000` | public base URL. Used for `og:image` and the embed snippet |
+| `COMING_SOON_HOSTS`, `PREVIEW_KEY` | no. Hosts (comma-separated) that show the coming-soon curtain; `?preview=<PREVIEW_KEY>` once on such a host unlocks the full site with a cookie. The vercel.app address stays open |
 | `ADMIN_PASSWORD` | unset | required for `/admin`. Unset means `/admin` is closed |
 | `CRIME_MINT` | unset | SPL mint of the CRIME token |
 | `MIN_VOTE_BALANCE` | `1000` | minimum UI balance of `CRIME_MINT` to vote |
