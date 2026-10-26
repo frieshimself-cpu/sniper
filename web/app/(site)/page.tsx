@@ -144,7 +144,7 @@ export default async function Home() {
         </Reveal>
         <Reveal className="mt-8" delay={200}>
           <p className="text-[12px] text-mute max-w-2xl">
-            Handles only. A wallet is attributed only with a linked source. Disputed wallets vanish. The word &ldquo;illegal&rdquo; never appears. The agent finds things; courts decide what they are.{" "}
+            Handles only. A wallet is attributed only with a linked source. Disputed wallets vanish. No verdicts, in any word. The agent finds things; courts decide what they are.{" "}
             <Link href="/rules" className="underline">
               The rules
             </Link>
