@@ -1,12 +1,17 @@
 /**
- * X (Twitter) API v2 with OAuth 1.0a user context. Three jobs:
+ * X (Twitter) API v2. Three jobs:
  *   postPoll     put the hour's ballot up as a poll
  *   pollResults  read the votes when it closes
  *   postCase     publish the case card
- * Needs X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET from developer.x.com with Read and Write.
+ * Two ways in, from developer.x.com with Read and Write:
+ *   OAuth 1.0a   X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET. Never expire.
+ *   OAuth 2.0    X_CLIENT_ID, X_CLIENT_SECRET, X_USER_TOKEN, X_REFRESH_TOKEN. The user token lives two
+ *                hours; the agent refreshes it and keeps the rotated pair in shared state (key x_oauth2).
+ * X_BEARER_TOKEN (app-only) is used for reads when present, so a stale user token never blocks a read.
  */
 import { createHmac, randomBytes } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { readState, writeState } from "../state.js";
 
 const enc = (s: string) => encodeURIComponent(s).replace(/[!'()*]/g, (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase());
 
@@ -17,20 +22,36 @@ export interface Post {
   urls: string[];
 }
 
-export interface XCreds {
+export interface OAuth1Creds {
+  kind: "oauth1";
   key: string;
   secret: string;
   token: string;
   tokenSecret: string;
+  bearer?: string;
 }
 
+export interface OAuth2Creds {
+  kind: "oauth2";
+  clientId: string;
+  clientSecret: string;
+  userToken: string;
+  refreshToken: string;
+  bearer?: string;
+}
+
+export type XCreds = OAuth1Creds | OAuth2Creds;
+
 export function xCreds(): XCreds | null {
-  const { X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET } = process.env;
-  return X_API_KEY && X_API_SECRET && X_ACCESS_TOKEN && X_ACCESS_SECRET ? { key: X_API_KEY, secret: X_API_SECRET, token: X_ACCESS_TOKEN, tokenSecret: X_ACCESS_SECRET } : null;
+  const { X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET, X_CLIENT_ID, X_CLIENT_SECRET, X_USER_TOKEN, X_REFRESH_TOKEN, X_BEARER_TOKEN } = process.env;
+  const bearer = X_BEARER_TOKEN || undefined;
+  if (X_API_KEY && X_API_SECRET && X_ACCESS_TOKEN && X_ACCESS_SECRET) return { kind: "oauth1", key: X_API_KEY, secret: X_API_SECRET, token: X_ACCESS_TOKEN, tokenSecret: X_ACCESS_SECRET, bearer };
+  if (X_CLIENT_ID && X_CLIENT_SECRET && X_USER_TOKEN && X_REFRESH_TOKEN) return { kind: "oauth2", clientId: X_CLIENT_ID, clientSecret: X_CLIENT_SECRET, userToken: X_USER_TOKEN, refreshToken: X_REFRESH_TOKEN, bearer };
+  return null;
 }
 
 /** OAuth 1.0a HMAC-SHA1 Authorization header. Body params are included only for form bodies. */
-export function oauthHeader(c: XCreds, method: string, url: string, params: Record<string, string> = {}): string {
+export function oauthHeader(c: OAuth1Creds, method: string, url: string, params: Record<string, string> = {}): string {
   const u = new URL(url);
   const oauth: Record<string, string> = {
     oauth_consumer_key: c.key,
@@ -48,17 +69,65 @@ export function oauthHeader(c: XCreds, method: string, url: string, params: Reco
   return "OAuth " + Object.keys(oauth).sort().map((k) => `${enc(k)}="${enc(oauth[k])}"`).join(", ");
 }
 
+type StoredPair = { userToken: string; refreshToken: string; at: string; scope?: string };
+
 export class X {
+  private loaded = false;
   constructor(private readonly c: XCreds) {}
 
-  private async json<T>(method: string, url: string, body?: unknown): Promise<T> {
+  /** The rotated OAuth 2.0 pair outlives this process: the newest one wins over the environment. */
+  private async load(): Promise<void> {
+    if (this.loaded || this.c.kind !== "oauth2") return;
+    this.loaded = true;
+    const p = await readState<StoredPair | null>("x_oauth2", null).catch(() => null);
+    if (p?.userToken && p.refreshToken) {
+      this.c.userToken = p.userToken;
+      this.c.refreshToken = p.refreshToken;
+    }
+  }
+
+  /** OAuth 2.0 refresh. The old refresh token dies with this call, so the new pair is written down at once. */
+  async refresh(): Promise<{ scope?: string }> {
+    if (this.c.kind !== "oauth2") return {};
+    await this.load();
+    const r = await fetch("https://api.x.com/2/oauth2/token", {
+      method: "POST",
+      headers: {
+        authorization: `Basic ${Buffer.from(`${this.c.clientId}:${this.c.clientSecret}`).toString("base64")}`,
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: this.c.refreshToken, client_id: this.c.clientId }).toString(),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const text = await r.text();
+    if (!r.ok) throw new Error(`x refresh ${r.status}: ${text.slice(0, 200)}`);
+    const j = JSON.parse(text) as { access_token: string; refresh_token?: string; scope?: string };
+    this.c.userToken = j.access_token;
+    if (j.refresh_token) this.c.refreshToken = j.refresh_token;
+    await writeState("x_oauth2", { userToken: this.c.userToken, refreshToken: this.c.refreshToken, at: new Date().toISOString(), scope: j.scope } satisfies StoredPair);
+    return { scope: j.scope };
+  }
+
+  private async auth(method: string, url: string, read: boolean): Promise<string> {
+    if (read && this.c.bearer) return `Bearer ${this.c.bearer}`;
+    if (this.c.kind === "oauth1") return oauthHeader(this.c, method, url);
+    await this.load();
+    return `Bearer ${this.c.userToken}`;
+  }
+
+  private async json<T>(method: string, url: string, body?: unknown, retried = false): Promise<T> {
+    const read = method === "GET" && !/\/users\/me$/.test(new URL(url).pathname); // who am I is a user-context question
     const r = await fetch(url, {
       method,
-      headers: { authorization: oauthHeader(this.c, method, url), "content-type": "application/json" },
+      headers: { authorization: await this.auth(method, url, read), "content-type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(30_000),
     });
     const text = await r.text();
+    if (r.status === 401 && this.c.kind === "oauth2" && !(read && this.c.bearer) && !retried) {
+      await this.refresh();
+      return this.json<T>(method, url, body, true);
+    }
     if (!r.ok) throw new Error(`x ${method} ${new URL(url).pathname} ${r.status}: ${text.slice(0, 200)}`);
     return JSON.parse(text) as T;
   }
@@ -141,9 +210,10 @@ export class X {
     const form = new FormData();
     form.append("media", new Blob([bytes], { type: "image/png" }), "card.png");
     form.append("media_category", "tweet_image");
-    // v2 first, then the long-standing v1.1 endpoint
-    for (const url of ["https://api.x.com/2/media/upload", "https://upload.twitter.com/1.1/media/upload.json"]) {
-      const r = await fetch(url, { method: "POST", headers: { authorization: oauthHeader(this.c, "POST", url) }, body: form, signal: AbortSignal.timeout(60_000) });
+    // v2 first, then the long-standing v1.1 endpoint (OAuth 1.0a only)
+    const urls = this.c.kind === "oauth1" ? ["https://api.x.com/2/media/upload", "https://upload.twitter.com/1.1/media/upload.json"] : ["https://api.x.com/2/media/upload"];
+    for (const url of urls) {
+      const r = await fetch(url, { method: "POST", headers: { authorization: await this.auth("POST", url, false) }, body: form, signal: AbortSignal.timeout(60_000) });
       const text = await r.text();
       if (r.ok) {
         const j = JSON.parse(text) as { data?: { id?: string }; media_id_string?: string; id?: string };
