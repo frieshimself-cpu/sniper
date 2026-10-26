@@ -55,7 +55,7 @@ function liveGraph(p: Progress): CaseGraph | null {
   }
   for (const w of p.wallets) {
     if (w.peer && known.has(w.peer)) g.edges.push({ from: w.peer, to: w.address, amount: w.via ?? "linked", kind: "sol", note: w.via ?? "linked by transfers", at: "" });
-    else g.edges.push({ from: handle, to: w.address, amount: w.tier, kind: "token", note: w.tier === "claimed" ? "posted by the handle" : "on the record", at: "" });
+    else g.edges.push({ from: handle, to: w.address, amount: "", kind: "token", note: w.tier === "claimed" ? "posted by the handle" : "on the record", at: "" });
   }
   return g;
 }
@@ -81,11 +81,15 @@ function Narration({ step, running, idle }: { step?: ProgressStep; running: bool
   );
 }
 
-/** Every line of a scene, oldest first, the last few lit. */
+/** Every line of a scene, oldest first, the last few lit, the box following the newest. */
 function Stream({ steps, running }: { steps: ProgressStep[]; running: boolean }) {
+  const box = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    if (box.current) box.current.scrollTop = box.current.scrollHeight;
+  }, [steps.length]);
   if (!steps.length) return null;
   return (
-    <ol className="live-log" aria-live="polite">
+    <ol className="live-log" aria-live="polite" ref={box}>
       {steps.map((s, i) => (
         <li key={`${s.at}-${i}`} className={running && i >= steps.length - 2 ? "fresh" : ""}>
           <span className="live-at">{s.at.slice(11, 19)}</span>
@@ -113,12 +117,22 @@ function Hud({ items }: { items: Array<[string, string]> }) {
 export function Live({ initial, account }: { initial: Progress; account: string }) {
   const [p, setP] = useState<Progress>(initial);
   const [, tick] = useState(0);
-  const seenPosts = useRef<Set<string>>(new Set((initial.posts ?? []).map((t) => t.url)));
+  const [mounted, setMounted] = useState(false);
+  // posts that arrived with the latest reading cascade in; the ones already shown sit still
+  const [fresh, setFresh] = useState<string[]>([]);
+  const [fileReady, setFileReady] = useState(false);
+  const known = useRef<Set<string>>(new Set((initial.posts ?? []).map((t) => t.url)));
   useEffect(() => {
+    setMounted(true);
     const id = setInterval(async () => {
       try {
         const r = await fetch(apiUrl("/api/progress"), { cache: "no-store" });
-        if (r.ok) setP((await r.json()) as Progress);
+        if (!r.ok) return;
+        const next = (await r.json()) as Progress;
+        const arrived = (next.posts ?? []).map((t) => t.url).filter((u) => !known.current.has(u));
+        for (const u of arrived) known.current.add(u);
+        if (arrived.length) setFresh(arrived);
+        setP(next);
       } catch {
         /* keep */
       }
@@ -129,12 +143,24 @@ export function Live({ initial, account }: { initial: Progress; account: string 
       clearInterval(clock);
     };
   }, []);
-  // posts that arrived with this reading cascade in; the ones already seen sit still
-  const fresh = new Set<string>();
-  for (const t of p.posts ?? []) if (!seenPosts.current.has(t.url)) fresh.add(t.url);
+  // the link to the file only once the file is there: it lands a few minutes after the run
   useEffect(() => {
-    for (const t of p.posts ?? []) seenPosts.current.add(t.url);
-  });
+    if (p.state !== "done" || !p.case_n) return;
+    let stop = false;
+    const look = async () => {
+      try {
+        const r = await fetch(apiUrl(`/api/cases/${p.case_n}`), { cache: "no-store" });
+        if (r.ok) setFileReady(true);
+        else if (!stop) setTimeout(look, 20_000);
+      } catch {
+        if (!stop) setTimeout(look, 20_000);
+      }
+    };
+    look();
+    return () => {
+      stop = true;
+    };
+  }, [p.state, p.case_n]);
 
   const running = p.state === "running";
   const phase = p.steps.length ? p.steps[p.steps.length - 1].phase : null;
@@ -176,12 +202,12 @@ export function Live({ initial, account }: { initial: Progress; account: string 
         <p className="live-phase">
           <span className={`live-dot ${running ? "on" : ""}`} aria-hidden />
           {running ? "under way" : p.state === "done" ? "finished" : "stopped"}
-          {p.started_at ? <span className="ml-3 opacity-60">{running ? `${since(p.started_at)} in` : since(p.updated_at) + " ago"}</span> : null}
+          {p.started_at && mounted ? <span className="ml-3 opacity-60">{running ? `${since(p.started_at)} in` : since(p.updated_at) + " ago"}</span> : null}
         </p>
         <div className="flex items-baseline gap-5">
-          {running && p.started_at ? (
+          {running && p.started_at && mounted ? (
             <span className="live-clock" title={`${budget} minutes per person`}>
-              <span className="live-clock-label">left</span> {left(p.started_at, budget)}
+              <span className="live-clock-label">{left(p.started_at, budget) === "00:00" ? "overtime" : "left"}</span> {left(p.started_at, budget) === "00:00" ? since(new Date(Date.parse(p.started_at) + budget * 60_000).toISOString()) : left(p.started_at, budget)}
             </span>
           ) : null}
           {p.poll_url ? (
@@ -210,7 +236,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
       {/* ---- scene A: the record ---------------------------------------------------------- */}
       <section className="live-section">
         <Head n="A" title="The record" count={st.posts_total ? `${num(st.posts_read)} of ${num(st.posts_total)} read · ${num(st.typed)} typed` : posts.length ? `${posts.length} shown` : running ? "reading" : "none"} />
-        <Narration step={last(record)} running={running && phaseIdx <= 1} idle={running ? "pulling every post the API allows, back to the first" : "nothing read"} />
+        <Narration step={last(record)} running={running && phaseIdx <= 1} idle={phaseIdx > 1 ? "the whole record read and typed" : running ? "pulling every post the API allows, back to the first" : "nothing read"} />
         {postPct !== null ? (
           <div className="live-bar" aria-hidden>
             <span style={{ width: `${postPct}%` }} />
@@ -227,7 +253,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
         {posts.length ? (
           <ol className="live-posts" aria-live="polite">
             {posts.map((t, i) => {
-              const k = fresh.has(t.url) ? [...fresh].indexOf(t.url) : -1;
+              const k = fresh.indexOf(t.url);
               return (
                 <li key={`${t.url}-${i}`} className={`${t.type ? "typed" : ""} ${k >= 0 ? "new" : ""}`} style={k >= 0 ? { animationDelay: `${k * 120}ms` } : undefined}>
                   <span className="live-post-at">
@@ -303,10 +329,14 @@ export function Live({ initial, account }: { initial: Progress; account: string 
 
       {!running && p.message ? (
         <p className="mt-6 text-[13px]">
-          {p.case_n ? (
+          {p.case_n && fileReady ? (
             <Link href={`/cases/${p.case_n}`} className="underline text-manila">
               {p.message}
             </Link>
+          ) : p.case_n ? (
+            <span className="text-manila">
+              {p.message} <span className="text-mute">The file is on its way to the site.</span>
+            </span>
           ) : (
             <span className="text-mute">{p.message}</span>
           )}

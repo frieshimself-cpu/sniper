@@ -42,6 +42,7 @@ const iso = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 
 let cur: Progress = { state: "idle", updated_at: iso(), steps: [], wallets: [], posts: [], findings: [] };
 let lastPush = 0;
+let pending: NodeJS.Timeout | null = null; // a push held back by the throttle goes out when the window ends
 
 function git(args: string[], cwd = ROOT): string {
   return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 60_000 }).trim();
@@ -51,7 +52,12 @@ function git(args: string[], cwd = ROOT): string {
 function push(force = false): void {
   if (!PUSH) return;
   const now = Date.now();
-  if (!force && now - lastPush < 4_000) return; // not more than one push every few seconds
+  if (!force && now - lastPush < 4_000) {
+    // not more than one push every few seconds; the latest state still goes out when the window ends
+    if (!pending) pending = setTimeout(() => { pending = null; push(true); }, 4_000 - (now - lastPush) + 50);
+    return;
+  }
+  if (pending) { clearTimeout(pending); pending = null; }
   lastPush = now;
   try {
     const dir = join(ROOT, ".progress");
@@ -97,7 +103,7 @@ export const progress = {
   async step(phase: ProgressStep["phase"], text: string): Promise<void> {
     if (cur.state !== "running") return;
     cur.steps.push({ at: iso(), phase, text });
-    if (cur.steps.length > 60) cur.steps.splice(0, cur.steps.length - 60);
+    if (cur.steps.length > 400) cur.steps.splice(0, cur.steps.length - 400); // an hour of lines, every one kept
     process.stdout.write(`  ${text}\n`);
     await save();
   },

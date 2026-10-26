@@ -506,3 +506,5 @@ body > * { position: relative; z-index: 1; }
 .live-reading { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-stamp); animation: caret-blink 1s step-end infinite; }
 .live-section .live-log { margin-top: 12px; max-height: 260px; }
 @media (prefers-reduced-motion: reduce) { .live-narration, .live-posts li.new { animation: none; } }
+.live-wallet a { white-space: nowrap; }
+.live-wallet { flex-wrap: wrap; }

@@ -152,7 +152,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     const last = sofar[sofar.length - 1];
     await progress.step("record", `${sofar.length.toLocaleString("en-US")} of ${posts.length.toLocaleString("en-US")} posts read, back to ${last?.at.slice(0, 10) ?? "nothing"}${i === chunks - 1 ? ". The whole record." : ""}`);
   });
-  await progress.step("record", `${posts.length} post${posts.length === 1 ? "" : "s"} read, back to ${posts[posts.length - 1]?.at.slice(0, 10) ?? "nothing"}. Typing every one: shill, holding, LP locked, sold, launch, wallet`);
+  await progress.step("record", `${posts.length.toLocaleString("en-US")} post${posts.length === 1 ? "" : "s"} read, back to ${posts[posts.length - 1]?.at.slice(0, 10) ?? "nothing"}. Typing every one: shill, holding, LP locked, sold, launch, wallet`);
   const claims = await claimsP;
   await progress.posts([...claims.map((c) => ({ at: c.at, text: c.quote, url: c.url, type: c.type })), ...posts.map((p) => ({ at: p.at, text: p.text, url: postUrl(p) }))].slice(0, 40));
   {
@@ -181,6 +181,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   const history = new Map<string, Transfer[]>();
   await drip([...wallets.keys()], 0.52, 1, async (sofar) => {
     const w = sofar[sofar.length - 1];
+    await progress.step("wallets", `${short(w)} (${wallets.get(w)?.tier}): reading every transfer, newest first`);
     const tx = await src.chain.transfers(w, TX_LIMIT).catch(() => []);
     history.set(w, tx);
     const sigs = new Set(tx.map((t) => t.signature)).size;
@@ -188,7 +189,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     const pools = new Set(tx.filter((t) => t.type === "CREATE_POOL" || t.type === "CREATE").map((t) => t.signature)).size;
     const inflow = sum(tx.filter((t) => t.kind === "sol" && t.to === w).map((t) => t.amount));
     const outflow = sum(tx.filter((t) => t.kind === "sol" && t.from === w).map((t) => t.amount));
-    await progress.step("wallets", `${short(w)} (${wallets.get(w)?.tier}): ${sigs.toLocaleString("en-US")} transactions read${swaps ? `, ${swaps} swaps` : ""}${pools ? `, ${pools} launch${pools === 1 ? "" : "es"}` : ""}; ${fmt(inflow)} SOL in, ${fmt(outflow)} SOL out`);
+    await progress.step("wallets", `${short(w)} (${wallets.get(w)?.tier}): ${sigs.toLocaleString("en-US")} transaction${sigs === 1 ? "" : "s"} read${swaps ? `, ${swaps} swap${swaps === 1 ? "" : "s"}` : ""}${pools ? `, ${pools} launch${pools === 1 ? "" : "es"}` : ""}; ${fmt(inflow)} SOL in, ${fmt(outflow)} SOL out`);
     await progress.stats({ wallets: wallets.size, wallets_read: sofar.length, transfers: sum([...history.values()].map((h) => h.length)), sol_in: Math.round(sum([...history.entries()].map(([a, h]) => sum(h.filter((t) => t.kind === "sol" && t.to === a).map((t) => t.amount))))), sol_out: Math.round(sum([...history.entries()].map(([a, h]) => sum(h.filter((t) => t.kind === "sol" && t.from === a).map((t) => t.amount))))) });
   });
   log.push(`${sum([...history.values()].map((h) => h.length))} transfers on ${wallets.size} wallet${wallets.size === 1 ? "" : "s"}`);
