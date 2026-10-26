@@ -3,13 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:15:33Z",
+  "updated_at": "2026-10-26T18:15:38Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:48:15Z",
-      "phase": "record",
-      "text": "posts 1,681–1,740 of 2,258 typed: nothing claimed"
-    },
     {
       "at": "2026-10-26T17:48:24Z",
       "phase": "record",
@@ -304,6 +299,11 @@
       "at": "2026-10-26T18:15:33Z",
       "phase": "wallets",
       "text": "21 counterparties seen; 6 wallets never admitted, linked by transfers"
+    },
+    {
+      "at": "2026-10-26T18:15:38Z",
+      "phase": "replay",
+      "text": "141 tokens traded across the wallets; biggest $STAR +267 SOL, $DADDY +163 SOL"
     }
   ],
   "wallets": [
@@ -362,6 +362,42 @@
     {
       "address": "AFzmh2TYRFyhMcv9T32pjqPg2zdjCHMsRwxUMJcTsR3V",
       "tier": "probable"
+    },
+    {
+      "address": "Ex7TLXb3goYqP2aqJ4uhyjGQAiUCVyqMRCY4UzxnoMS3",
+      "tier": "probable",
+      "via": "5 transfers with 2yu3…mBMC",
+      "peer": "2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC"
+    },
+    {
+      "address": "H4BnRsR8QPnaNiLRGyTMYTNJpHMbhj5awbPin9dE5AiG",
+      "tier": "probable",
+      "via": "2 transfers with HyjS…amFi",
+      "peer": "HyjSofYUDNVi3gEAg9yeNKMjihLox9upoSseY3YsamFi"
+    },
+    {
+      "address": "FogxVNs6Mm2w9rnGL1vkARSwJxvLE8mujTv3LK8RnUhF",
+      "tier": "probable",
+      "via": "2 transfers with HyjS…amFi",
+      "peer": "HyjSofYUDNVi3gEAg9yeNKMjihLox9upoSseY3YsamFi"
+    },
+    {
+      "address": "5uAN7vfK5tpr1rgpauxbieyhLyfQp5fwAdNxNGMaR6Rg",
+      "tier": "probable",
+      "via": "1 transfer with HyjS…amFi",
+      "peer": "HyjSofYUDNVi3gEAg9yeNKMjihLox9upoSseY3YsamFi"
+    },
+    {
+      "address": "2f7Ujb8uABrGbX1jCuqoWXARx8Bc2M2Ur8cLJjXtq1ot",
+      "tier": "probable",
+      "via": "1 transfer with HyjS…amFi",
+      "peer": "HyjSofYUDNVi3gEAg9yeNKMjihLox9upoSseY3YsamFi"
+    },
+    {
+      "address": "cBVAT9CXwu7aArdsFGqWfFbTFYs5QXvn2qUKRFopDdg",
+      "tier": "probable",
+      "via": "1 transfer with HyjS…amFi",
+      "peer": "HyjSofYUDNVi3gEAg9yeNKMjihLox9upoSseY3YsamFi"
     }
   ],
   "posts": [
