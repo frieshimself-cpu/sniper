@@ -3,7 +3,7 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:47:38Z",
+  "updated_at": "2026-10-26T17:47:42Z",
   "steps": [
     {
       "at": "2026-10-26T17:44:29Z",
@@ -144,6 +144,16 @@
       "at": "2026-10-26T17:47:35Z",
       "phase": "record",
       "text": "posts 1,141–1,200 of 2,258 typed: nothing claimed"
+    },
+    {
+      "at": "2026-10-26T17:47:39Z",
+      "phase": "record",
+      "text": "420 of 2,258 posts read, back to 2023-06-08"
+    },
+    {
+      "at": "2026-10-26T17:47:39Z",
+      "phase": "record",
+      "text": "posts 1,201–1,260 of 2,258 typed: nothing claimed"
     }
   ],
   "wallets": [
@@ -413,8 +423,8 @@
   "findings": [],
   "stats": {
     "posts_total": 2258,
-    "posts_read": 360,
+    "posts_read": 420,
     "typed": 9,
-    "posts_typed": 1200
+    "posts_typed": 1320
   }
 }
