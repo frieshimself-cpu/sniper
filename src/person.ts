@@ -259,9 +259,20 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   // The chain talks whether or not the posts do: every launch the wallets paid for is a subject.
   {
     const launched = new Map<string, string>();
-    for (const [, txs] of history) for (const t of txs) if ((t.type === "CREATE" || t.type === "CREATE_POOL") && t.kind === "token" && t.mint && t.mint !== WSOL && !launched.has(t.mint)) launched.set(t.mint, t.at);
+    // One launch per pool-creation transaction: the token that went in in bulk is the one launched; the quote
+    // side (SOL, or a wrapper of it) is not. The wallets the handle posted itself come first.
+    const bySig = new Map<string, { mint: string; at: string; amount: number; claimed: boolean }>();
+    for (const [w, txs] of history) {
+      const claimed = wallets.get(w)?.tier === "claimed";
+      for (const t of txs) {
+        if (!(t.type === "CREATE" || t.type === "CREATE_POOL") || t.kind !== "token" || !t.mint || t.mint === WSOL) continue;
+        const prev = bySig.get(t.signature);
+        if (!prev || t.amount > prev.amount) bySig.set(t.signature, { mint: t.mint, at: t.at, amount: t.amount, claimed: claimed || prev?.claimed === true });
+      }
+    }
+    for (const l of [...bySig.values()].sort((a, b) => Number(b.claimed) - Number(a.claimed) || b.at.localeCompare(a.at))) if (!launched.has(l.mint)) launched.set(l.mint, l.at);
     let added = 0;
-    for (const [mint, at] of [...launched.entries()].sort((a, b) => b[1].localeCompare(a[1]))) {
+    for (const [mint, at] of launched.entries()) {
       if (mentioned.size >= MAX_TOKENS * 2) break;
       if (mentioned.has(mint.toLowerCase()) || [...mentioned.values()].some((m) => m.mint === mint)) continue;
       mentioned.set(mint.toLowerCase(), { token: mint, mint, claims: [{ post_id: "", url: "", at, type: "launch", token: mint, mint, quote: "" }] });
