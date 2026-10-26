@@ -2,7 +2,7 @@
   "state": "running",
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:38:18Z",
-  "updated_at": "2026-10-26T16:40:42Z",
+  "updated_at": "2026-10-26T16:41:03Z",
   "steps": [
     {
       "at": "2026-10-26T16:38:20Z",
@@ -23,8 +23,66 @@
       "at": "2026-10-26T16:40:42Z",
       "phase": "wallets",
       "text": "13 wallets on the record, 1 claimed by the handle itself"
+    },
+    {
+      "at": "2026-10-26T16:41:03Z",
+      "phase": "wallets",
+      "text": "8,497 transfers pulled; following the money between wallets"
     }
   ],
-  "wallets": [],
+  "wallets": [
+    {
+      "address": "2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC",
+      "tier": "claimed"
+    },
+    {
+      "address": "Gs5FHwYLrDBmCmiv5VhBLCvyiBmBYfcPedZDqR88GYeX",
+      "tier": "probable"
+    },
+    {
+      "address": "26rnoZcgmEQ23wepD58fUQcP7ZD3JtNZio25JMvE8U7a",
+      "tier": "probable"
+    },
+    {
+      "address": "2rFWVdWzqBhiecrgXUTYXbhYX4jZ8iivuyJcnfRQx8Rv",
+      "tier": "probable"
+    },
+    {
+      "address": "2npkicGRaSaz3HQPsGSbfQEL3vRnkyTp7p6ykUrg1k3u",
+      "tier": "probable"
+    },
+    {
+      "address": "4q3ridMidKBJXgSLoNtqYm5k1EayDjAUeiG1nsqqgh2s",
+      "tier": "probable"
+    },
+    {
+      "address": "B55ng11fkUZsXzubevacEWMe34ZdbgejWx1Ja7NsnHuy",
+      "tier": "probable"
+    },
+    {
+      "address": "9uFC4Lvy6kb54V9jukX1M2mK2fxH9iAhEbLZSaY7hfaB",
+      "tier": "probable"
+    },
+    {
+      "address": "8tkjG46pbXAYepRqmbzHC8QbnhAVEjuXcRrPAXPBwQPa",
+      "tier": "probable"
+    },
+    {
+      "address": "5nn2HiprUAYdysAv58CQboFNjN1Edfk5XXpaDtyywgJe",
+      "tier": "probable"
+    },
+    {
+      "address": "7YZg4KYDhgkiUxPUXQM35AUTd8mKaVGtGUEqZdW9xgSk",
+      "tier": "probable"
+    },
+    {
+      "address": "9hFQYYbaCT6jng6nny8crJBv9dwpTWMyWu2BiBHvmZyq",
+      "tier": "probable"
+    },
+    {
+      "address": "AFzmh2TYRFyhMcv9T32pjqPg2zdjCHMsRwxUMJcTsR3V",
+      "tier": "probable"
+    }
+  ],
   "findings": []
 }
