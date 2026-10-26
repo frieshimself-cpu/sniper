@@ -17,7 +17,8 @@ src/cycle.ts         npm run cycle → ballot, poll on X (10 min), investigate t
 src/schedule.ts      npm run watch → a cycle every hour
 src/state.ts         shared state (ballots, disputes, leads): Turso or Upstash Redis when configured, else files
 src/detectors.ts     what the agent looks for in a launch (bundles, exits, LP pulls, dev sells, concentration)
-src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (X posts), x.ts (polls and posting),
+src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (reads posts), claims.ts (reads posts by rule),
+                     x.ts (timelines, polls and posting),
                      discover.ts (DexScreener boosts, Jupiter trending), pumpfun.ts (bonding curve PDA), mock.ts
 data/status.json     last run, next run, what happened
 data/watchlist.json  mints to investigate when the ballot has no new winner
@@ -50,8 +51,8 @@ its card. No votes, nothing opened (`REQUIRE_VOTES`). The runner-up carries to t
 
 ## How a person's case gets opened
 
-1. The record: the handle's posts from the X API (up to `PERSON_MAX_POSTS`), typed by Grok into
-   claims: shill, holding, lp_locked, sold, launch, wallet. Every claim keeps its post URL.
+1. The record: the handle's posts from the X API (up to `PERSON_MAX_POSTS`), typed into
+   claims by Grok, or by rule when there is no Grok: shill, holding, lp_locked, sold, launch, wallet. Every claim keeps its post URL.
 2. The wallets: addresses the handle posted itself (tier claimed, the post is the source) and the
    wallets Arkham ties to the handle (tier probable, the Arkham page is the source).
 3. The replay: every wallet's transfers. Posts go next to transactions by time.

@@ -11,6 +11,7 @@
  */
 import { Arkham } from "./sources/arkham.js";
 import { Grok, type PostClaim } from "./sources/grok.js";
+import { ruleClaims } from "./sources/claims.js";
 import { X, xCreds, type Post } from "./sources/x.js";
 import { investigate as investigateToken, isService, short, type Investigation } from "./detectors.js";
 import type { Sources, Transfer } from "./sources/types.js";
@@ -41,7 +42,7 @@ export interface PersonInvestigation {
   log: string[];
 }
 
-const MAX_POSTS = Number(process.env.PERSON_MAX_POSTS ?? 800);
+const MAX_POSTS = Number(process.env.PERSON_MAX_POSTS ?? 200); // X bills per post read
 const MAX_TOKENS = Number(process.env.PERSON_MAX_TOKENS ?? 5);
 const HOUR = 3_600_000;
 const WSOL = "So11111111111111111111111111111111111111112";
@@ -64,8 +65,12 @@ export function livePersonSources(chain: Sources): PersonSources {
       return u ? x.userPosts(u.id, MAX_POSTS) : [];
     },
     async claims(handle, posts) {
-      if (!grok || !posts.length) return [];
-      return grok.extractClaims(handle, posts);
+      if (!posts.length) return [];
+      if (!grok) return ruleClaims(handle, posts);
+      return grok.extractClaims(handle, posts).catch((e) => {
+        process.stderr.write(`grok failed (${(e as Error).message}); reading posts by rule\n`);
+        return ruleClaims(handle, posts);
+      });
     },
     async deleted(handle) {
       if (!grok) return [];
