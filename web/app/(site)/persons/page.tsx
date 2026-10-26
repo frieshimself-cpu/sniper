@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { dyn } from "@/lib/request";
 import Link from "next/link";
 import { getPersons } from "@/lib/data";
 import { ago } from "@/lib/format";
@@ -6,7 +7,8 @@ import { Severity } from "@/components/Pills";
 
 export const metadata: Metadata = { title: "Persons" };
 
-export default function Persons() {
+export default async function Persons() {
+  await dyn();
   const persons = getPersons();
   return (
     <div>

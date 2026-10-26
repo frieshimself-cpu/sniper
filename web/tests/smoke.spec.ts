@@ -28,7 +28,7 @@ test("/ shows the counter, pills, ballot and latest cases", async ({ page }) => 
   await expect(page.getByText("Crimes found")).toBeVisible();
   await expect(page.getByText("Convictions", { exact: true })).toBeVisible();
   await expect(page.getByText("Agent watching")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Today's ballot" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "This hour's ballot" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Vote" })).toHaveCount(4);
   await expect(page.getByRole("heading", { name: "Latest cases" })).toBeVisible();
   await expect(page.locator("a.file")).toHaveCount(6);
@@ -159,7 +159,7 @@ test("/admin asks for the password, then builds a ballot and lists disputes", as
   await expect(page.locator("p[role=alert]")).toContainText("Wrong password");
   await page.getByLabel("Password").fill("smoke-test");
   await page.getByRole("button", { name: "Enter" }).click();
-  await expect(page.getByRole("heading", { name: "Today's ballot" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "This hour's ballot" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Disputes" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Attribution leads" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Build ballot/ })).toBeVisible();

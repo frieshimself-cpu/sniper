@@ -1,6 +1,7 @@
 import { searchCases } from "@/lib/data";
 import { json } from "@/lib/api";
-import { dyn, STATIC, withBase } from "@/lib/dyn";
+import { dyn } from "@/lib/request";
+import { STATIC, withBase } from "@/lib/dyn";
 
 
 export async function GET(req: Request) {

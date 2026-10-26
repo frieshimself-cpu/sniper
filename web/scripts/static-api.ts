@@ -6,7 +6,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getCases, getCase, getPersons, getPerson, getStats, cardPath } from "../lib/data";
-import { ensureTodayBallot } from "../lib/ballot";
+import { ensureCurrentBallot } from "../lib/ballot";
+import { primeHidden } from "../lib/store";
 import { getBallots, tally } from "../lib/store";
 import { enforceDeep } from "../lib/policy";
 import { atomFeed } from "../lib/feed";
@@ -26,6 +27,8 @@ const cell = (v: unknown) => {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
+async function main() {
+await primeHidden();
 let n = 0;
 write("api/stats.json", getStats());
 write(
@@ -55,12 +58,14 @@ for (const p of getPersons()) {
   const { caseList, ...rest } = d;
   write(`api/persons/${p.handle.slice(1)}.json`, { ...rest, cases_list: caseList.map((c) => ({ n: c.n, id: c.id, headline: c.headline, severity: c.severity, url: withBase(`/cases/${c.n}`) })) });
 }
-const b = ensureTodayBallot();
+const b = await ensureCurrentBallot();
 const t = b ? tally(b) : {};
 write("api/ballot.json", {
   ballot: b, tally: t, total: Object.values(t).reduce((a, c) => a + c, 0),
-  history: getBallots().filter((x) => x.closed).map((x) => ({ id: x.id, options: x.options, winner: x.winner, runner_up: x.runner_up, tally: tally(x), votes: Object.keys(x.votes).length })),
+  history: (await getBallots()).filter((x) => x.closed).map((x) => ({ id: x.id, options: x.options, winner: x.winner, runner_up: x.runner_up, tally: tally(x), votes: Object.keys(x.votes).length })),
   static: true,
 });
 write("feed.xml", atomFeed());
 console.log(`static api: ${n} cases, ${getPersons().length} persons`);
+}
+main();

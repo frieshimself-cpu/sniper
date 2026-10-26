@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { dyn } from "@/lib/request";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -19,6 +20,7 @@ function parseN(s: string): number | null {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  await dyn();
   const n = parseN((await params).n);
   const c = n ? getCase(n) : null;
   if (!c) return { title: "No such case" };
@@ -32,6 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CasePage({ params }: Props) {
+  await dyn();
   const n = parseN((await params).n);
   const c = n ? getCase(n) : null;
   if (!c) notFound();

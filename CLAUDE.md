@@ -12,11 +12,12 @@ src/types.ts         Case, Finding, Evidence, Registry — the shared schema
 src/demo.ts          npm run demo → fictional archive into web/tests/fixture (the smoke tests read it)
 src/render.ts        case card renderer (HTML → PNG, Playwright/Chromium)
 src/investigate.ts   npm run investigate → one real case from the chain
-src/schedule.ts      npm run watch → an investigation every 6 hours
+src/cycle.ts         npm run cycle → ballot, poll on X (10 min), investigate the winner, post the case
+src/schedule.ts      npm run watch → a cycle every hour
+src/state.ts         shared state (ballots, disputes, leads): Upstash Redis when configured, else files
 src/detectors.ts     what the agent looks for (bundles, exits, LP pulls, dev sells, concentration)
-src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (X posts), discover.ts (DexScreener boosts),
-                     pumpfun.ts (bonding curve PDA), mock.ts (fake chain for tests)
-data/leads.json      attribution the agent could not source well enough; reviewed in /admin
+src/sources/         helius.ts (chain), arkham.ts (labels), grok.ts (X posts), x.ts (polls and posting),
+                     discover.ts (DexScreener boosts, Jupiter trending), pumpfun.ts (bonding curve PDA), mock.ts
 data/status.json     last run, next run, what happened
 data/watchlist.json  mints to investigate when the ballot has no new winner
 fixtures/registry.json   handles on the record, wallets with tier + source link
@@ -25,7 +26,7 @@ out/case-NNNN.png    one card per case (generated)
 docs/RULES_OF_ENGAGEMENT.md   what the agent may and may not publish
 docs/PERSONA.md      how the agent talks
 web/                 the public site (Next.js). Reads the three paths above through web/lib/data.ts
-.github/workflows/   investigate.yml (a case every six hours, on GitHub), pages.yml (static site to GitHub Pages)
+.github/workflows/   investigate.yml (a cycle every hour, on GitHub), pages.yml (static site to GitHub Pages)
 ```
 
 ## Non-negotiables
@@ -39,10 +40,16 @@ web/                 the public site (Next.js). Reads the three paths above thro
   finds things. Courts decide what they are. See `docs/RULES_OF_ENGAGEMENT.md`.
 - Convictions: 0. Always. It is the joke and it is also true.
 
+## The hour
+
+Every hour `npm run cycle`: up to four fresh launches go on the ballot, as a poll on X when X is
+configured (else on the site); ten minutes of voting; the winner is investigated; the case is posted
+on X with its card. No votes, nothing opened (`REQUIRE_VOTES`). The runner-up carries to the next hour.
+
 ## How a case gets opened
 
-1. Subject: `--subject`, else yesterday's ballot winner, else the next mint in `data/watchlist.json`,
-   else scan `DISCOVER_SCAN` tokens paying for DexScreener boosts and keep the worst one.
+1. Subject: `--subject`, else the last finished ballot's winner with votes, else the next mint in
+   `data/watchlist.json`, else (only with `REQUIRE_VOTES=off`) a discovery scan that keeps the worst one.
 2. Chain (Helius): for a pump.fun mint the bonding curve is derived from the mint (`src/sources/pumpfun.ts`)
    and its first transaction is the launch; otherwise the earliest reachable fee payer and the pool seed.
    Then first buyers, their funders, exits, deployer sells and transfers, liquidity, holders.
@@ -52,7 +59,8 @@ web/                 the public site (Next.js). Reads the three paths above thro
 5. Attribution, in this order and no further:
    - the handle's own post containing the address (Grok with X search, URL required) → registry, tier `claimed`
    - an Arkham verified label carrying a handle → registry, tier `probable`
-   - an Arkham prediction, or a third party's "that's @x" → `data/leads.json`, a human approves in /admin
+   - an Arkham prediction, or a third party's "that's @x" → a lead in shared state, a human approves in /admin,
+     the agent writes it to the registry on its next run
    - a person's name → dropped on the floor
 6. Case written, card rendered, status updated. The site picks it up on the next request.
 
@@ -63,7 +71,8 @@ npm install
 npm run demo                              # fictional archive into web/tests/fixture (needs Chromium: npx playwright install chromium)
 npm run investigate -- --mock --dry       # full pipeline on a fake chain, prints the case, writes nothing
 npm run investigate -- --subject <mint>   # one real case (HELIUS_API_KEY required)
-npm run watch                             # every INVESTIGATE_INTERVAL_HOURS, forever
+npm run cycle                             # one hour's cycle (ballot, poll, investigation, post)
+npm run watch                             # a cycle every INVESTIGATE_INTERVAL_HOURS, forever
 npm run typecheck
 npm run policy:test
 cd web && npm install && npm run dev

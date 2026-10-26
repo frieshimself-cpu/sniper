@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { dyn } from "@/lib/request";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPerson } from "@/lib/data";
@@ -12,11 +13,13 @@ type Props = { params: Promise<{ handle: string }> };
 
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  await dyn();
   const h = normalizeHandle(decodeURIComponent((await params).handle));
   return { title: `Dossier ${h}` };
 }
 
 export default async function Person({ params }: Props) {
+  await dyn();
   const h = normalizeHandle(decodeURIComponent((await params).handle));
   const p = getPerson(h);
   if (!p) notFound();

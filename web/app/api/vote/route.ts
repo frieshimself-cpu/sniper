@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (typeof ballot !== "string" || typeof option !== "string" || !isBase58Pubkey(wallet)) return error(400, "ballot, option and wallet required.");
   if (!verifySigned(voteMessage(ballot, option), signature, wallet)) return error(401, "Bad signature.");
 
-  const current = getBallot(ballot);
+  const current = await getBallot(ballot);
   if (!current) return error(404, "No such ballot.");
   if (!current.options.some((o) => o.key === option)) return error(400, "Not an option.");
 
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     if (held < minVoteBalance()) return error(403, `Wallet holds ${held}. Minimum is ${minVoteBalance()}.`);
   }
 
-  const r = castVote(ballot, wallet, option);
+  const r = await castVote(ballot, wallet, option);
   if (!r.ok) return error(r.status, r.error);
   const t = tally(r.ballot);
   return json({ ok: true, ballot: r.ballot, tally: t, total: Object.values(t).reduce((a, c) => a + c, 0) });

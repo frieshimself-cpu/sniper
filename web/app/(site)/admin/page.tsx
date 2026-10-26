@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { dyn } from "@/lib/request";
 import { isAdmin, adminConfigured } from "@/lib/auth";
 import { candidates, BALLOT_SIZE, scoreThreshold } from "@/lib/ballot";
-import { getDisputes, getTodayBallot, tally } from "@/lib/store";
-import { getLeads, getAgentStatus } from "@/lib/data";
+import { getDisputes, getCurrentBallot, getLeads, tally } from "@/lib/store";
+import { getAgentStatus } from "@/lib/data";
 import { AdminPanel, AdminLogin } from "@/components/Admin";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 
 export default async function Admin() {
+  await dyn();
   if (!adminConfigured()) {
     return (
       <div className="max-w-md">
@@ -24,17 +26,17 @@ export default async function Admin() {
       </div>
     );
   }
-  const today = getTodayBallot();
+  const today = await getCurrentBallot();
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-4xl md:text-5xl">Admin</h1>
       <AdminPanel
-        candidates={candidates()}
+        candidates={await candidates()}
         size={BALLOT_SIZE}
         threshold={scoreThreshold()}
         today={today ? { id: today.id, options: today.options, votes: Object.keys(today.votes).length, tally: tally(today) } : null}
-        disputes={getDisputes()}
-        leads={getLeads()}
+        disputes={await getDisputes()}
+        leads={await getLeads()}
         agent={getAgentStatus()}
       />
     </div>

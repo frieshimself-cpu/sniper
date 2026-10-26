@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { dyn } from "@/lib/request";
 import Link from "next/link";
 import { getStats, latestCases, getAgentStatus } from "@/lib/data";
-import { ensureTodayBallot } from "@/lib/ballot";
+import { ensureCurrentBallot } from "@/lib/ballot";
 import { tally } from "@/lib/store";
 import { rpcStatus } from "@/lib/solana";
 import { ago, until, siteUrl } from "@/lib/format";
@@ -12,7 +13,8 @@ import { BallotVote } from "@/components/BallotVote";
 import { Stamp } from "@/components/Stamp";
 import { STATIC } from "@/lib/dyn";
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata(): Promise<Metadata> {
+  await dyn();
   const latest = latestCases(1)[0];
   const stats = getStats();
   const description = `${stats.cases_opened} cases opened. ${stats.crimes_found} crimes found. Convictions: 0.`;
@@ -24,9 +26,10 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function Home() {
+export default async function Home() {
+  await dyn();
   const stats = getStats();
-  const ballot = ensureTodayBallot();
+  const ballot = await ensureCurrentBallot();
   const t = ballot ? tally(ballot) : {};
   const total = Object.values(t).reduce((a, b) => a + b, 0);
   const rpc = rpcStatus();
@@ -56,8 +59,8 @@ export default function Home() {
 
       <section className="grid gap-8 lg:grid-cols-5">
         <div className="file p-5 lg:col-span-2 self-start">
-          <h2 className="text-2xl">Today&apos;s ballot</h2>
-          <p className="mt-1 mb-5 text-xs opacity-70">Up to four subjects. One wallet, one vote. The winner is the next case.</p>
+          <h2 className="text-2xl">This hour&apos;s ballot</h2>
+          <p className="mt-1 mb-5 text-xs opacity-70">Up to four subjects. Ten minutes to vote. The winner is the next case.</p>
           <BallotVote initial={{ ballot, tally: t, total }} compact />
           <Link href="/ballot" className="mt-5 inline-block text-[11px] font-semibold uppercase tracking-[0.14em] underline">
             Full ballot and history

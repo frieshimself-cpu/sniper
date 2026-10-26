@@ -23,13 +23,13 @@ import { investigate as runDetectors, short, type Investigation } from "./detect
 import { liveSources, liveConfigured } from "./sources/live.js";
 import { mockSources } from "./sources/mock.js";
 import { discover, tokenHints } from "./sources/discover.js";
+import { readState, updateState, usingRedis } from "./state.js";
 import type { Claim, Label, Sources } from "./sources/types.js";
 import type { Case, CasesFile, Registry, RegistryEntry } from "./types.js";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CASES = join(ROOT, "data/cases.json");
 const REGISTRY = join(ROOT, "fixtures/registry.json");
-const LEADS = join(ROOT, "data/leads.json");
 const STATUS = join(ROOT, "data/status.json");
 const WATCHLIST = join(ROOT, "data/watchlist.json");
 
@@ -67,7 +67,7 @@ const STRONG_SCORE = Number(process.env.STRONG_SCORE ?? 50);
 /** A case needs two findings, or one strong enough to stand alone. */
 export const publishable = (inv: Investigation | null): boolean =>
   !!inv && inv.score >= MIN_PUBLISH_SCORE && (inv.findings.length >= 2 || inv.score >= STRONG_SCORE);
-const INTERVAL_H = Number(process.env.INVESTIGATE_INTERVAL_HOURS ?? 6);
+const INTERVAL_H = Number(process.env.INVESTIGATE_INTERVAL_HOURS ?? 1);
 const nextRun = () => iso(new Date(Date.now() + Math.max(0.05, INTERVAL_H) * 3_600_000));
 const iso = (d = new Date()) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
 const pad = (n: number) => String(n).padStart(4, "0");
@@ -90,20 +90,63 @@ export async function writeStatus(patch: Partial<Status>): Promise<Status> {
 }
 
 // ---- subject selection ---------------------------------------------------
-async function ballotWinner(): Promise<{ kind: "token" | "handle"; ref: string } | null> {
-  const dir = process.env.CRIME_STATE_DIR ? join(ROOT, "web", process.env.CRIME_STATE_DIR) : join(ROOT, "web/.data");
-  const ballots = await readJson<Array<{ id: string; closed: boolean; winner?: string; options: Array<{ key: string; kind: "token" | "handle"; ref: string }> }>>(join(dir, "ballots.json"), []);
-  const done = new Set((await readJson<Watch[]>(WATCHLIST, [])).filter((w) => w.done).map((w) => w.mint));
+interface BallotDoc {
+  id: string;
+  closed: boolean;
+  closes_at: string;
+  winner?: string;
+  votes: Record<string, string>;
+  options: Array<{ key: string; kind: "token" | "handle"; ref: string; label?: string }>;
+}
+
+const REQUIRE_VOTES = (process.env.REQUIRE_VOTES ?? "on").toLowerCase() !== "off";
+
+/** The most recent finished ballot that had votes and whose winner is not yet on file. */
+async function ballotWinner(): Promise<{ kind: "token" | "handle"; ref: string; ballot: string; votes: number } | null> {
+  const ballots = await readState<BallotDoc[]>("ballots", []);
   const cases = await readJson<CasesFile>(CASES, { generated_at: "", agent: "", version: 1, cases: [] });
   const covered = new Set(cases.cases.map((c) => c.token.mint));
+  const now = Date.now();
   for (const b of ballots.sort((a, c) => c.id.localeCompare(a.id))) {
-    if (!b.closed || !b.winner) continue;
-    const o = b.options.find((x) => x.key === b.winner);
+    const finished = b.closed || Date.parse(b.closes_at) <= now;
+    if (!finished) continue;
+    const tally: Record<string, number> = {};
+    for (const k of Object.values(b.votes ?? {})) tally[k] = (tally[k] ?? 0) + 1;
+    const ordered = b.options.map((o) => o.key).sort((x, y) => (tally[y] ?? 0) - (tally[x] ?? 0));
+    const winner = b.winner ?? ordered[0];
+    const o = b.options.find((x) => x.key === winner);
     if (!o) continue;
-    if (o.kind === "token" && (covered.has(o.ref) || done.has(o.ref))) continue;
-    return { kind: o.kind, ref: o.ref };
+    const votes = tally[winner] ?? 0;
+    if (REQUIRE_VOTES && votes === 0) continue;
+    if (o.kind === "token" && covered.has(o.ref)) continue;
+    return { kind: o.kind, ref: o.ref, ballot: b.id, votes };
   }
   return null;
+}
+
+/** Leads a human approved on the site become registry entries on the agent's next run. */
+async function applyApprovedLeads(registry: Registry): Promise<number> {
+  let applied = 0;
+  await updateState<Lead[]>("leads", [], (leads) => {
+    for (const l of leads) {
+      if (l.status !== "approved" || (l as Lead & { applied?: boolean }).applied) continue;
+      const h = normalizeHandle(l.handle);
+      let e = registry.entries.find((x) => normalizeHandle(x.handle) === h);
+      if (!e) {
+        e = { handle: h, wallets: [] };
+        registry.entries.push(e);
+      }
+      if (!e.wallets.some((w) => w.address === l.address)) e.wallets.push({ address: l.address, tier: l.tier, source: l.source });
+      (l as Lead & { applied?: boolean }).applied = true;
+      applied++;
+    }
+    return leads;
+  });
+  if (applied) {
+    registry.updated_at = iso();
+    await writeJson(REGISTRY, enforceDeep(registry));
+  }
+  return applied;
 }
 
 async function latestLaunchOf(handle: string, src: Sources, registry: Registry): Promise<string | null> {
@@ -120,17 +163,18 @@ async function latestLaunchOf(handle: string, src: Sources, registry: Registry):
   return best?.mint ?? null;
 }
 
-async function pickSubject(arg: string | undefined, src: Sources, registry: Registry): Promise<{ mint: string; via: string } | null> {
+async function pickSubject(arg: string | undefined, src: Sources, registry: Registry, viaHint?: string): Promise<{ mint: string; via: string } | null> {
   if (arg?.startsWith("@")) {
     const mint = src.name === "mock" ? arg : await latestLaunchOf(arg, src, registry);
     return mint ? { mint, via: `handle ${arg}` } : null;
   }
-  if (arg) return { mint: arg, via: "argument" };
+  if (arg) return { mint: arg, via: viaHint ?? "argument" };
   const win = await ballotWinner();
   if (win) {
-    if (win.kind === "token") return { mint: win.ref, via: "ballot winner" };
+    const via = `ballot ${win.ballot}, ${win.votes} vote${win.votes === 1 ? "" : "s"}`;
+    if (win.kind === "token") return { mint: win.ref, via };
     const mint = await latestLaunchOf(win.ref, src, registry);
-    if (mint) return { mint, via: `ballot winner ${win.ref}` };
+    if (mint) return { mint, via: `${via} (${win.ref})` };
   }
   const watch = await readJson<Watch[]>(WATCHLIST, []);
   const next = watch.find((w) => !w.done);
@@ -272,6 +316,8 @@ export interface RunOptions {
   subject?: string;
   mock?: boolean;
   dry?: boolean;
+  /** how the subject was chosen, for the narrative */
+  via?: string;
 }
 
 export async function run(opts: RunOptions): Promise<{ case?: Case; message: string }> {
@@ -283,8 +329,11 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
   const src: Sources = opts.mock ? mockSources(opts.subject ?? `mock-${Date.now()}`) : liveSources();
   const registry = await readJson<Registry>(REGISTRY, { updated_at: "", entries: [] });
   await writeStatus({ state: "running", mode: src.name, message: "" });
+  const applied = await applyApprovedLeads(registry).catch(() => 0);
+  if (applied) process.stdout.write(`applied ${applied} approved lead${applied === 1 ? "" : "s"} to the registry\n`);
+  process.stdout.write(`state: ${usingRedis() ? "redis" : "files"}\n`);
 
-  let picked = await pickSubject(opts.subject, src, registry);
+  let picked = await pickSubject(opts.subject, src, registry, opts.via);
   let inv: Investigation | null = null;
   if (picked) {
     process.stdout.write(`subject ${picked.mint} via ${picked.via}\n`);
@@ -292,6 +341,9 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
     inv = await runDetectors(picked.mint, src, hints);
     for (const l of inv?.log ?? []) process.stdout.write(`  ${l}\n`);
     await markWatchlist(picked.mint, undefined);
+  } else if (src.name === "live" && REQUIRE_VOTES) {
+    await writeStatus({ state: "idle", last_run_at: iso(), message: "No ballot winner with votes this period. Nothing opened. The ballot is open.", next_run_at: nextRun() });
+    return { message: "nothing to investigate: no votes" };
   } else if (src.name === "live") {
     const best = await scanDiscovered(src);
     if (!best) {
@@ -349,9 +401,10 @@ export async function run(opts: RunOptions): Promise<{ case?: Case; message: str
     await writeJson(REGISTRY, enforceDeep(registry));
   }
   if (att.leads.length) {
-    const leads = await readJson<Lead[]>(LEADS, []);
-    for (const l of att.leads) if (!leads.some((x) => x.id === l.id)) leads.push(l);
-    await writeJson(LEADS, enforceDeep(leads));
+    await updateState<Lead[]>("leads", [], (leads) => {
+      for (const l of att.leads) if (!leads.some((x) => x.id === l.id)) leads.push(enforceDeep(l));
+      return leads;
+    });
   }
   await markWatchlist(picked.mint, n);
   try {

@@ -1,9 +1,8 @@
 /**
- * Site state that is not the agent's: ballots, votes, disputes.
- * Plain JSON files under CRIME_STATE_DIR (default web/.data). One process, one writer.
+ * Site state that is not the agent's: ballots, votes, disputes, leads.
+ * Lives in Redis (Upstash) when configured, else JSON files. See ../src/state.ts.
  */
-import fs from "node:fs";
-import path from "node:path";
+import { readState, updateState, writeState } from "@agent/state";
 
 export interface BallotOption {
   key: string;
@@ -13,7 +12,7 @@ export interface BallotOption {
 }
 
 export interface Ballot {
-  id: string; // YYYY-MM-DD (UTC)
+  id: string; // period start, UTC, "YYYY-MM-DDTHH"
   opened_at: string;
   closes_at: string;
   options: BallotOption[];
@@ -21,7 +20,12 @@ export interface Ballot {
   closed: boolean;
   winner?: string;
   runner_up?: string;
-  carried?: string; // option key carried from the previous day
+  carried?: string; // option key carried from the previous period
+  source?: "x" | "site"; // where the votes are cast
+  poll_tweet_id?: string;
+  poll_url?: string;
+  x_tally?: Record<string, number>; // votes read from the X poll
+  case_n?: number; // the case the winner became
 }
 
 export interface Dispute {
@@ -31,78 +35,103 @@ export interface Dispute {
   reviewed_at?: string;
 }
 
-interface State {
-  ballots: Ballot[];
-  disputes: Dispute[];
+export interface Lead {
+  id: string;
+  created_at: string;
+  case_n: number | null;
+  handle: string;
+  address: string;
+  tier: "probable" | "claimed";
+  source: string;
+  reason: string;
+  status: "open" | "approved" | "rejected";
+  applied?: boolean;
 }
 
-function stateDir(): string {
-  const d = process.env.CRIME_STATE_DIR?.trim();
-  return d ? path.resolve(/*turbopackIgnore: true*/ process.cwd(), d) : path.join(process.cwd(), ".data");
-}
+// ---- periods --------------------------------------------------------------
+export const PERIOD_MS = Math.max(0.25, Number(process.env.BALLOT_PERIOD_HOURS ?? 1)) * 3_600_000;
+const periodStart = (t = Date.now()) => new Date(Math.floor(t / PERIOD_MS) * PERIOD_MS);
+export const periodId = (t = Date.now()) => periodStart(t).toISOString().slice(0, 13);
+export const currentId = () => periodId();
 
-function file(name: keyof State): string {
-  return path.join(stateDir(), `${name}.json`);
-}
-
-function read<K extends keyof State>(name: K): State[K] {
-  try {
-    return JSON.parse(fs.readFileSync(file(name), "utf8")) as State[K];
-  } catch {
-    return [] as unknown as State[K];
-  }
-}
-
-function write<K extends keyof State>(name: K, value: State[K]): void {
-  fs.mkdirSync(stateDir(), { recursive: true });
-  const tmp = file(name) + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(value, null, 2));
-  fs.renameSync(tmp, file(name));
+function bounds(id: string): { opened_at: string; closes_at: string } {
+  const start = new Date(`${id}:00:00.000Z`);
+  return { opened_at: start.toISOString(), closes_at: new Date(start.getTime() + PERIOD_MS).toISOString() };
 }
 
 // ---- disputes -----------------------------------------------------------
+let hidden = new Set<string>();
+
+/** Disputed wallets. Refreshed by primeHidden() at the start of every request. */
 export function hiddenWallets(): Set<string> {
-  // A disputed wallet is hidden from the moment the dispute lands, whatever the review says.
-  return new Set(read("disputes").map((d) => d.wallet));
+  return hidden;
 }
 
-export function getDisputes(): Dispute[] {
-  return read("disputes").slice().sort((a, b) => b.at.localeCompare(a.at));
+export async function primeHidden(): Promise<void> {
+  const d = await readState<Dispute[]>("disputes", []);
+  hidden = new Set(d.map((x) => x.wallet));
 }
 
-export function addDispute(wallet: string): Dispute {
-  const all = read("disputes");
-  const existing = all.find((d) => d.wallet === wallet);
-  if (existing) return existing;
-  const d: Dispute = { wallet, at: new Date().toISOString(), status: "open" };
-  all.push(d);
-  write("disputes", all);
-  return d;
+export async function getDisputes(): Promise<Dispute[]> {
+  return (await readState<Dispute[]>("disputes", [])).slice().sort((a, b) => b.at.localeCompare(a.at));
 }
 
-export function reviewDispute(wallet: string, status: "removed" | "kept"): Dispute | null {
-  const all = read("disputes");
-  const d = all.find((x) => x.wallet === wallet);
-  if (!d) return null;
-  d.status = status;
-  d.reviewed_at = new Date().toISOString();
-  write("disputes", all);
-  return d;
+export async function addDispute(wallet: string): Promise<Dispute> {
+  let out: Dispute | undefined;
+  await updateState<Dispute[]>("disputes", [], (all) => {
+    out = all.find((d) => d.wallet === wallet);
+    if (!out) {
+      out = { wallet, at: new Date().toISOString(), status: "open" };
+      all.push(out);
+    }
+    return all;
+  });
+  hidden.add(wallet);
+  return out!;
+}
+
+export async function reviewDispute(wallet: string, status: "removed" | "kept"): Promise<Dispute | null> {
+  let out: Dispute | null = null;
+  await updateState<Dispute[]>("disputes", [], (all) => {
+    const d = all.find((x) => x.wallet === wallet);
+    if (d) {
+      d.status = status;
+      d.reviewed_at = new Date().toISOString();
+      out = d;
+    }
+    return all;
+  });
+  return out;
+}
+
+// ---- leads --------------------------------------------------------------
+export async function getLeads(): Promise<Lead[]> {
+  return (await readState<Lead[]>("leads", [])).slice().sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
+/** Approve or reject. An approved lead reaches the registry on the agent's next run. */
+export async function reviewLead(id: string, status: "approved" | "rejected"): Promise<Lead | null> {
+  let out: Lead | null = null;
+  await updateState<Lead[]>("leads", [], (all) => {
+    const l = all.find((x) => x.id === id && x.status === "open");
+    if (l) {
+      l.status = status;
+      out = l;
+    }
+    return all;
+  });
+  return out;
 }
 
 // ---- ballots ------------------------------------------------------------
-export const todayId = (d = new Date()) => d.toISOString().slice(0, 10);
-
-function dayBounds(id: string): { opened_at: string; closes_at: string } {
-  const start = new Date(`${id}T00:00:00.000Z`);
-  const end = new Date(start.getTime() + 86_400_000);
-  return { opened_at: start.toISOString(), closes_at: end.toISOString() };
-}
-
 export function tally(b: Ballot): Record<string, number> {
   const t: Record<string, number> = {};
   for (const o of b.options) t[o.key] = 0;
-  for (const k of Object.values(b.votes)) if (k in t) t[k] += 1;
+  if (b.x_tally) {
+    for (const [k, v] of Object.entries(b.x_tally)) if (k in t) t[k] = v;
+  } else {
+    for (const k of Object.values(b.votes)) if (k in t) t[k] += 1;
+  }
   return t;
 }
 
@@ -113,10 +142,10 @@ export function standings(b: Ballot): { winner?: string; runner_up?: string } {
   return { winner: ordered[0], runner_up: ordered[1] };
 }
 
-function closeStale(ballots: Ballot[], today: string): boolean {
+function closeStale(ballots: Ballot[], now = Date.now()): boolean {
   let changed = false;
   for (const b of ballots) {
-    if (!b.closed && b.id < today) {
+    if (!b.closed && Date.parse(b.closes_at) <= now) {
       Object.assign(b, standings(b), { closed: true });
       changed = true;
     }
@@ -124,59 +153,65 @@ function closeStale(ballots: Ballot[], today: string): boolean {
   return changed;
 }
 
-export function getBallots(): Ballot[] {
-  const ballots = read("ballots");
-  if (closeStale(ballots, todayId())) write("ballots", ballots);
+export async function getBallots(): Promise<Ballot[]> {
+  const ballots = await readState<Ballot[]>("ballots", []);
+  if (closeStale(ballots)) await writeState("ballots", ballots);
   return ballots.sort((a, b) => b.id.localeCompare(a.id));
 }
 
-export function getBallot(id: string): Ballot | null {
-  return getBallots().find((b) => b.id === id) ?? null;
+export async function getBallot(id: string): Promise<Ballot | null> {
+  return (await getBallots()).find((b) => b.id === id) ?? null;
 }
 
-export function getTodayBallot(): Ballot | null {
-  return getBallot(todayId());
+export async function getCurrentBallot(): Promise<Ballot | null> {
+  return getBallot(currentId());
 }
 
-/** Option keys that appeared on any ballot in the last `days` days. */
-export function recentlyBalloted(days = 30): Set<string> {
-  const cutoff = todayId(new Date(Date.now() - days * 86_400_000));
+/** Option keys on any ballot in the last `hours`. */
+export async function recentlyBalloted(hours = 24): Promise<Set<string>> {
+  const cutoff = Date.now() - hours * 3_600_000;
   const s = new Set<string>();
-  for (const b of getBallots()) if (b.id >= cutoff) for (const o of b.options) s.add(o.key);
+  for (const b of await getBallots()) if (Date.parse(b.opened_at) >= cutoff) for (const o of b.options) s.add(o.key);
   return s;
 }
 
 /** The runner-up of the most recent closed ballot, which carries to the next one. */
-export function carryOver(): BallotOption | null {
-  const prev = getBallots().find((b) => b.closed);
+export async function carryOver(): Promise<BallotOption | null> {
+  const prev = (await getBallots()).find((b) => b.closed);
   if (!prev?.runner_up) return null;
   return prev.options.find((o) => o.key === prev.runner_up) ?? null;
 }
 
-export function setBallot(id: string, options: BallotOption[], carried?: string): Ballot {
-  const ballots = read("ballots");
-  const existing = ballots.find((b) => b.id === id);
-  if (existing && Object.keys(existing.votes).length > 0) {
-    throw new Error("Ballot already has votes.");
-  }
-  const b: Ballot = { id, ...dayBounds(id), options, votes: {}, closed: false, carried };
-  const next = ballots.filter((x) => x.id !== id);
-  next.push(b);
-  write("ballots", next);
-  return b;
+export async function setBallot(id: string, options: BallotOption[], carried?: string): Promise<Ballot> {
+  let out!: Ballot;
+  await updateState<Ballot[]>("ballots", [], (ballots) => {
+    const existing = ballots.find((b) => b.id === id);
+    if (existing && Object.keys(existing.votes).length > 0) throw new Error("Ballot already has votes.");
+    out = { id, ...bounds(id), options, votes: {}, closed: false, carried };
+    const next = ballots.filter((x) => x.id !== id);
+    next.push(out);
+    // keep the document small: the last 500 periods
+    return next.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 500);
+  });
+  return out;
 }
 
 export type VoteResult = { ok: true; ballot: Ballot } | { ok: false; status: number; error: string };
 
-export function castVote(ballotId: string, wallet: string, option: string): VoteResult {
-  const ballots = read("ballots");
-  closeStale(ballots, todayId());
-  const b = ballots.find((x) => x.id === ballotId);
-  if (!b) return { ok: false, status: 404, error: "No such ballot." };
-  if (b.closed || b.id !== todayId()) return { ok: false, status: 409, error: "Ballot closed." };
-  if (!b.options.some((o) => o.key === option)) return { ok: false, status: 400, error: "Not an option." };
-  if (wallet in b.votes) return { ok: false, status: 409, error: "One vote per wallet." };
-  b.votes[wallet] = option;
-  write("ballots", ballots);
-  return { ok: true, ballot: b };
+export async function castVote(ballotId: string, wallet: string, option: string): Promise<VoteResult> {
+  let result: VoteResult = { ok: false, status: 404, error: "No such ballot." };
+  await updateState<Ballot[]>("ballots", [], (ballots) => {
+    closeStale(ballots);
+    const b = ballots.find((x) => x.id === ballotId);
+    if (!b) return ballots;
+    if (b.closed || b.id !== currentId()) result = { ok: false, status: 409, error: "Ballot closed." };
+    else if (!b.options.some((o) => o.key === option)) result = { ok: false, status: 400, error: "Not an option." };
+    else if (wallet in b.votes) result = { ok: false, status: 409, error: "One vote per wallet." };
+    else {
+      b.votes[wallet] = option;
+      result = { ok: true, ballot: b };
+    }
+    return ballots;
+  });
+  return result;
 }

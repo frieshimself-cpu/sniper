@@ -5,7 +5,7 @@ import { body, error, json } from "@/lib/api";
 
 export async function GET() {
   if (!(await isAdmin())) return error(401, "Admin only.");
-  return json({ candidates: candidates() });
+  return json({ candidates: await candidates() });
 }
 
 export async function POST(req: Request) {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   const b = await body<{ keys?: string[] }>(req);
   const keys = Array.isArray(b?.keys) ? b!.keys!.filter((k) => typeof k === "string") : undefined;
   try {
-    return json({ ok: true, ballot: buildBallot(keys) });
+    return json({ ok: true, ballot: await buildBallot(keys) });
   } catch (e) {
     return error(400, (e as Error).message);
   }

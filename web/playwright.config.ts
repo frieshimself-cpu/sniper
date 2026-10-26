@@ -20,6 +20,7 @@ export default defineConfig({
       VOTE_BALANCE_CHECK: "off",
       CRIME_STATE_DIR: ".data-test",
       CRIME_AGENT_ROOT: "tests/fixture",
+      BALLOT_SOURCE: "archive",
       SITE_URL: "http://127.0.0.1:3111",
     },
   },

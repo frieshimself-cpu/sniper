@@ -6,6 +6,8 @@
 export interface Candidate {
   mint: string;
   why: string;
+  symbol?: string;
+  name?: string;
   /** What the feed already knows. Used to cross-check the chain, never instead of it. */
   hints?: { deployer?: string; created_at?: string; launchpad?: string };
 }
@@ -20,7 +22,7 @@ async function getJson<T>(url: string): Promise<T | null> {
 }
 
 type Boost = { chainId: string; tokenAddress: string; totalAmount?: number; amount?: number };
-type JupToken = { id: string; symbol?: string; launchpad?: string | null; organicScoreLabel?: string; dev?: string; firstPool?: { id?: string; createdAt?: string } };
+type JupToken = { id: string; symbol?: string; name?: string; launchpad?: string | null; organicScoreLabel?: string; dev?: string; firstPool?: { id?: string; createdAt?: string } };
 
 const HOUR = 3_600_000;
 const MIN_AGE_H = Number(process.env.DISCOVER_MIN_AGE_HOURS ?? 1); // the first half hour is where the evidence is; let it land
@@ -37,6 +39,8 @@ async function jupiterLaunches(): Promise<Candidate[]> {
       if (!t.launchpad || !Number.isFinite(age) || age < MIN_AGE_H * HOUR || age > MAX_AGE_D * 86_400_000) continue;
       out.push({
         mint: t.id,
+        symbol: t.symbol,
+        name: t.name,
         why: `trending ${window} on ${t.launchpad}${t.organicScoreLabel ? `, ${t.organicScoreLabel} organic score` : ""}`,
         hints: { deployer: t.dev || undefined, created_at: t.firstPool?.createdAt, launchpad: t.launchpad },
       });
@@ -63,4 +67,16 @@ export async function tokenHints(mint: string): Promise<NonNullable<Candidate["h
   const t = Array.isArray(j) ? j.find((x) => x.id === mint) ?? j[0] : j;
   if (!t || t.id !== mint) return {};
   return { deployer: t.dev || undefined, created_at: t.firstPool?.createdAt, launchpad: t.launchpad ?? undefined };
+}
+
+/** Fill in symbol and name for candidates that came without them (DexScreener boosts). Free, 30 mints a call. */
+export async function describe(cands: Candidate[]): Promise<Candidate[]> {
+  const missing = cands.filter((c) => !c.symbol).map((c) => c.mint);
+  type Pair = { baseToken?: { address: string; symbol: string; name: string } };
+  const found = new Map<string, { symbol: string; name: string }>();
+  for (let i = 0; i < missing.length; i += 30) {
+    const pairs = (await getJson<Pair[]>(`https://api.dexscreener.com/tokens/v1/solana/${missing.slice(i, i + 30).join(",")}`)) ?? [];
+    for (const p of pairs) if (p.baseToken && !found.has(p.baseToken.address)) found.set(p.baseToken.address, { symbol: p.baseToken.symbol, name: p.baseToken.name });
+  }
+  return cands.map((c) => (c.symbol ? c : { ...c, ...(found.get(c.mint) ?? {}) }));
 }

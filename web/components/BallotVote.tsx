@@ -12,8 +12,11 @@ interface View {
   total: number;
 }
 
-function hoursLeft(iso: string) {
-  return Math.max(0, Math.round((Date.parse(iso) - Date.now()) / 3_600_000));
+function left(iso: string) {
+  const s = Math.max(0, Math.round((Date.parse(iso) - Date.now()) / 1000));
+  if (s < 90) return `${s}s`;
+  const m = Math.round(s / 60);
+  return m < 120 ? `${m}m` : `${Math.round(m / 60)}h`;
 }
 
 export function BallotVote({ initial, compact = false }: { initial: View; compact?: boolean }) {
@@ -60,12 +63,14 @@ export function BallotVote({ initial, compact = false }: { initial: View; compac
   }
 
   const max = Math.max(1, ...Object.values(view.tally));
+  const onX = b.source === "x";
+  const open = !b.closed && Date.parse(b.closes_at) > Date.now();
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b-2 border-ink pb-2">
         <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">Ballot {b.id}</span>
         <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">
-          {view.total} votes · closes in {hoursLeft(b.closes_at)}h
+          {view.total} votes · closes in {left(b.closes_at)}
         </span>
       </div>
       <ol className={`mt-4 grid gap-4 ${compact ? "" : "sm:grid-cols-2"}`}>
@@ -87,19 +92,31 @@ export function BallotVote({ initial, compact = false }: { initial: View; compac
               <div className="tally">
                 <span style={{ width: `${(n / max) * 100}%` }} />
               </div>
-              <button type="button" className="btn self-start" disabled={busy !== null || b.closed} onClick={() => vote(o.key)}>
-                {busy === o.key ? "Signing" : "Vote"}
-              </button>
+              {onX ? null : (
+                <button type="button" className="btn self-start" disabled={busy !== null || !open} onClick={() => vote(o.key)}>
+                  {busy === o.key ? "Signing" : "Vote"}
+                </button>
+              )}
             </li>
           );
         })}
       </ol>
+      {onX ? (
+        <p className="mt-5 flex flex-wrap items-center gap-3 text-xs">
+          {b.poll_url ? (
+            <a href={b.poll_url} target="_blank" rel="noopener noreferrer" className={`btn ${open ? "btn-red" : ""}`}>
+              {open ? "Vote on X" : "The poll on X"}
+            </a>
+          ) : null}
+          <span className="opacity-70">{open ? "Votes are cast in the poll on X. Tallies update when it closes." : b.case_n ? `Closed. The winner is case ${String(b.case_n).padStart(4, "0")}.` : "Closed."}</span>
+        </p>
+      ) : null}
       {note ? (
         <p className="mt-4 text-xs" role="status">
           {note}
         </p>
       ) : null}
-      {!compact ? (
+      {!compact && !onX ? (
         <p className="mt-6 text-xs opacity-70">
           A vote is a signed message: <code>CRIME ballot {b.id} vote &lt;option&gt;</code>. Nothing is sent on-chain. One vote per
           wallet. The wallet must hold the minimum balance. Votes are counted, not weighted.

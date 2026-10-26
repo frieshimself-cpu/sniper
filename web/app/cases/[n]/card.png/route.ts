@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import { cardPath } from "@/lib/data";
-import { dyn } from "@/lib/dyn";
+import { dyn } from "@/lib/request";
 
 
 

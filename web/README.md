@@ -46,7 +46,7 @@ npm run build && npm test
 | `/cases` | archive. Search by CA, `$symbol` or `@handle`. Filter by severity. Newest first |
 | `/cases/:n` | the card PNG, findings, evidence table with Solscan links, money trail, narrative, CSV, `og:image` |
 | `/persons`, `/persons/:handle` | dossiers. Rollup, wallets on the record (tier + source), tokens, Dispute |
-| `/ballot` | today's four, live tallies, history |
+| `/ballot` | this hour's ballot, the poll on X, tallies, history with the case each winner became |
 | `/stamp` | client-side stamp generator. Upload, drag, rotate, download |
 | `/embed` | iframe snippet for the 600×160 counter at `/embed/counter`, API docs |
 | `/rules` | rules of engagement, how to dispute |
@@ -106,7 +106,24 @@ The agent has its own `.env` at the repo root (see `../.env.example`): `HELIUS_A
 With `VOTE_BALANCE_CHECK=on` and no RPC or mint, `/api/vote` answers 503 and
 the ballot page says so. Nothing else degrades.
 
-## The site on GitHub Pages, no server
+## Deploy on Vercel (the full site, no server)
+
+The full site runs on Vercel: votes, disputes, `/admin`, request-time data. Mutable state
+lives in Upstash Redis so the agent on GitHub and the site on Vercel share it.
+
+1. Import the repo at vercel.com/new. Root Directory: `web`. Framework: Next.js. Keep
+   "Include source files outside of the Root Directory" on (the site imports `../src`).
+2. Storage, add Upstash Redis (Vercel Marketplace). It sets `KV_REST_API_URL` and
+   `KV_REST_API_TOKEN` on the project. Copy both into the GitHub repository secrets too, so
+   the agent writes ballots and reads leads in the same place.
+3. Environment variables on the project: `SITE_URL` (the Vercel URL), `ADMIN_PASSWORD`,
+   `BALLOT_AUTOBUILD=off` when the agent posts polls on X (otherwise leave it on),
+   `CRIME_MINT`, `MIN_VOTE_BALANCE`, `HELIUS_API_KEY` if on-site wallet voting is used.
+4. Deploy. Every case the agent commits triggers a new deployment, because the build
+   copies `../data`, `../out` and `../fixtures` into the site (`scripts/sync-agent-data.mjs`).
+5. Set `SITE_URL` as a repository variable on GitHub so posts link to the Vercel site.
+
+## The site on GitHub Pages, no server## The site on GitHub Pages, no server
 
 `.github/workflows/pages.yml` builds a read-only static export of the site and publishes it
 to GitHub Pages after every case the agent opens. Enable it once: Settings, Pages, Source:
@@ -122,17 +139,21 @@ with cards and CSVs, dossiers, rules, the stamp generator, the embed, and the AP
 
 ## Run the agent on GitHub, no server
 
-`.github/workflows/investigate.yml` runs an investigation every six hours on GitHub's
-runners and commits the case, the card, the registry and the leads back to the branch.
+`.github/workflows/investigate.yml` runs one cycle an hour on GitHub's runners: it puts up
+to four fresh launches on a poll on X for ten minutes, investigates the winner, posts the case
+back to X with its card, and commits the case, the card and the registry to the branch.
+Without X credentials the ballot runs on the site instead. Without votes nothing is opened.
 Set these in the repository: Settings, Secrets and variables, Actions.
 
 | Secret | Required |
 | --- | --- |
 | `HELIUS_API_KEY` | yes |
-| `ARKHAM_API_KEY` | no, adds labels and the money trail's exchange names |
+| `ARKHAM_API_KEY` | no, adds labels, exchange names on the trail, pump.fun usernames |
 | `XAI_API_KEY` | no, adds self-claimed wallets from X posts |
+| `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` | no, moves the vote to a poll on X and posts cases there (developer.x.com, Read and Write) |
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | no, shares ballots and leads with the Vercel site |
 
-Optional repository variables: `MIN_PUBLISH_SCORE` (35), `DISCOVER_SCAN` (6).
+Optional repository variables: `SITE_URL`, `X_POLL_MINUTES` (10), `REQUIRE_VOTES` (on), `MIN_PUBLISH_SCORE` (35).
 Run it by hand from the Actions tab (workflow_dispatch) with a mint, or as a dry run.
 The site then only needs to redeploy on push, or to pull the branch on a timer.
 

@@ -1,6 +1,6 @@
 import { getStats } from "@/lib/data";
 import { json } from "@/lib/api";
-import { dyn } from "@/lib/dyn";
+import { dyn } from "@/lib/request";
 
 
 export async function GET() {

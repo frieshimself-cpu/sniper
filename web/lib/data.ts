@@ -15,12 +15,12 @@ import type { Case, CasesFile, Registry, RegistryEntry, RegistryWallet, Severity
 import { SEVERITIES } from "./types";
 
 // CRIME_AGENT_ROOT points the site at another agent directory (the smoke tests use a demo snapshot).
-export const AGENT_ROOT = path.resolve(process.cwd(), process.env.CRIME_AGENT_ROOT?.trim() || "..");
+// On Vercel the build copies ../data, ../out and ../fixtures into web/agent-data (scripts/sync-agent-data.mjs).
+export const AGENT_ROOT = path.resolve(process.cwd(), process.env.CRIME_AGENT_ROOT?.trim() || (process.env.VERCEL ? "agent-data" : ".."));
 const CASES_PATH = path.join(AGENT_ROOT, "data", "cases.json");
 const REGISTRY_PATH = path.join(AGENT_ROOT, "fixtures", "registry.json");
 const OUT_DIR = path.join(AGENT_ROOT, "out");
 const STATUS_PATH = path.join(AGENT_ROOT, "data", "status.json");
-const LEADS_PATH = path.join(AGENT_ROOT, "data", "leads.json");
 
 const HIDDEN = "hidden";
 
@@ -251,48 +251,6 @@ export function getAgentStatus(): AgentStatus {
     last_case: s.last_case ?? null,
     message: s.message ?? "",
   });
-}
-
-export interface Lead {
-  id: string;
-  created_at: string;
-  case_n: number | null;
-  handle: string;
-  address: string;
-  tier: "probable" | "claimed";
-  source: string;
-  reason: string;
-  status: "open" | "approved" | "rejected";
-}
-
-const readLeads = cached<Lead[]>(LEADS_PATH, []);
-
-/** Attribution leads the investigator could not source well enough to publish. Admin only. */
-export function getLeads(): Lead[] {
-  return enforceDeep(readLeads().slice().sort((a, b) => b.created_at.localeCompare(a.created_at)));
-}
-
-export function reviewLead(id: string, status: "approved" | "rejected"): Lead | null {
-  const leads = readLeads().slice();
-  const lead = leads.find((l) => l.id === id);
-  if (!lead || lead.status !== "open") return null;
-  lead.status = status;
-  if (status === "approved") {
-    const reg = readRegistry();
-    const h = normalizeHandle(lead.handle);
-    let entry = reg.entries.find((e) => normalizeHandle(e.handle) === h);
-    if (!entry) {
-      entry = { handle: h, wallets: [] };
-      reg.entries.push(entry);
-    }
-    if (!entry.wallets.some((w) => w.address === lead.address)) {
-      entry.wallets.push({ address: lead.address, tier: lead.tier, source: lead.source });
-    }
-    reg.updated_at = new Date().toISOString();
-    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(reg, null, 2) + "\n");
-  }
-  fs.writeFileSync(LEADS_PATH, JSON.stringify(leads, null, 2) + "\n");
-  return lead;
 }
 
 // ---- stats --------------------------------------------------------------

@@ -1,6 +1,7 @@
 import { getCase } from "@/lib/data";
 import { error, json } from "@/lib/api";
-import { dyn, withBase } from "@/lib/dyn";
+import { dyn } from "@/lib/request";
+import { withBase } from "@/lib/dyn";
 
 
 

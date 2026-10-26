@@ -5,8 +5,8 @@ import { withBase } from "@/lib/dyn";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Candidate } from "@/lib/ballot";
-import type { BallotOption, Dispute } from "@/lib/store";
-import type { AgentStatus, Lead } from "@/lib/data";
+import type { BallotOption, Dispute, Lead } from "@/lib/store";
+import type { AgentStatus } from "@/lib/data";
 
 async function post(url: string, body: unknown) {
   const r = await fetch(withBase(url), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -120,12 +120,12 @@ export function AdminPanel({
     <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
       <section className="file p-5 md:p-6">
         <div className="flex items-baseline justify-between gap-4 border-b-2 border-ink pb-2">
-          <h2 className="text-xl">Today&apos;s ballot</h2>
+          <h2 className="text-xl">This hour&apos;s ballot</h2>
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{today ? `${today.id} · ${today.votes} votes` : "not built"}</span>
         </div>
         <p className="mt-3 text-xs opacity-80">
-          Pick up to {size}, at least 2. Eligible: tokens with score at or above {threshold}, and registry handles. Nothing that was on a ballot in the last 30 days.
-          Yesterday&apos;s runner-up is carried.
+          Pick up to {size}, at least 2. Eligible: tokens with score at or above {threshold}, and registry handles. Nothing that was on a ballot in the last day.
+          The previous runner-up is carried.
         </p>
         {locked ? <p className="mt-2 text-xs text-stamp">Votes are in. Today&apos;s ballot is locked.</p> : null}
         <ul className="mt-4 flex flex-col gap-2 max-h-96 overflow-y-auto">
@@ -209,8 +209,8 @@ export function AdminPanel({
           </span>
         </div>
         <p className="mt-3 text-xs opacity-80">
-          Wallet-to-handle links the investigator found but could not source well enough to publish on its own. Approve writes the wallet to the
-          registry with the source shown. Reject drops it. {agent.message ? `Last run: ${agent.message}` : ""}
+          Wallet-to-handle links the investigator found but could not source well enough to publish on its own. Approve puts the wallet in the registry with the source shown on
+          the agent&apos;s next run. Reject drops it. {agent.message ? `Last run: ${agent.message}` : ""}
         </p>
         {leads.length === 0 ? (
           <p className="mt-4 text-sm">None.</p>

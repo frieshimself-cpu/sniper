@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "C.R.I.M.E. — Chain Research & Investigation of Market Exploits. Agent core, policy and demo data.",
+  "description": "C.R.I.M.E. \u2014 Chain Research & Investigation of Market Exploits. Agent core, policy and demo data.",
   "scripts": {
     "demo": "tsx src/demo.ts",
     "typecheck": "tsc --noEmit",
     "policy:test": "tsx src/policy.test.ts",
     "investigate": "node --env-file-if-exists=.env --import tsx src/investigate.ts",
-    "watch": "node --env-file-if-exists=.env --import tsx src/schedule.ts"
+    "watch": "node --env-file-if-exists=.env --import tsx src/schedule.ts",
+    "cycle": "node --env-file-if-exists=.env --import tsx src/cycle.ts"
   },
   "devDependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.5",

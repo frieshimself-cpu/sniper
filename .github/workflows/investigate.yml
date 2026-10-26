@@ -1,19 +1,20 @@
-# The agent, online, with no server: GitHub runs an investigation every six hours
-# and commits whatever it opens. Needs the repository secret HELIUS_API_KEY
-# (ARKHAM_API_KEY and XAI_API_KEY optional). Settings -> Secrets and variables -> Actions.
+# The agent, online, with no server: once an hour GitHub runs a cycle.
+#   ballot of fresh launches -> poll on X for X_POLL_MINUTES -> winner investigated -> case posted and committed.
+# Secrets: HELIUS_API_KEY (required), ARKHAM_API_KEY, XAI_API_KEY, X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN,
+# X_ACCESS_SECRET (polls on X), KV_REST_API_URL + KV_REST_API_TOKEN (shared state with the Vercel site).
 name: investigate
 
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "0 * * * *"
   workflow_dispatch:
     inputs:
       subject:
-        description: "Mint to investigate (blank = ballot winner, watchlist, then discovery)"
+        description: "Mint to investigate now, skipping the ballot (blank = run a full cycle)"
         required: false
         default: ""
       dry:
-        description: "Dry run: print the case, commit nothing"
+        description: "Dry run: print, commit nothing"
         type: boolean
         default: false
 
@@ -26,9 +27,9 @@ permissions:
   actions: write
 
 jobs:
-  investigate:
+  cycle:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
         with:
@@ -42,25 +43,39 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
 
-      - name: Investigate
+      - name: Cycle
         env:
           HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
           ARKHAM_API_KEY: ${{ secrets.ARKHAM_API_KEY }}
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
+          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://frieshimself-cpu.github.io/sniper' }}
+          X_POLL_MINUTES: ${{ vars.X_POLL_MINUTES || '10' }}
+          REQUIRE_VOTES: ${{ vars.REQUIRE_VOTES || 'on' }}
           MIN_PUBLISH_SCORE: ${{ vars.MIN_PUBLISH_SCORE || '35' }}
-          DISCOVER_SCAN: ${{ vars.DISCOVER_SCAN || '6' }}
+          CRIME_STATE_DIR: web/.data
         run: |
-          ARGS=""
-          if [ -n "${{ inputs.subject }}" ]; then ARGS="$ARGS --subject ${{ inputs.subject }}"; fi
-          if [ "${{ inputs.dry }}" = "true" ]; then ARGS="$ARGS --dry"; fi
-          npm run investigate -- $ARGS
+          if [ -n "${{ inputs.subject }}" ]; then
+            ARGS="--subject ${{ inputs.subject }}"
+            if [ "${{ inputs.dry }}" = "true" ]; then ARGS="$ARGS --dry"; fi
+            npm run investigate -- $ARGS
+          elif [ "${{ inputs.dry }}" = "true" ]; then
+            npm run cycle -- --dry
+          else
+            npm run cycle
+          fi
 
       - name: Commit the case
         if: ${{ inputs.dry != true }}
         run: |
           git config user.name "C.R.I.M.E."
           git config user.email "crime@users.noreply.github.com"
-          git add data/cases.json data/leads.json data/status.json data/watchlist.json fixtures/registry.json out/
+          git add data/cases.json data/status.json data/watchlist.json fixtures/registry.json out/
           if git diff --cached --quiet; then
             echo "nothing to commit"
           else
@@ -68,7 +83,6 @@ jobs:
             git commit -m "Case ${N}: opened by the agent" -m "$(node -e 'console.log(require("./data/status.json").message)')"
             git pull --rebase origin "${{ github.ref_name }}"
             git push origin HEAD:"${{ github.ref_name }}"
-            # a push by GITHUB_TOKEN does not trigger other workflows; dispatch the site rebuild by hand
             gh workflow run pages.yml --ref "${{ github.ref_name }}" || echo "pages workflow not dispatched (is Pages enabled?)"
           fi
         env:

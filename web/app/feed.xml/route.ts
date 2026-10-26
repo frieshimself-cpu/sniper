@@ -1,5 +1,5 @@
 import { atomFeed } from "@/lib/feed";
-import { dyn } from "@/lib/dyn";
+import { dyn } from "@/lib/request";
 
 export async function GET() {
   await dyn();

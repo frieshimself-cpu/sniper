@@ -5,7 +5,7 @@ import "@fontsource/ibm-plex-mono/600.css";
 import "@fontsource/ibm-plex-sans/700.css";
 import "./globals.css";
 import { siteUrl } from "@/lib/format";
-import { dyn } from "@/lib/dyn";
+import { dyn } from "@/lib/request";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),

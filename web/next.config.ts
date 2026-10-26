@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
   turbopack: { root: path.join(__dirname, "..") },
   outputFileTracingRoot: path.join(__dirname, ".."),
   poweredByHeader: false,
+  // Vercel: the agent's files are copied into agent-data at build time and must ship with the functions.
+  outputFileTracingIncludes: { "/**": ["./agent-data/**/*"] },
   ...(STATIC
     ? { output: "export", distDir: ".next-static", basePath, trailingSlash: true, images: { unoptimized: true } }
     : {

@@ -1,9 +1,13 @@
 /**
- * Ballot building: four subjects, eligible only, no repeat within 30 days,
- * yesterday's runner-up carried over. Used by /admin and by the daily auto-build.
+ * The hourly ballot: up to four subjects, the community picks, the winner is the next case.
+ * Options are fresh launches that are paying for attention (the agent's discovery feeds),
+ * never anything already on file, never anything balloted in the last day. The previous
+ * period's runner-up carries over. With BALLOT_SOURCE=archive (the tests) options come from
+ * the archive instead.
  */
-import { eligibleSubjects } from "./data";
-import { carryOver, getTodayBallot, recentlyBalloted, setBallot, todayId, type Ballot, type BallotOption } from "./store";
+import { discover, describe } from "@agent/sources/discover";
+import { eligibleSubjects, getCases } from "./data";
+import { carryOver, currentId, getBallots, getCurrentBallot, recentlyBalloted, setBallot, type Ballot, type BallotOption } from "./store";
 
 export const BALLOT_SIZE = 4; // at most
 export const BALLOT_MIN = 2; // at least, or there is no ballot
@@ -16,36 +20,56 @@ export function scoreThreshold(): number {
 export interface Candidate extends BallotOption {
   score: number;
   carried: boolean;
+  why?: string;
 }
 
-/** Everything the admin may pick from today, carried runner-up first. */
-export function candidates(): Candidate[] {
-  const recent = recentlyBalloted(30);
-  const carried = carryOver();
-  const today = getTodayBallot();
-  // Today's own options do not count against today.
-  if (today) for (const o of today.options) recent.delete(o.key);
+async function fromDiscovery(): Promise<Candidate[]> {
+  const covered = new Set(getCases().map((c) => c.token.mint));
+  const raw = (await discover(60)).filter((c) => !covered.has(c.mint));
+  const described = await describe(raw.slice(0, 40));
+  return described
+    .filter((c) => c.symbol)
+    .map((c) => ({ key: `token:${c.mint}`, kind: "token" as const, label: `$${c.symbol}`, ref: c.mint, score: 0, carried: false, why: c.why }));
+}
+
+function fromArchive(): Candidate[] {
+  return eligibleSubjects(scoreThreshold()).map((s) => ({ key: s.key, kind: s.kind, label: s.label, ref: s.ref, score: s.score, carried: false }));
+}
+
+/** Everything the admin may pick from this period, carried runner-up first. */
+export async function candidates(): Promise<Candidate[]> {
+  const recent = await recentlyBalloted(24);
+  const carried = await carryOver();
+  const current = await getCurrentBallot();
+  if (current) for (const o of current.options) recent.delete(o.key);
   const out: Candidate[] = [];
   if (carried) out.push({ ...carried, score: 0, carried: true });
-  for (const s of eligibleSubjects(scoreThreshold())) {
-    if (carried && s.key === carried.key) continue;
-    if (recent.has(s.key)) continue;
-    out.push({ key: s.key, kind: s.kind, label: s.label, ref: s.ref, score: s.score, carried: false });
+  const source = (process.env.BALLOT_SOURCE ?? "discovery").toLowerCase();
+  let pool: Candidate[] = [];
+  if (source !== "archive") {
+    try {
+      pool = await fromDiscovery();
+    } catch {
+      pool = [];
+    }
+  }
+  if (pool.length < BALLOT_MIN) pool = [...pool, ...fromArchive()];
+  for (const c of pool) {
+    if (carried && c.key === carried.key) continue;
+    if (recent.has(c.key) || out.some((o) => o.key === c.key)) continue;
+    out.push(c);
   }
   return out;
 }
 
-/** Default pick: carried runner-up, then highest-scoring tokens, then handles. */
-export function autoPick(): BallotOption[] {
-  const all = candidates();
-  const tokens = all.filter((c) => !c.carried && c.kind === "token").sort((a, b) => b.score - a.score);
-  const handles = all.filter((c) => !c.carried && c.kind === "handle");
-  const picked: Candidate[] = [...all.filter((c) => c.carried), ...tokens, ...handles].slice(0, BALLOT_SIZE);
+export async function autoPick(): Promise<BallotOption[]> {
+  const all = await candidates();
+  const picked = [...all.filter((c) => c.carried), ...all.filter((c) => !c.carried)].slice(0, BALLOT_SIZE);
   return picked.map(({ key, kind, label, ref }) => ({ key, kind, label, ref }));
 }
 
-export function buildBallot(keys?: string[]): Ballot {
-  const all = candidates();
+export async function buildBallot(keys?: string[]): Promise<Ballot> {
+  const all = await candidates();
   let options: BallotOption[];
   if (keys && keys.length) {
     const byKey = new Map(all.map((c) => [c.key, c]));
@@ -56,20 +80,26 @@ export function buildBallot(keys?: string[]): Ballot {
       return { key, kind, label, ref };
     });
   } else {
-    options = autoPick();
+    options = await autoPick();
   }
   if (options.length < BALLOT_MIN || options.length > BALLOT_SIZE) throw new Error(`A ballot has ${BALLOT_MIN} to ${BALLOT_SIZE} options.`);
   const carried = all.find((c) => c.carried && options.some((o) => o.key === c.key))?.key;
-  return setBallot(todayId(), options, carried);
+  return setBallot(currentId(), options, carried);
 }
 
-/** Today's ballot, built automatically if the admin has not built one. */
-export function ensureTodayBallot(): Ballot | null {
-  const existing = getTodayBallot();
+let building: Promise<Ballot | null> | null = null;
+
+/** This period's ballot. Built on first sight unless BALLOT_AUTOBUILD=off (set that when the agent posts X polls). */
+export async function ensureCurrentBallot(): Promise<Ballot | null> {
+  const existing = await getCurrentBallot();
   if (existing) return existing;
-  try {
-    return buildBallot();
-  } catch {
-    return null;
+  if ((process.env.BALLOT_AUTOBUILD ?? "on").toLowerCase() === "off") return (await getBallots())[0] ?? null;
+  if (!building) {
+    building = buildBallot()
+      .catch(() => null)
+      .finally(() => {
+        building = null;
+      });
   }
+  return building;
 }

@@ -10,6 +10,6 @@ export async function POST(req: Request) {
   const { wallet, signature } = b;
   if (!isBase58Pubkey(wallet)) return error(400, "wallet required.");
   if (!verifySigned(disputeMessage(wallet), signature, wallet)) return error(401, "Bad signature.");
-  addDispute(wallet);
+  await addDispute(wallet);
   return json({ message: "Noted." });
 }
