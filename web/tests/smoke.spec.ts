@@ -22,7 +22,7 @@ test.beforeAll(() => {
   fs.rmSync(STATE_DIR, { recursive: true, force: true });
 });
 
-test("/ is one page: counters, who gets exposed first, latest files, how it works", async ({ page }) => {
+test("/ is one page: counters, who gets exposed first, under investigation, the files, how it works", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Cases opened", { exact: true })).toBeVisible();
   await expect(page.getByText("Crimes found", { exact: true })).toBeVisible();
@@ -32,7 +32,11 @@ test("/ is one page: counters, who gets exposed first, latest files, how it work
   await expect(page.locator(".gtext").first()).toContainText("@wen_moon_wendy");
   await expect(page.getByRole("link", { name: "The poll on X" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Read case 0001" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Latest files" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Under investigation" })).toBeVisible();
+  await expect(page.locator(".live-log li").first()).toContainText("poll closed");
+  await expect(page.locator(".live-finding")).toHaveCount(3);
+  await expect(page.locator(".live-wallet")).toHaveCount(4);
+  await expect(page.getByRole("heading", { name: "The files" })).toBeVisible();
   await expect(page.locator("a.file")).toHaveCount(6);
   await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
   await clean(page);

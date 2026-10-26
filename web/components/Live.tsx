@@ -26,7 +26,9 @@ function since(iso?: string) {
   const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
   if (s < 60) return `${s}s`;
   const m = Math.floor(s / 60);
-  return m < 60 ? `${m}m ${s % 60}s` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  if (m < 60) return `${m}m ${s % 60}s`;
+  const h = Math.floor(m / 60);
+  return h < 48 ? `${h}h ${m % 60}m` : `${Math.floor(h / 24)}d`;
 }
 
 const short = (a: string) => (a.length > 12 ? `${a.slice(0, 4)}…${a.slice(-4)}` : a);
@@ -90,7 +92,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
 
       {subject ? (
         <div className="mt-4 overflow-hidden">
-          <GlitchText className="text-[40px] sm:text-[64px] md:text-[88px]">{subject}</GlitchText>
+          <GlitchText className="text-[clamp(26px,8.4vw,88px)]">{subject}</GlitchText>
         </div>
       ) : null}
 

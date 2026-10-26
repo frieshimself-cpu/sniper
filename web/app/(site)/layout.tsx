@@ -8,6 +8,7 @@ import { dyn } from "@/lib/request";
 
 const NAV = [
   ["/#exposed", "exposed"],
+  ["/#live", "live"],
   ["/cases", "files"],
   ["/#how", "how it works"],
   ["/rules", "rules"],

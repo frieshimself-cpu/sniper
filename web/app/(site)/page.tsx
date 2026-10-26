@@ -3,6 +3,7 @@ import { dyn } from "@/lib/request";
 import Link from "next/link";
 import { getStats, latestCases, getAgentStatus } from "@/lib/data";
 import { currentPoll } from "@/lib/polls";
+import { getProgress } from "@/lib/progress";
 import { ago, until, siteUrl } from "@/lib/format";
 import { Counter } from "@/components/Counter";
 import { Pill } from "@/components/Pills";
@@ -10,6 +11,7 @@ import { CaseCard } from "@/components/CaseCard";
 import { Board } from "@/components/Board";
 import { Glitch } from "@/components/Glitch";
 import { Exposed } from "@/components/Exposed";
+import { Live } from "@/components/Live";
 import { Hero } from "@/components/Hero";
 import { Reveal } from "@/components/Reveal";
 import { Pipeline } from "@/components/Pipeline";
@@ -44,6 +46,7 @@ export default async function Home() {
   await dyn();
   const stats = getStats();
   const poll = await currentPoll();
+  const progress = await getProgress();
   const account = (process.env.X_ACCOUNT ?? "crimeislegalpf").replace(/^@/, "");
   const latest = latestCases(6);
   const agent = getAgentStatus();
@@ -87,18 +90,28 @@ export default async function Home() {
         </Reveal>
       </section>
 
-      {/* ---- 02 the files ------------------------------------------------------------ */}
+      {/* ---- 02 the investigation, live ---------------------------------------------- */}
+      <section>
+        <Reveal>
+          <Chapter n="02" id="live" title="Under investigation" sub="The agent's work, step by step, while it does it: the record read, the wallets found, the money replayed, the findings weighed. Nothing here is edited." />
+        </Reveal>
+        <Reveal className="mt-10" delay={120}>
+          <Live initial={progress} account={account} />
+        </Reveal>
+      </section>
+
+      {/* ---- 03 the files ------------------------------------------------------------ */}
       <section>
         <Reveal>
           <div className="flex items-end justify-between gap-6">
-            <Chapter n="02" id="files" title="Latest files" sub="Every case is a file: a headline, the findings worst first, an evidence table where every row is a link, the money drawn." />
+            <Chapter n="03" id="files" title="The files" sub="Every case is a file: a headline, the findings worst first, an evidence table where every row is a link, the money drawn." />
             <Link href="/cases" className="hidden sm:inline text-[11px] font-semibold uppercase tracking-[0.14em] underline whitespace-nowrap">
               All {stats.cases_opened} cases
             </Link>
           </div>
         </Reveal>
         {latest.length === 0 ? (
-          <p className="mt-8 text-mute">No cases yet. The agent is watching.</p>
+          <p className="mt-8 text-mute">None yet. The first poll decides who is first.</p>
         ) : (
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {latest.slice(0, 6).map((c, i) => (
@@ -131,10 +144,10 @@ export default async function Home() {
         </Link>
       </section>
 
-      {/* ---- 03 the method ----------------------------------------------------------- */}
+      {/* ---- 04 the method ----------------------------------------------------------- */}
       <section>
         <Reveal>
-          <Chapter n="03" id="how" title="How it works" sub="Five stations. The money moves between them. Grok reads, Arkham names, Helius replays, the detectors weigh, the file is written." />
+          <Chapter n="04" id="how" title="How it works" sub="Five stations. The money moves between them. Grok reads, Arkham names, Helius replays, the detectors weigh, the file is written." />
         </Reveal>
         <Reveal className="mt-12" delay={120}>
           <Pipeline />
