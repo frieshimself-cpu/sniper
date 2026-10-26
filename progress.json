@@ -3,13 +3,8 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T18:28:18Z",
+  "updated_at": "2026-10-26T18:28:40Z",
   "steps": [
-    {
-      "at": "2026-10-26T17:48:43Z",
-      "phase": "record",
-      "text": "posts 1,981–2,040 of 2,258 typed: nothing claimed"
-    },
     {
       "at": "2026-10-26T17:48:48Z",
       "phase": "record",
@@ -304,6 +299,11 @@
       "at": "2026-10-26T18:28:18Z",
       "phase": "replay",
       "text": "replaying $Snohlove (FL5w…pump): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
+    },
+    {
+      "at": "2026-10-26T18:28:40Z",
+      "phase": "replay",
+      "text": "replaying $Trshield (V4RF…moon): 0 posts about it, launched from the wallets; the launch, the first buyers, the exits, the wallets' own trades"
     }
   ],
   "wallets": [
