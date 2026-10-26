@@ -15,3 +15,6 @@ web/out/
 web/.static-aside/
 web/.next-static/
 web/agent-data/
+
+# workflow worktrees
+.claude/worktrees/
