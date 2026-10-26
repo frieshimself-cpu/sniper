@@ -10,7 +10,8 @@
     "policy:test": "tsx src/policy.test.ts",
     "investigate": "node --env-file-if-exists=.env --import tsx src/investigate.ts",
     "watch": "node --env-file-if-exists=.env --import tsx src/schedule.ts",
-    "cycle": "node --env-file-if-exists=.env --import tsx src/cycle.ts"
+    "cycle": "node --env-file-if-exists=.env --import tsx src/cycle.ts",
+    "reset": "node --env-file-if-exists=.env --import tsx src/reset.ts"
   },
   "devDependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.5",

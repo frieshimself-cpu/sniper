@@ -21,6 +21,7 @@ export interface Progress {
   poll_id?: string;
   poll_url?: string;
   started_at?: string;
+  budget_minutes?: number;
   updated_at: string;
   steps: ProgressStep[];
   wallets: Array<{ address: string; tier: string; via?: string; peer?: string }>;
@@ -63,7 +64,7 @@ async function branch(): Promise<Progress | null> {
 
 /** A running investigation that stopped updating is over; the file does not know that, the clock does. */
 function settle(p: Progress): Progress {
-  if (p.state === "running" && p.updated_at && Date.now() - Date.parse(p.updated_at) > 45 * 60_000) {
+  if (p.state === "running" && p.updated_at && Date.now() - Date.parse(p.updated_at) > Math.max(45, (p.budget_minutes ?? 60) + 15) * 60_000) {
     return { ...p, state: "error", message: p.message ?? "The run stopped reporting." };
   }
   return p;

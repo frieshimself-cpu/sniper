@@ -1,8 +1,8 @@
 {
-  "state": "running",
+  "state": "idle",
   "mode": "live",
   "last_run_at": "2026-10-26T16:43:09Z",
-  "next_run_at": "2026-10-26T17:43:09Z",
+  "next_run_at": null,
   "last_case": null,
-  "message": ""
+  "message": "Kimchi won the poll. The file is being written."
 }

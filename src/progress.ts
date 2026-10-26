@@ -24,6 +24,7 @@ export interface Progress {
   poll_id?: string;
   poll_url?: string;
   started_at?: string;
+  budget_minutes?: number; // how long a person gets: the panel counts it down
   updated_at: string;
   steps: ProgressStep[];
   wallets: Array<{ address: string; tier: string; via?: string; peer?: string }>;
@@ -89,7 +90,7 @@ export const progress = {
     return cur;
   },
   async begin(subject: string, poll?: { id: string; url: string }): Promise<void> {
-    cur = { state: "running", subject, poll_id: poll?.id, poll_url: poll?.url, started_at: iso(), updated_at: iso(), steps: [], wallets: [], posts: [], findings: [] };
+    cur = { state: "running", subject, poll_id: poll?.id, poll_url: poll?.url, started_at: iso(), budget_minutes: Number(process.env.PERSON_RUN_MINUTES ?? 60), updated_at: iso(), steps: [], wallets: [], posts: [], findings: [] };
     await save(true);
   },
   async step(phase: ProgressStep["phase"], text: string): Promise<void> {

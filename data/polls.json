@@ -1,0 +1,37 @@
+{
+  "updated_at": "2026-10-26T16:48:39Z",
+  "polls": [
+    {
+      "id": "2114755345792798981",
+      "url": "https://x.com/crimeislegalpf/status/2114755345792798981",
+      "opened_at": "2026-10-26T16:25:39Z",
+      "closes_at": "2026-10-26T16:35:39Z",
+      "options": [
+        {
+          "label": "Alon",
+          "votes": 6,
+          "subject": "@a1lon9"
+        },
+        {
+          "label": "Kimchi",
+          "votes": 57,
+          "subject": "@kimchi1x"
+        },
+        {
+          "label": "PoorGoat",
+          "votes": 2,
+          "subject": "@poorgoat_"
+        },
+        {
+          "label": "Insentos",
+          "votes": 1,
+          "subject": "@insentos"
+        }
+      ],
+      "total": 66,
+      "winner": "Kimchi",
+      "message": "Won the poll. Under investigation.",
+      "processed_at": "2026-10-26T16:48:39Z"
+    }
+  ]
+}

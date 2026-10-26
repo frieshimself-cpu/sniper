@@ -2,9 +2,10 @@
 
 /**
  * The investigation under way, shown as it happens. Reads /api/progress every ten seconds.
- * Idle: nothing but the next poll. Running: the subject written large, the five stations with the
- * current one lit, the steps typing in as the agent reports them, the wallets as they are found, the
- * findings as they are weighed. Done: the file, with a link. Nothing here can act; it reads.
+ * Idle: nothing but the next poll. Running: the subject written large, the hour counting down, the six
+ * stations with the current one lit, then three places: the record (every post as it is read and typed),
+ * the wallets (drawn, and listed), and the thinking (every step as the agent reports it, the findings as
+ * they are weighed). Done: the file, with a link. Nothing here can act; it reads.
  */
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -33,6 +34,12 @@ function since(iso?: string) {
   return h < 48 ? `${h}h ${m % 60}m` : `${Math.floor(h / 24)}d`;
 }
 
+/** mm:ss left of the hour, from when the run began. */
+function left(startIso: string, minutes: number) {
+  const s = Math.max(0, Math.round((Date.parse(startIso) + minutes * 60_000 - Date.now()) / 1000));
+  return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+}
+
 const short = (a: string) => (a.length > 12 ? `${a.slice(0, 4)}…${a.slice(-4)}` : a);
 
 /** The wallets found so far, drawn: the handle in the middle, its wallets around it, the links between them. */
@@ -51,6 +58,16 @@ function liveGraph(p: Progress): CaseGraph | null {
   return g;
 }
 
+function Head({ n, title, count }: { n: string; title: string; count?: string }) {
+  return (
+    <div className="live-head">
+      <span className="live-head-n">{n}</span>
+      <h3>{title}</h3>
+      {count ? <span className="live-head-count">{count}</span> : null}
+    </div>
+  );
+}
+
 export function Live({ initial, account }: { initial: Progress; account: string }) {
   const [p, setP] = useState<Progress>(initial);
   const [, tick] = useState(0);
@@ -63,9 +80,12 @@ export function Live({ initial, account }: { initial: Progress; account: string 
       } catch {
         /* keep */
       }
-      tick((n) => n + 1);
     }, 10_000);
-    return () => clearInterval(id);
+    const clock = setInterval(() => tick((n) => n + 1), 1000);
+    return () => {
+      clearInterval(id);
+      clearInterval(clock);
+    };
   }, []);
   useEffect(() => {
     seen.current = p.steps.length;
@@ -77,6 +97,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
   const subject = p.subject && !p.subject.startsWith("poll ") ? p.subject : null;
   const graph = liveGraph(p);
   const posts = p.posts ?? [];
+  const budget = p.budget_minutes ?? 60;
 
   if (p.state === "idle" || (!running && !subject && !p.poll_id)) {
     return (
@@ -89,7 +110,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
           <a href={`https://x.com/${account}`} target="_blank" rel="noopener noreferrer" className="underline text-manila">
             @{account}
           </a>{" "}
-          closes with a winner. Everything the agent does appears here while it does it.
+          closes with a winner. One hour, every post and every wallet, all of it shown here while it happens.
         </p>
       </div>
     );
@@ -103,11 +124,18 @@ export function Live({ initial, account }: { initial: Progress; account: string 
           {running ? "under way" : p.state === "done" ? "finished" : "stopped"}
           {p.started_at ? <span className="ml-3 opacity-60">{running ? `${since(p.started_at)} in` : since(p.updated_at) + " ago"}</span> : null}
         </p>
-        {p.poll_url ? (
-          <a href={p.poll_url} target="_blank" rel="noopener noreferrer" className="text-[10px] uppercase tracking-[0.2em] text-mute underline">
-            the poll
-          </a>
-        ) : null}
+        <div className="flex items-baseline gap-5">
+          {running && p.started_at ? (
+            <span className="live-clock" title={`${budget} minutes per person`}>
+              <span className="live-clock-label">left</span> {left(p.started_at, budget)}
+            </span>
+          ) : null}
+          {p.poll_url ? (
+            <a href={p.poll_url} target="_blank" rel="noopener noreferrer" className="text-[10px] uppercase tracking-[0.2em] text-mute underline">
+              the poll
+            </a>
+          ) : null}
+        </div>
       </div>
 
       {subject ? (
@@ -125,57 +153,38 @@ export function Live({ initial, account }: { initial: Progress; account: string 
         ))}
       </ol>
 
-      {graph || posts.length ? (
-        <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-          {graph ? (
+      {/* ---- the record: the posts, as they are read and typed ---------------------------- */}
+      <section className="live-section">
+        <Head n="A" title="The record" count={posts.length ? `${posts.length} posts shown · ${posts.filter((t) => t.type).length} typed` : running ? "reading" : "none"} />
+        {posts.length ? (
+          <ol className="live-posts" aria-live="polite">
+            {posts.map((t, i) => (
+              <li key={`${t.url}-${i}`} className={t.type ? "typed" : ""}>
+                <span className="live-post-at">
+                  {t.at.slice(0, 10)}
+                  {t.type ? <b className="live-post-type">{t.type.replace(/_/g, " ")}</b> : null}
+                </span>
+                <a href={t.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:underline">
+                  {t.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="live-empty">{running ? "pulling every post the API allows, back to the first" : "nothing read"}</p>
+        )}
+      </section>
+
+      {/* ---- the wallets: drawn, and listed ----------------------------------------------- */}
+      <section className="live-section">
+        <Head n="B" title="The wallets" count={p.wallets.length ? `${p.wallets.length} found · ${p.wallets.filter((w) => w.tier === "claimed").length} claimed · ${p.wallets.filter((w) => w.via).length} never admitted` : running ? "looking" : "none"} />
+        {graph ? (
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
             <div className="border-y border-ink/30 bg-page -mx-4 px-2 md:mx-0 md:px-3 py-2 relative overflow-hidden live-graph" key={p.wallets.length}>
-              <p className="label label-dark px-1 pt-1">The wallets, drawn · {p.wallets.length} so far</p>
               <WalletGraph graph={graph} />
             </div>
-          ) : (
-            <div className="border-y border-ink/30 bg-page -mx-4 px-4 md:mx-0 py-6 text-[11px] text-mute uppercase tracking-[0.2em]">the wallets come next</div>
-          )}
-          <div className="live-record">
-            <p className="label label-dark">The record, read · {posts.length} shown</p>
-            <ol className="live-posts" aria-live="polite">
-              {posts.map((t, i) => (
-                <li key={`${t.url}-${i}`} className={t.type ? "typed" : ""}>
-                  <span className="live-post-at">
-                    {t.at.slice(0, 10)}
-                    {t.type ? <b className="live-post-type">{t.type.replace(/_/g, " ")}</b> : null}
-                  </span>
-                  <a href={t.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:underline">
-                    {t.text}
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-      ) : null}
-
-      <div className="mt-6 grid gap-6 md:grid-cols-[1fr_280px]">
-        <ol className="live-log" aria-live="polite">
-          {p.steps.map((s, i) => (
-            <li key={`${s.at}-${i}`} className={i >= seen.current - 1 && running ? "fresh" : ""}>
-              <span className="live-at">{s.at.slice(11, 19)}</span>
-              <span className="live-k">{s.phase}</span>
-              <span>{s.text}</span>
-            </li>
-          ))}
-          {running ? (
-            <li className="live-cursor" aria-hidden>
-              <span className="live-at">{" "}</span>
-              <span className="live-k">{" "}</span>
-              <span className="blink">▌</span>
-            </li>
-          ) : null}
-        </ol>
-        <div className="flex flex-col gap-6">
-          <div>
-            <p className="label label-dark">Wallets found · {p.wallets.length}</p>
-            <ul className="mt-2 flex flex-col gap-1 text-[11px]">
-              {p.wallets.slice(0, 12).map((w) => (
+            <ul className="live-wallets">
+              {p.wallets.map((w) => (
                 <li key={w.address} className="live-wallet">
                   <a href={`https://solscan.io/account/${w.address}`} target="_blank" rel="noopener noreferrer" className="underline">
                     {short(w.address)}
@@ -184,13 +193,37 @@ export function Live({ initial, account }: { initial: Progress; account: string 
                   {w.via ? <span className="text-mute"> · {w.via}</span> : null}
                 </li>
               ))}
-              {p.wallets.length === 0 ? <li className="text-mute">none yet</li> : null}
             </ul>
           </div>
+        ) : (
+          <p className="live-empty">{running ? "the handle's own posts, the record, Arkham's files, then the money between wallets" : "none"}</p>
+        )}
+      </section>
+
+      {/* ---- the thinking: every step, and the findings as they are weighed ------------------ */}
+      <section className="live-section">
+        <Head n="C" title="The thinking" count={`${p.steps.length} steps · ${p.findings.length} findings`} />
+        <div className="grid gap-6 md:grid-cols-[1fr_280px]">
+          <ol className="live-log" aria-live="polite">
+            {p.steps.map((s, i) => (
+              <li key={`${s.at}-${i}`} className={i >= seen.current - 1 && running ? "fresh" : ""}>
+                <span className="live-at">{s.at.slice(11, 19)}</span>
+                <span className="live-k">{s.phase}</span>
+                <span>{s.text}</span>
+              </li>
+            ))}
+            {running ? (
+              <li className="live-cursor" aria-hidden>
+                <span className="live-at">{" "}</span>
+                <span className="live-k">{" "}</span>
+                <span className="blink">▌</span>
+              </li>
+            ) : null}
+          </ol>
           <div>
-            <p className="label label-dark">Findings · {p.findings.length}</p>
+            <p className="label label-dark">Findings, worst first</p>
             <ol className="mt-2 flex flex-col gap-1 text-[11px]">
-              {p.findings.slice(0, 8).map((f, i) => (
+              {p.findings.map((f, i) => (
                 <li key={i} className="live-finding">
                   <span className="live-weight">{f.score ?? "·"}</span>
                   <span>{f.title}</span>
@@ -200,7 +233,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
             </ol>
           </div>
         </div>
-      </div>
+      </section>
 
       {!running && p.message ? (
         <p className="mt-6 text-[13px]">
