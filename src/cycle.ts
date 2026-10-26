@@ -179,7 +179,7 @@ export async function cycle(opts: { dry?: boolean } = {}): Promise<void> {
     }
   } else if (x && POST_CASES) {
     await x
-      .postCase(enforce(`${winner.label} was investigated. ${result.message} No case. Convictions: 0.`), null, ballot.poll_tweet_id)
+      .postCase(enforce(`${winner.label} won the hour and was read, wallet by wallet. Nothing met the bar. No case. Convictions: 0.\n${SITE}`), null, ballot.poll_tweet_id)
       .catch((e) => process.stderr.write(`x post failed: ${(e as Error).message}\n`));
   }
   await writeStatus({ next_run_at: iso(new Date(Math.floor(Date.now() / PERIOD_MS) * PERIOD_MS + PERIOD_MS)) });
