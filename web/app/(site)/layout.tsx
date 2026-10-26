@@ -9,6 +9,7 @@ const NAV = [
   ["/stamp", "Stamp"],
   ["/embed", "Embed"],
   ["/rules", "Rules"],
+  ["/about", "About"],
 ] as const;
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {

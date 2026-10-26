@@ -151,6 +151,13 @@ test("/rules carries the rules and how to dispute, without the forbidden word", 
   await clean(page);
 });
 
+test("/about explains the project without the forbidden word", async ({ page }) => {
+  await page.goto("/about");
+  await expect(page.getByRole("heading", { name: /opens a case every hour/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The rules" })).toBeVisible();
+  await clean(page);
+});
+
 test("/admin asks for the password, then builds a ballot and lists disputes", async ({ page, request }) => {
   await page.goto("/admin");
   await expect(page.getByLabel("Password")).toBeVisible();
