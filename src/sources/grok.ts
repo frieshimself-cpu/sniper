@@ -18,9 +18,8 @@ export class Grok {
     if (!key) throw new Error("XAI_API_KEY is not set");
     this.base = base.replace(/\/+$/, "");
     this.canSearch = /api\.x\.ai/.test(this.base);
-    if (!this.canSearch && !/\//.test(model)) this.model = `x-ai/${model}`;
+    this.model = !this.canSearch && !/\//.test(model) ? `x-ai/${model}` : model;
     this.key = key;
-    if (!this.model) this.model = model;
   }
 
   async claims(address: string): Promise<Claim[]> {
@@ -132,6 +131,7 @@ export async function extractClaims(this: Grok, handle: string, posts: Array<{ i
 
 /** What the timeline no longer shows: quotes and screenshots of the handle's deleted or older posts. Each needs a citing URL. */
 export async function searchHistory(this: Grok, handle: string): Promise<Array<{ url: string; quote: string; about: string }>> {
+  if (!this.canSearch) return [];
   const h = handle.replace(/^@/, "");
   const prompt = `Search X for posts quoting, screenshotting or replying to crypto token promotions by @${h} that @${h} later deleted. Return ONLY a JSON array of {"url": "<x.com status URL of the citing post>", "quote": "<what the deleted post said, as quoted>", "about": "<$SYMBOL or token named>"}. Only include posts you actually found.`;
   const r = await fetch(`${this.base}/chat/completions`, {
