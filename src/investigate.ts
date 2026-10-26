@@ -522,6 +522,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
       }
     })
     .catch(async (err) => {
+      await progress.fail("The run stopped. It will be run again.").catch(() => {}); // the panel says so at once, not after the hour
       await writeStatus({ state: "error", last_run_at: iso(), message: String((err as Error).message) });
       process.stderr.write(`${(err as Error).stack ?? err}\n`);
       process.exitCode = 1;
