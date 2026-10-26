@@ -7,7 +7,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 export const config = {
-  matcher: ["/((?!_next/|api/|cases/.*\\.(?:png|csv)$|feed\\.xml$|.*\\.[a-z0-9]+$).*)"],
+  // the API, the cards, the feed and the embeddable counter stay open on the curtained host
+  matcher: ["/((?!_next/|api/|embed/counter$|cases/.*\\.(?:png|csv)$|feed\\.xml$|.*\\.[a-z0-9]+$).*)"],
 };
 
 const COOKIE = "crime_preview";

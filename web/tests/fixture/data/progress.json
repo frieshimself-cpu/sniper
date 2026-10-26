@@ -1,24 +1,96 @@
 {
-  "state": "running",
+  "state": "done",
   "subject": "@wen_moon_wendy",
   "poll_id": "1890000000000009001",
   "poll_url": "https://x.com/crimeislegalpf/status/1890000000000009001",
   "started_at": "2026-10-13T13:41:00Z",
-  "updated_at": "2026-10-13T13:43:20Z",
+  "updated_at": "2026-10-13T13:47:10Z",
   "steps": [
-    { "at": "2026-10-13T13:41:02Z", "phase": "poll", "text": "poll closed: @wen_moon_wendy 41 · @bundle_bob 17 · @larp_capital 9 · @kol_kevin 4" },
-    { "at": "2026-10-13T13:41:05Z", "phase": "record", "text": "reading the record of @wen_moon_wendy" },
-    { "at": "2026-10-13T13:41:40Z", "phase": "record", "text": "1,912 posts read, back to 2024-03-02" },
-    { "at": "2026-10-13T13:42:30Z", "phase": "record", "text": "61 claims about tokens in the posts" },
-    { "at": "2026-10-13T13:42:41Z", "phase": "wallets", "text": "2 wallets on the record, 1 claimed by the handle itself" },
-    { "at": "2026-10-13T13:43:02Z", "phase": "wallets", "text": "3,418 transfers pulled; following the money between wallets" },
-    { "at": "2026-10-13T13:43:20Z", "phase": "wallets", "text": "7 counterparties seen; 2 wallets never admitted, linked by transfers" }
+    {
+      "at": "2026-10-13T13:41:02Z",
+      "phase": "poll",
+      "text": "poll closed: @wen_moon_wendy 41 \u00b7 @bundle_bob 17 \u00b7 @larp_capital 9 \u00b7 @kol_kevin 4"
+    },
+    {
+      "at": "2026-10-13T13:41:05Z",
+      "phase": "record",
+      "text": "reading the record of @wen_moon_wendy"
+    },
+    {
+      "at": "2026-10-13T13:41:40Z",
+      "phase": "record",
+      "text": "1,912 posts read, back to 2024-03-02"
+    },
+    {
+      "at": "2026-10-13T13:42:30Z",
+      "phase": "record",
+      "text": "61 claims about tokens in the posts"
+    },
+    {
+      "at": "2026-10-13T13:42:41Z",
+      "phase": "wallets",
+      "text": "2 wallets on the record, 1 claimed by the handle itself"
+    },
+    {
+      "at": "2026-10-13T13:43:02Z",
+      "phase": "wallets",
+      "text": "3,418 transfers pulled; following the money between wallets"
+    },
+    {
+      "at": "2026-10-13T13:43:20Z",
+      "phase": "wallets",
+      "text": "7 counterparties seen; 2 wallets never admitted, linked by transfers"
+    },
+    {
+      "at": "2026-10-13T13:44:10Z",
+      "phase": "replay",
+      "text": "4 wallets replayed, 3,418 transfers next to 1,912 posts"
+    },
+    {
+      "at": "2026-10-13T13:45:30Z",
+      "phase": "findings",
+      "text": "6 findings weighed, worst first: promoted then sold"
+    },
+    {
+      "at": "2026-10-13T13:47:10Z",
+      "phase": "file",
+      "text": "Case 0001 opened. @wen_moon_wendy promoted $WENDY then sold: 41 SOL out."
+    }
   ],
   "wallets": [
-    { "address": "WeNm00K1pQ8sD4h7Lw2vX9cR3tY6uI1oP5aS8dF2gH4yK1pQ", "tier": "claimed" },
-    { "address": "WnDyAL3rT8yK2pQ9sD4h7Lw2vX9cR3tY6uI1oP5aS8dF2gH", "tier": "probable" },
-    { "address": "LhjRo4BQ2pQ9sD4h7Lw2vX9cR3tY6uI1oP5aS8dF2gH4yK1", "tier": "probable", "via": "3 transfers with WeNm…K1pQ" },
-    { "address": "WinKpPaS2pQ9sD4h7Lw2vX9cR3tY6uI1oP5aS8dF2gH4yK1", "tier": "probable", "via": "6 transfers with WeNm…K1pQ" }
+    {
+      "address": "WeNm00K1pQ8sD4h7Lw2vX9cR3tY6uI1oP5aS8dF2gH4yK1pQ",
+      "tier": "claimed"
+    },
+    {
+      "address": "WnDyAL3rT8yK2pQ9sD4h7Lw2vX9cR3tY6uI1oP5aS8dF2gH",
+      "tier": "probable"
+    },
+    {
+      "address": "LhjRo4BQ2pQ9sD4h7Lw2vX9cR3tY6uI1oP5aS8dF2gH4yK1",
+      "tier": "probable",
+      "via": "3 transfers with WeNm\u2026K1pQ"
+    },
+    {
+      "address": "WinKpPaS2pQ9sD4h7Lw2vX9cR3tY6uI1oP5aS8dF2gH4yK1",
+      "tier": "probable",
+      "via": "6 transfers with WeNm\u2026K1pQ"
+    }
   ],
-  "findings": []
+  "findings": [
+    {
+      "title": "Fourteen wallets funded from one source",
+      "score": 40
+    },
+    {
+      "title": "Same-block buys",
+      "score": 30
+    },
+    {
+      "title": "Coordinated exit",
+      "score": 25
+    }
+  ],
+  "case_n": 1,
+  "message": "Case 0001 opened. @wen_moon_wendy promoted $WENDY then sold: 41 SOL out."
 }

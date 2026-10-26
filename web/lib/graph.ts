@@ -51,9 +51,10 @@ export function caseGraph(c: Case): CaseGraph {
       const role = roles.get(address) ?? hint ?? "";
       const rec = handleForWallet(address);
       let kind: NodeKind = "wallet";
-      if (/^(cex|bridge|protocol|fund)/.test(role)) kind = "service";
-      else if (role === "deployer") kind = "deployer";
+      // exact roles first: "funder" is not a fund
+      if (role === "deployer") kind = "deployer";
       else if (role === "funder") kind = "funder";
+      else if (/^(cex|bridge|protocol|fund)( · |$)/.test(role)) kind = "service";
       else if (/pool|curve/.test(role)) kind = "pool";
       nodes.set(id, {
         id,
@@ -78,13 +79,17 @@ export function caseGraph(c: Case): CaseGraph {
     nodes.get(from)!.weight += num(a.amount);
     nodes.get(to)!.weight += num(a.amount);
   }
-  // evidence: funding, buys, sells. The pool is the counterparty of the launch row (the curve or the AMM).
-  const pool = c.money_trail.find((h) => /pool|curve/.test(h.label))?.address ?? c.evidence.find((e) => /^launch/i.test(e.note) && e.wallet && !isHiddenLabel(e.wallet))?.wallet;
+  // evidence: funding, buys, sells. The pool is the counterparty of the launch row (the curve or the AMM);
+  // a wallet that is already a hop on the trail is somebody, never the pool.
+  const pool =
+    c.money_trail.find((h) => /pool|curve/.test(h.label))?.address ??
+    c.evidence.find((e) => /^launch\b/i.test(e.note) && e.wallet && !roles.has(e.wallet) && !isHiddenLabel(e.wallet))?.wallet;
   if (pool && !roles.has(pool)) roles.set(pool, "pool");
   for (const e of c.evidence) {
     if (e.kind !== "tx" || !e.wallet) continue;
     const w = node(e.wallet);
-    const n = /funding/i.test(e.note) ? "funding" : /buy|launch/i.test(e.note) ? "buy" : /sell/i.test(e.note) ? "sell" : /hop|proceeds/i.test(e.note) ? "" : e.note.toLowerCase();
+    // sells first: "Sell into launch volume" is a sell
+    const n = /funding/i.test(e.note) ? "funding" : /sell/i.test(e.note) ? "sell" : /buy|launch/i.test(e.note) ? "buy" : /hop|proceeds/i.test(e.note) ? "" : e.note.toLowerCase();
     if (!n) continue;
     // buys and sells touch the pool; funding touches the funder. Without a known counterparty we draw to a pool node.
     const poolId = pool ? node(pool, "pool") : node("pool", "pool");
@@ -94,7 +99,7 @@ export function caseGraph(c: Case): CaseGraph {
     else if (n === "sell") edges.push({ from: w, to: poolId, amount: e.amount ?? "", kind: "token", note: e.note, at: e.at, ref: e.ref });
     else if (n === "funding") {
       const funder = c.money_trail.find((h) => h.label === "funder")?.address;
-      if (funder) edges.push({ from: node(funder), to: w, amount: e.amount ?? "", kind: "sol", note: e.note, at: e.at, ref: e.ref });
+      if (funder && funder !== e.wallet) edges.push({ from: node(funder), to: w, amount: e.amount ?? "", kind: "sol", note: e.note, at: e.at, ref: e.ref });
     }
     nodes.get(w)!.weight += num(e.amount) > 1000 ? 1 : num(e.amount);
   }
@@ -114,7 +119,7 @@ function mergeParallel(edges: GraphEdge[]): GraphEdge[] {
     if (g.length === 1) return g[0];
     const total = g.reduce((a, e) => a + num(e.amount), 0);
     const unit = (g[0].amount.match(/[A-Za-z$][\w$]*$/) ?? [""])[0];
-    const what = /sell/i.test(g[0].note) ? "sells" : /buy/i.test(g[0].note) ? "buys" : /fund/i.test(g[0].note) ? "transfers" : "transfers";
+    const what = /sell/i.test(g[0].note) ? "sells" : /buy|launch/i.test(g[0].note) ? "buys" : "transfers";
     return { ...g[0], amount: `${g.length} ${what} · ${Math.round(total).toLocaleString("en-US")} ${unit}`.trim(), note: `${g.length} ${what}` };
   });
 }
