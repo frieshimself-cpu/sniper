@@ -17,6 +17,8 @@ const PREFIX = process.env.CRIME_STATE_PREFIX ?? "crime";
 function stateDir(): string {
   const d = process.env.CRIME_STATE_DIR?.trim();
   if (d) return path.resolve(process.cwd(), d);
+  // Vercel functions have a read-only project tree; /tmp works for the life of the instance. Redis is the real answer there.
+  if (process.env.VERCEL) return "/tmp/crime-state";
   // the agent runs from the repo root, the site from web/: both land on web/.data
   const base = fs.existsSync(path.join(process.cwd(), "web")) ? path.join(process.cwd(), "web") : process.cwd();
   return path.join(base, ".data");
