@@ -7,13 +7,20 @@ import type { Claim } from "./types.js";
 
 export class Grok {
   readonly key: string;
-  readonly model: string;
+  model: string;
   extractClaims = extractClaims;
   searchHistory = searchHistory;
-  constructor(key = process.env.XAI_API_KEY ?? "", model = process.env.XAI_MODEL ?? "grok-4") {
+  readonly base: string;
+  /** X live search is an xAI-only feature. Through a reseller (OpenRouter) the model still reads and classifies posts; it cannot search X. */
+  readonly canSearch: boolean;
+
+  constructor(key = process.env.XAI_API_KEY ?? "", model = process.env.XAI_MODEL ?? "grok-4", base = process.env.XAI_BASE_URL ?? "https://api.x.ai/v1") {
     if (!key) throw new Error("XAI_API_KEY is not set");
+    this.base = base.replace(/\/+$/, "");
+    this.canSearch = /api\.x\.ai/.test(this.base);
+    if (!this.canSearch && !/\//.test(model)) this.model = `x-ai/${model}`;
     this.key = key;
-    this.model = model;
+    if (!this.model) this.model = model;
   }
 
   async claims(address: string): Promise<Claim[]> {
@@ -22,7 +29,7 @@ export class Grok {
       `Return ONLY a JSON array. Each item: {"handle": "<author handle without @>", "url": "<full x.com status URL>", "quote": "<the sentence containing the address>", "self": <true if the author presents the address as their own wallet, else false>, "about": "<handle the post attributes the address to, without @, or null>"}.`,
       `Only include posts you actually found. If none, return [].`,
     ].join("\n");
-    const r = await fetch("https://api.x.ai/v1/chat/completions", {
+    const r = await fetch(`${this.base}/chat/completions`, {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
       body: JSON.stringify({
@@ -32,7 +39,7 @@ export class Grok {
           { role: "system", content: "You are a retrieval tool. You output JSON only. You never guess an author or a URL." },
           { role: "user", content: prompt },
         ],
-        search_parameters: { mode: "on", return_citations: true, sources: [{ type: "x" }] },
+        ...(this.canSearch ? { search_parameters: { mode: "on", return_citations: true, sources: [{ type: "x" }] } } : {}),
       }),
     });
     if (!r.ok) throw new Error(`xai ${r.status}`);
@@ -94,7 +101,7 @@ export async function extractClaims(this: Grok, handle: string, posts: Array<{ i
       `Return ONLY a JSON array of {"id": "<post id>", "type": "<type>", "token": "<$SYMBOL or mint if named, else null>", "quote": "<the exact words, max 200 chars>"}. Skip posts with no token claim. Never invent a post id.`,
       ...slice.map((p) => JSON.stringify({ id: p.id, at: p.at, text: p.text.slice(0, 400) })),
     ].join("\n");
-    const r = await fetch("https://api.x.ai/v1/chat/completions", {
+    const r = await fetch(`${this.base}/chat/completions`, {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
       body: JSON.stringify({ model: this.model, temperature: 0, messages: [{ role: "system", content: "You classify posts. JSON only." }, { role: "user", content: prompt }] }),
@@ -127,10 +134,10 @@ export async function extractClaims(this: Grok, handle: string, posts: Array<{ i
 export async function searchHistory(this: Grok, handle: string): Promise<Array<{ url: string; quote: string; about: string }>> {
   const h = handle.replace(/^@/, "");
   const prompt = `Search X for posts quoting, screenshotting or replying to crypto token promotions by @${h} that @${h} later deleted. Return ONLY a JSON array of {"url": "<x.com status URL of the citing post>", "quote": "<what the deleted post said, as quoted>", "about": "<$SYMBOL or token named>"}. Only include posts you actually found.`;
-  const r = await fetch("https://api.x.ai/v1/chat/completions", {
+  const r = await fetch(`${this.base}/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
-    body: JSON.stringify({ model: this.model, temperature: 0, messages: [{ role: "system", content: "You are a retrieval tool. JSON only. Never guess a URL." }, { role: "user", content: prompt }], search_parameters: { mode: "on", return_citations: true, sources: [{ type: "x" }] } }),
+    body: JSON.stringify({ model: this.model, temperature: 0, messages: [{ role: "system", content: "You are a retrieval tool. JSON only. Never guess a URL." }, { role: "user", content: prompt }], ...(this.canSearch ? { search_parameters: { mode: "on", return_citations: true, sources: [{ type: "x" }] } } : {}) }),
     signal: AbortSignal.timeout(120_000),
   });
   if (!r.ok) throw new Error(`xai ${r.status}`);
