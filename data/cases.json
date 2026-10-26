@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-10-26T03:50:53Z",
+  "generated_at": "2026-10-26T04:06:44Z",
   "agent": "C.R.I.M.E.",
   "version": 1,
   "cases": [
     {
       "n": 1,
       "id": "0001",
-      "opened_at": "2026-10-26T03:50:25Z",
+      "opened_at": "2026-10-26T04:06:44Z",
       "status": "open",
       "severity": "high",
       "score": 60,
@@ -18,7 +18,7 @@
       "subjects": [
         "@hazymarlin60444"
       ],
-      "headline": "The $GATO deployer, @hazymarlin60444, sold into its own pool.",
+      "headline": "The $GATO deployer, @hazymarlin60444, sold 5% of supply 27 minutes after launch. It had taken 15% at creation. More went out to other wallets without a swap.",
       "charge": "Deployer bought at creation",
       "findings": [
         {
@@ -133,90 +133,6 @@
         "Convictions: 0."
       ],
       "png": "case-0001.png"
-    },
-    {
-      "n": 2,
-      "id": "0002",
-      "opened_at": "2026-10-26T03:50:53Z",
-      "status": "open",
-      "severity": "medium",
-      "score": 51,
-      "token": {
-        "symbol": "BabyBTC",
-        "name": "Baby BTC",
-        "mint": "D2MSYa6LnnhJ7WdqAfux4DAK7stmYig7DaeuEeKVpump"
-      },
-      "subjects": [
-        "@bcrypto01"
-      ],
-      "headline": "The $BabyBTC deployer, @bcrypto01, sold into its own pool.",
-      "charge": "Deployer bought at creation",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "Deployer bought at creation",
-          "detail": "The deployer wallet took 21% of supply in the launch transaction."
-        },
-        {
-          "code": "F-02",
-          "title": "Deployer sold",
-          "detail": "The deployer wallet sold 11% of supply across 4 transactions, the first under a minute after launch."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "4wurCybNqRS4w28tdsJ1z8RAMjUGZLgKjTjFkZuNicptq2pfDW72knyhZn4b9vDU9a1ci7Lspqft4i5wC8JysUPP",
-          "wallet": "ANYKZRdpeZC8EozAx6LgbYvMp6HXUr17Lfu8vVhmiu9D",
-          "amount": "200,000,000 BabyBTC",
-          "at": "2026-10-25T19:27:19.000Z",
-          "note": "Launch, deployer's opening buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "gPjzcQEtSTqMyyiRycruV2oSwGidyepnhLxQJbz9HpKmJH1jcA5QHptW9ZPaSmt7CrpP8UYrEKTgFnUdRRFxNGu",
-          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
-          "amount": "20,880,250 BabyBTC",
-          "at": "2026-10-25T19:27:40.000Z",
-          "note": "Deployer sell"
-        },
-        {
-          "kind": "tx",
-          "ref": "3uR7dj8Z9qD1UAd7qVY9xNjEjojtjZbnUvLy9VykU4zvqwxbcnY1x7ec2NnoTXYWBthtjxbyP4kkQsac49d9RUzS",
-          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
-          "amount": "16,704,200 BabyBTC",
-          "at": "2026-10-25T19:27:42.000Z",
-          "note": "Deployer sell"
-        },
-        {
-          "kind": "tx",
-          "ref": "4MF2sYmz2Qj1UdwGDWUjqs7Aw2KDu2jUuhcex6HKbWwVYN19TcWh5sj1ZJ7KUhuN83BZiP34G7Lt44uAahRo6bh3",
-          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
-          "amount": "1.49 SOL",
-          "at": "2026-10-26T02:17:58.000Z",
-          "note": "Proceeds leave"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "deployer",
-          "address": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
-          "amount": "1.49 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "4ojTnRxhH4xws23nUWDhtXLSonxX8zU3xbCqjHkcAC7V",
-          "amount": ""
-        }
-      ],
-      "narrative": [
-        "$BabyBTC (Baby BTC) was picked by argument. The pool opened 2026-10-25 19:27Z.",
-        "The deployer wallet took 21% of supply in the launch transaction. The deployer wallet sold 11% of supply across 4 transactions, the first under a minute after launch.",
-        "1.49 SOL left deployer 28MJ…Pz3y after launch. The trail ends at hop 1 4ojT…AC7V.",
-        "@bcrypto01 is on the record for the wallets above, with sources. Disputes are honoured at once.",
-        "Convictions: 0."
-      ],
-      "png": "case-0002.png"
     }
   ]
 }

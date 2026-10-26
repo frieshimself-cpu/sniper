@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-26T03:50:53Z",
+  "updated_at": "2026-10-26T04:06:44Z",
   "entries": [
     {
       "handle": "@hazymarlin60444",
@@ -8,17 +8,6 @@
           "address": "5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm",
           "tier": "probable",
           "source": "https://intel.arkm.com/explorer/address/5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm"
-        }
-      ],
-      "note": "pump.fun username"
-    },
-    {
-      "handle": "@bcrypto01",
-      "wallets": [
-        {
-          "address": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
-          "tier": "probable",
-          "source": "https://intel.arkm.com/explorer/address/28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y"
         }
       ],
       "note": "pump.fun username"
