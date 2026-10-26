@@ -473,3 +473,4 @@ body > * { position: relative; z-index: 1; }
 .live-weight { font-family: "Anton", sans-serif; font-size: 16px; line-height: 1; color: var(--color-stamp); }
 @media (max-width: 639px) { .live { padding: 18px 14px 20px; } .live-log { font-size: 11px; } .live-log li { grid-template-columns: 50px 56px minmax(0, 1fr); gap: 6px; } }
 @media (prefers-reduced-motion: reduce) { .live-dot.on, .live-log li.fresh, .live-wallet, .live-finding, .live-cursor .blink { animation: none; } }
+.live-graph { animation: live-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }

@@ -34,7 +34,7 @@ export interface PersonInvestigation {
   handle: string;
   posts: number;
   claims: PostClaim[];
-  wallets: Array<{ address: string; tier: WalletTier; source: string; platform?: string; via?: string }>;
+  wallets: Array<{ address: string; tier: WalletTier; source: string; platform?: string; via?: string; peer?: string }>;
   pnl: TokenPnl[];
   findings: Finding[];
   evidence: Evidence[];
@@ -164,7 +164,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       const l = labels.get(a);
       if (isService(l) || (l?.entity && !l?.handle)) continue; // somebody else's, or a service
       if (l?.handle && normalizeHandle(l.handle) !== handle) continue; // on record as another handle
-      wallets.set(a, { address: a, tier: "probable", source: `https://solscan.io/tx/${c.sig}`, via: `${c.n} transfer${c.n === 1 ? "" : "s"} with ${short(c.with)}` });
+      wallets.set(a, { address: a, tier: "probable", source: `https://solscan.io/tx/${c.sig}`, via: `${c.n} transfer${c.n === 1 ? "" : "s"} with ${short(c.with)}`, peer: c.with });
       evidence.push({ kind: "tx", ref: c.sig, wallet: a, amount: `${c.sol.toFixed(2)} SOL`, at: c.at, note: `Linked wallet: ${c.n} transfer${c.n === 1 ? "" : "s"} with ${short(c.with)} (${c.ins} in, ${c.outs} out)` });
       history.set(a, await src.chain.transfers(a, TX_LIMIT).catch(() => []));
       linked++;
@@ -175,7 +175,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     }
     log.push(`${cand.size} counterparties, ${linked} linked wallet${linked === 1 ? "" : "s"} added`);
     await progress.step("wallets", `${cand.size} counterpart${cand.size === 1 ? "y" : "ies"} seen; ${linked} wallet${linked === 1 ? "" : "s"} never admitted, linked by transfers`);
-    await progress.wallets([...wallets.values()].map((w) => ({ address: w.address, tier: w.tier, via: w.via })));
+    await progress.wallets([...wallets.values()].map((w) => ({ address: w.address, tier: w.tier, via: w.via, peer: w.peer })));
   }
   const all = dedupe([...history.values()].flat());
 

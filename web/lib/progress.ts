@@ -23,7 +23,7 @@ export interface Progress {
   started_at?: string;
   updated_at: string;
   steps: ProgressStep[];
-  wallets: Array<{ address: string; tier: string; via?: string }>;
+  wallets: Array<{ address: string; tier: string; via?: string; peer?: string }>;
   findings: Array<{ title: string; score?: number }>;
   case_n?: number;
   message?: string;

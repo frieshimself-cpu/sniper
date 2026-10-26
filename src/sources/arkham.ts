@@ -63,6 +63,7 @@ export class Arkham {
   }
 
   resolveHandle = resolveHandle;
+  resolveName = resolveName;
 
   async label(address: string): Promise<Label | null> {
     const j = await this.get<ArkAddr>(`/intelligence/address/${address}`, { chain: "solana" });
@@ -148,6 +149,20 @@ export async function resolveHandle(this: Arkham, handle: string): Promise<Handl
     }
   }
   return { handle: `@${h}`, entityId: ent?.id ?? null, wallets };
+}
+
+/** A bare name on a poll ("Kimchi") to the handle Arkham files it under: an individual entity whose name or
+ *  twitter matches, impersonators left out. Null when nothing matches cleanly. */
+export async function resolveName(this: Arkham, name: string): Promise<string | null> {
+  const n = name.trim().replace(/^@/, "").toLowerCase();
+  if (!n) return null;
+  type Search = { arkhamEntities?: Array<{ id: string; name?: string; type?: string; twitter?: string }> };
+  const j = await this.getPublic<Search>("/intelligence/search", { query: n }, true).catch(() => null);
+  const clean = (e: { name?: string; type?: string }) => !/impersonat|hacker|scam|phish/i.test(`${e.name} ${e.type}`);
+  const tw = (e: { twitter?: string }) => (e.twitter ?? "").replace(/^.*\//, "").replace(/^@/, "").toLowerCase();
+  const ents = (j?.arkhamEntities ?? []).filter((e) => /individual|person|influencer|trader|kol/i.test(e.type ?? "") && clean(e) && tw(e));
+  const hit = ents.find((e) => tw(e) === n) ?? ents.find((e) => (e.name ?? "").replace(/^@/, "").toLowerCase() === n); // exact only: a near miss is somebody else
+  return hit ? `@${tw(hit)}` : null;
 }
 
 function mapType(t: string): Label["type"] {

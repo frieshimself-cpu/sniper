@@ -10,7 +10,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { apiUrl } from "@/lib/dyn";
 import type { Progress } from "@/lib/progress";
+import type { CaseGraph } from "@/lib/graph";
 import { GlitchText } from "./GlitchText";
+import { WalletGraph } from "./WalletGraph";
 
 const STATIONS: Array<[Progress["steps"][number]["phase"], string]> = [
   ["poll", "the poll"],
@@ -32,6 +34,22 @@ function since(iso?: string) {
 }
 
 const short = (a: string) => (a.length > 12 ? `${a.slice(0, 4)}…${a.slice(-4)}` : a);
+
+/** The wallets found so far, drawn: the handle in the middle, its wallets around it, the links between them. */
+function liveGraph(p: Progress): CaseGraph | null {
+  if (!p.subject || !p.wallets.length) return null;
+  const handle = p.subject;
+  const g: CaseGraph = { nodes: [{ id: handle, kind: "handle", label: handle, sub: "on the block", handle, weight: 4 }], edges: [] };
+  const known = new Set(p.wallets.map((w) => w.address));
+  for (const w of p.wallets) {
+    g.nodes.push({ id: w.address, kind: w.tier === "claimed" ? "deployer" : w.peer ? "wallet" : "funder", label: short(w.address), sub: w.via ? `${w.tier} · linked` : w.tier, address: w.address, weight: w.tier === "claimed" ? 3 : 2 });
+  }
+  for (const w of p.wallets) {
+    if (w.peer && known.has(w.peer)) g.edges.push({ from: w.peer, to: w.address, amount: w.via ?? "linked", kind: "sol", note: w.via ?? "linked by transfers", at: "" });
+    else g.edges.push({ from: handle, to: w.address, amount: w.tier, kind: "token", note: w.tier === "claimed" ? "posted by the handle" : "on the record", at: "" });
+  }
+  return g;
+}
 
 export function Live({ initial, account }: { initial: Progress; account: string }) {
   const [p, setP] = useState<Progress>(initial);
@@ -57,6 +75,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
   const phase = p.steps.length ? p.steps[p.steps.length - 1].phase : null;
   const phaseIdx = STATIONS.findIndex(([k]) => k === phase);
   const subject = p.subject && !p.subject.startsWith("poll ") ? p.subject : null;
+  const graph = liveGraph(p);
 
   if (p.state === "idle" || (!running && !subject && !p.poll_id)) {
     return (
@@ -104,6 +123,13 @@ export function Live({ initial, account }: { initial: Progress; account: string 
           </li>
         ))}
       </ol>
+
+      {graph ? (
+        <div className="mt-6 border-y border-ink/30 bg-page -mx-4 px-2 md:mx-0 md:px-3 py-2 relative overflow-hidden live-graph" key={p.wallets.length}>
+          <p className="label label-dark px-1 pt-1">The wallets, drawn · {p.wallets.length} so far</p>
+          <WalletGraph graph={graph} />
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-6 md:grid-cols-[1fr_280px]">
         <ol className="live-log" aria-live="polite">

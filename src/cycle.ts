@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { X, xCreds, type Poll } from "./sources/x.js";
 import { discover, describe } from "./sources/discover.js";
+import { Arkham } from "./sources/arkham.js";
 import { run, writeStatus, ROOT } from "./investigate.js";
 import { normalizeHandle } from "./policy.js";
 import { progress } from "./progress.js";
@@ -65,6 +66,20 @@ async function resolve(label: string): Promise<string | null> {
   if (h) return normalizeHandle("@" + h[1]);
   const m = label.match(MINT);
   if (m) return m[0];
+  // a bare name: first the human's own map (data/names.json, or POLL_NAMES="Kimchi=@kimchi1x"), then Arkham's files
+  const name = label.trim().toLowerCase();
+  const names: Record<string, string> = await readFile(join(ROOT, "data", "names.json"), "utf8").then((t) => JSON.parse(t) as Record<string, string>).catch(() => ({}));
+  for (const pair of (process.env.POLL_NAMES ?? "").split(",")) {
+    const [k, v] = pair.split("=").map((x) => x.trim());
+    if (k && v) names[k] = v;
+  }
+  for (const [k, v] of Object.entries(names)) {
+    if (k.trim().toLowerCase() === name) return v.startsWith("@") ? normalizeHandle(v) : v;
+  }
+  if (process.env.ARKHAM_API_KEY && !/^\$/.test(label)) {
+    const h = await new Arkham().resolveName(label).catch(() => null);
+    if (h) return normalizeHandle(h);
+  }
   const sym = label.replace(/^\$/, "").trim().toUpperCase();
   if (!sym) return null;
   try {

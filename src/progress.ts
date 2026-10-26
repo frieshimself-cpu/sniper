@@ -26,7 +26,7 @@ export interface Progress {
   started_at?: string;
   updated_at: string;
   steps: ProgressStep[];
-  wallets: Array<{ address: string; tier: string; via?: string }>;
+  wallets: Array<{ address: string; tier: string; via?: string; peer?: string }>;
   findings: Array<{ title: string; score?: number }>;
   case_n?: number;
   message?: string;
@@ -98,7 +98,7 @@ export const progress = {
     process.stdout.write(`  ${text}\n`);
     await save();
   },
-  async wallets(list: Array<{ address: string; tier: string; via?: string }>): Promise<void> {
+  async wallets(list: Array<{ address: string; tier: string; via?: string; peer?: string }>): Promise<void> {
     if (cur.state !== "running") return;
     cur.wallets = list.slice(0, 40);
     await save();
