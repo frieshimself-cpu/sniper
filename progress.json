@@ -2,7 +2,7 @@
   "state": "running",
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:38:18Z",
-  "updated_at": "2026-10-26T16:40:37Z",
+  "updated_at": "2026-10-26T16:40:42Z",
   "steps": [
     {
       "at": "2026-10-26T16:38:20Z",
@@ -18,6 +18,11 @@
       "at": "2026-10-26T16:40:37Z",
       "phase": "record",
       "text": "11 claims about tokens in the posts"
+    },
+    {
+      "at": "2026-10-26T16:40:42Z",
+      "phase": "wallets",
+      "text": "13 wallets on the record, 1 claimed by the handle itself"
     }
   ],
   "wallets": [],
