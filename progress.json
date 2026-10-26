@@ -2,7 +2,7 @@
   "state": "running",
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T16:38:18Z",
-  "updated_at": "2026-10-26T16:41:03Z",
+  "updated_at": "2026-10-26T16:43:07Z",
   "steps": [
     {
       "at": "2026-10-26T16:38:20Z",
@@ -28,6 +28,21 @@
       "at": "2026-10-26T16:41:03Z",
       "phase": "wallets",
       "text": "8,497 transfers pulled; following the money between wallets"
+    },
+    {
+      "at": "2026-10-26T16:41:06Z",
+      "phase": "wallets",
+      "text": "1 counterparty seen; 0 wallets never admitted, linked by transfers"
+    },
+    {
+      "at": "2026-10-26T16:41:06Z",
+      "phase": "replay",
+      "text": "0 tokens traded across the wallets"
+    },
+    {
+      "at": "2026-10-26T16:41:06Z",
+      "phase": "replay",
+      "text": "7 tokens to replay, posts set next to transactions"
     }
   ],
   "wallets": [
@@ -84,5 +99,10 @@
       "tier": "probable"
     }
   ],
-  "findings": []
+  "findings": [
+    {
+      "title": "Called out by 7 other accounts",
+      "score": 15
+    }
+  ]
 }
