@@ -3,20 +3,239 @@
   "subject": "@kimchi1x",
   "started_at": "2026-10-26T17:44:27Z",
   "budget_minutes": 60,
-  "updated_at": "2026-10-26T17:44:39Z",
+  "updated_at": "2026-10-26T17:44:52Z",
   "steps": [
     {
       "at": "2026-10-26T17:44:29Z",
       "phase": "record",
       "text": "reading the record of @kimchi1x: every post the API allows, back to the first"
+    },
+    {
+      "at": "2026-10-26T17:44:42Z",
+      "phase": "wallets",
+      "text": "14 wallets already on file: the handle's own, the registry, Arkham's entity"
+    },
+    {
+      "at": "2026-10-26T17:44:42Z",
+      "phase": "record",
+      "text": "60 of 2,258 posts read, back to 2025-06-26"
     }
   ],
-  "wallets": [],
-  "posts": [],
+  "wallets": [
+    {
+      "address": "2yu3iNjH6zLa8Uqf1s4yKJ1kB9MHYPhMkDbpu8tLmBMC",
+      "tier": "probable"
+    },
+    {
+      "address": "Gs5FHwYLrDBmCmiv5VhBLCvyiBmBYfcPedZDqR88GYeX",
+      "tier": "probable"
+    },
+    {
+      "address": "26rnoZcgmEQ23wepD58fUQcP7ZD3JtNZio25JMvE8U7a",
+      "tier": "probable"
+    },
+    {
+      "address": "2rFWVdWzqBhiecrgXUTYXbhYX4jZ8iivuyJcnfRQx8Rv",
+      "tier": "probable"
+    },
+    {
+      "address": "2npkicGRaSaz3HQPsGSbfQEL3vRnkyTp7p6ykUrg1k3u",
+      "tier": "probable"
+    },
+    {
+      "address": "4q3ridMidKBJXgSLoNtqYm5k1EayDjAUeiG1nsqqgh2s",
+      "tier": "probable"
+    },
+    {
+      "address": "B55ng11fkUZsXzubevacEWMe34ZdbgejWx1Ja7NsnHuy",
+      "tier": "probable"
+    },
+    {
+      "address": "9uFC4Lvy6kb54V9jukX1M2mK2fxH9iAhEbLZSaY7hfaB",
+      "tier": "probable"
+    },
+    {
+      "address": "8tkjG46pbXAYepRqmbzHC8QbnhAVEjuXcRrPAXPBwQPa",
+      "tier": "probable"
+    },
+    {
+      "address": "5nn2HiprUAYdysAv58CQboFNjN1Edfk5XXpaDtyywgJe",
+      "tier": "probable"
+    },
+    {
+      "address": "7YZg4KYDhgkiUxPUXQM35AUTd8mKaVGtGUEqZdW9xgSk",
+      "tier": "probable"
+    },
+    {
+      "address": "9hFQYYbaCT6jng6nny8crJBv9dwpTWMyWu2BiBHvmZyq",
+      "tier": "probable"
+    },
+    {
+      "address": "AFzmh2TYRFyhMcv9T32pjqPg2zdjCHMsRwxUMJcTsR3V",
+      "tier": "probable"
+    },
+    {
+      "address": "HyjSofYUDNVi3gEAg9yeNKMjihLox9upoSseY3YsamFi",
+      "tier": "probable"
+    }
+  ],
+  "posts": [
+    {
+      "at": "2025-06-26T02:58:48.000Z",
+      "text": "@orangie @devistiny https://t.co/uVjcCbiTT1",
+      "url": "https://x.com/kimchi1x/status/1938069404593311772"
+    },
+    {
+      "at": "2025-06-26T03:06:54.000Z",
+      "text": "@pasternak @thedulab https://t.co/JEohtOT37h",
+      "url": "https://x.com/kimchi1x/status/1938071443629347041"
+    },
+    {
+      "at": "2025-06-26T23:05:32.000Z",
+      "text": "@believeapp @pasternak is this your version of a flywheel or are you still working on implementing a proper flywheel",
+      "url": "https://x.com/kimchi1x/status/1938373089055662241"
+    },
+    {
+      "at": "2025-06-27T22:55:32.000Z",
+      "text": "@gajria 812 next",
+      "url": "https://x.com/kimchi1x/status/1938732960053879242"
+    },
+    {
+      "at": "2025-07-02T05:41:08.000Z",
+      "text": "@notthreadguy good size up",
+      "url": "https://x.com/kimchi1x/status/1940284584610210135"
+    },
+    {
+      "at": "2025-07-09T02:08:00.000Z",
+      "text": "@orangie @novacalledit @rasmr_eth https://t.co/bBjWOQ4ImI",
+      "url": "https://x.com/kimchi1x/status/1942767662368428229"
+    },
+    {
+      "at": "2025-07-11T19:58:56.000Z",
+      "text": "@waddles_eth @KenzoSOL_ 🤣🤣🤣🤣🤣🤣🤣",
+      "url": "https://x.com/kimchi1x/status/1943761947079717231"
+    },
+    {
+      "at": "2025-07-21T20:03:56.000Z",
+      "text": "@brezscales @_TJRTrades https://t.co/8oKGfv7KwL",
+      "url": "https://x.com/kimchi1x/status/1947387085758898297"
+    },
+    {
+      "at": "2025-07-26T01:56:49.000Z",
+      "text": "@jackkk @FlippingProfits https://t.co/mYB6EmcjEs",
+      "url": "https://x.com/kimchi1x/status/1948925442032910358"
+    },
+    {
+      "at": "2025-07-31T22:57:48.000Z",
+      "text": "https://t.co/b3686kekYF",
+      "url": "https://x.com/kimchi1x/status/1951054718224179301"
+    },
+    {
+      "at": "2025-08-06T20:37:31.000Z",
+      "text": "@notthreadguy @iboughtdips 😏",
+      "url": "https://x.com/kimchi1x/status/1953193743777186079"
+    },
+    {
+      "at": "2025-08-10T19:45:33.000Z",
+      "text": "@CookerFlips @iboughtdips he doesn't know does he",
+      "url": "https://x.com/kimchi1x/status/1954630216317579761"
+    },
+    {
+      "at": "2025-08-12T04:00:11.000Z",
+      "text": "@Solshotta we the dagestani big 3",
+      "url": "https://x.com/kimchi1x/status/1955117082175050091"
+    },
+    {
+      "at": "2025-08-13T20:16:56.000Z",
+      "text": "@pasternak https://t.co/wJh3YPFOPf",
+      "url": "https://x.com/kimchi1x/status/1955725276748398792"
+    },
+    {
+      "at": "2025-08-17T02:54:27.000Z",
+      "text": "@404flipped turbo s, 812, or 765lt",
+      "url": "https://x.com/kimchi1x/status/1956912478899863732"
+    },
+    {
+      "at": "2025-08-17T03:10:56.000Z",
+      "text": "@404flipped whichever one you get, make it 2 of em. 😏",
+      "url": "https://x.com/kimchi1x/status/1956916626676490461"
+    },
+    {
+      "at": "2025-08-17T03:13:18.000Z",
+      "text": "@timmpix1 @404flipped https://t.co/Ck2LloEElW",
+      "url": "https://x.com/kimchi1x/status/1956917221516791946"
+    },
+    {
+      "at": "2025-08-26T20:36:55.000Z",
+      "text": "https://t.co/BNOkrZAF1u",
+      "url": "https://x.com/kimchi1x/status/1960441350526263418"
+    },
+    {
+      "at": "2025-08-26T21:19:28.000Z",
+      "text": "@orangie @brezscales yall are both that weak?",
+      "url": "https://x.com/kimchi1x/status/1960452057959424092"
+    },
+    {
+      "at": "2025-08-28T19:18:46.000Z",
+      "text": "@traderpow https://t.co/KlBXltrlfh",
+      "url": "https://x.com/kimchi1x/status/1961146459560034331"
+    },
+    {
+      "at": "2025-08-29T03:57:48.000Z",
+      "text": "@CookerFlips @PioneerFNF https://t.co/fOWOcKQr6q",
+      "url": "https://x.com/kimchi1x/status/1961277078575153528"
+    },
+    {
+      "at": "2025-09-01T20:57:14.000Z",
+      "text": "@notthreadguy https://t.co/2epBhq6OoF",
+      "url": "https://x.com/kimchi1x/status/1962620790874218797"
+    },
+    {
+      "at": "2025-09-01T23:17:04.000Z",
+      "text": "@jackkk @CookerFlips @Cupseyy https://t.co/fp2amHbpOC",
+      "url": "https://x.com/kimchi1x/status/1962655979876819416"
+    },
+    {
+      "at": "2025-09-02T01:20:07.000Z",
+      "text": "@notthreadguy @CookerFlips @izebel_eth @CookerFlips https://t.co/4WuuVZWAw1",
+      "url": "https://x.com/kimchi1x/status/1962686944321933323"
+    },
+    {
+      "at": "2025-09-06T03:20:15.000Z",
+      "text": "@travonchain @astaso1 once launchcoin goes ath",
+      "url": "https://x.com/kimchi1x/status/1964166729078362408"
+    },
+    {
+      "at": "2025-09-08T19:41:58.000Z",
+      "text": "@CookerFlips https://t.co/TMrCb5Jlux",
+      "url": "https://x.com/kimchi1x/status/1965138560895648106"
+    },
+    {
+      "at": "2025-09-08T22:05:30.000Z",
+      "text": "@iboughtdips https://t.co/Acf9Ud6DNK",
+      "url": "https://x.com/kimchi1x/status/1965174682220630323"
+    },
+    {
+      "at": "2025-09-08T22:18:17.000Z",
+      "text": "@pasternak https://t.co/Q9q7mkwETD",
+      "url": "https://x.com/kimchi1x/status/1965177899092509149"
+    },
+    {
+      "at": "2025-09-10T18:00:57.000Z",
+      "text": "@lbexplorer https://t.co/0rIbdQ1XgG",
+      "url": "https://x.com/kimchi1x/status/1965837918465061182"
+    },
+    {
+      "at": "2025-09-12T04:54:21.000Z",
+      "text": "@orangie 😂😂😂😂😂😂😂😂😂😂",
+      "url": "https://x.com/kimchi1x/status/1966364736624435685"
+    }
+  ],
   "findings": [],
   "stats": {
     "posts_total": 2258,
-    "posts_read": 0,
-    "typed": 0
+    "posts_read": 60,
+    "typed": 0,
+    "posts_typed": 60
   }
 }
