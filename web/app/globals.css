@@ -514,3 +514,16 @@ body > * { position: relative; z-index: 1; }
 .live-at, .live-post-at, .live-narration-at { color: rgba(226, 221, 209, 0.62); }
 /* the drawn wallets stay legible on a phone: the drawing keeps its width and scrolls */
 @media (max-width: 767px) { .live-graph { overflow-x: auto; } .live-graph svg { min-width: 640px; } }
+/* the heartbeat: a light that never stops while the agent works */
+.live-working { color: var(--color-mute); font-size: 11px; letter-spacing: 0.06em; }
+.live-pulse { position: relative; margin-top: 14px; padding: 8px 0 10px; display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-mute); border-top: 1px solid rgba(226, 221, 209, 0.1); border-bottom: 1px solid rgba(226, 221, 209, 0.1); }
+.live-scan-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-stamp); box-shadow: 0 0 8px rgba(179, 18, 27, 0.9); animation: live-ping 1.2s ease-out infinite; flex: none; }
+.live-scanbar { position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; overflow: hidden; }
+.live-scanbar span { position: absolute; top: 0; left: -30%; width: 30%; height: 1px; background: linear-gradient(90deg, transparent, var(--color-stamp), #fff, var(--color-stamp), transparent); animation: scan-x 2.4s linear infinite; }
+@keyframes scan-x { from { left: -30%; } to { left: 100%; } }
+.live-checking { position: relative; margin: 0 0 14px; padding: 10px 12px 12px; border: 1px solid rgba(179, 18, 27, 0.35); background: rgba(179, 18, 27, 0.04); }
+.live-checking-what { display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-manila); margin-bottom: 8px; }
+.live-checking ol { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 10.5px; letter-spacing: 0.08em; color: rgba(226, 221, 209, 0.5); }
+.live-checking li { animation: check-light 5.4s linear infinite; }
+@keyframes check-light { 0%, 100% { color: rgba(226, 221, 209, 0.45); text-shadow: none; } 6% { color: #fff; text-shadow: 0 0 8px rgba(179, 18, 27, 0.9); } 14% { color: var(--color-manila); } }
+@media (prefers-reduced-motion: reduce) { .live-scanbar span, .live-checking li, .live-scan-dot { animation: none; } }

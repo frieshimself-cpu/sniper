@@ -70,14 +70,39 @@ function Head({ n, title, count }: { n: string; title: string; count?: string })
   );
 }
 
-/** The latest line of a scene, said out loud. */
-function Narration({ step, running, idle }: { step?: ProgressStep; running: boolean; idle: string }) {
+/** The latest line of a scene, said out loud; while the scene is the one at work, how long it has been at it. */
+function Narration({ step, running, idle, mounted }: { step?: ProgressStep; running: boolean; idle: string; mounted?: boolean }) {
   return (
     <p className="live-narration" key={step?.at ?? "idle"}>
       <span className="live-narration-at">{step ? step.at.slice(11, 19) : "--:--:--"}</span>
-      <span>{step ? step.text : idle}</span>
+      <span>
+        {step ? step.text : idle}
+        {running && step && mounted ? <span className="live-working"> · working {since(step.at)}</span> : null}
+      </span>
       {running ? <span className="blink text-stamp">▌</span> : null}
     </p>
+  );
+}
+
+/** What every token gets while it is replayed: shown as the checklist being worked through, a light running across it. */
+const TOKEN_CHECKS = ["the launch transaction", "the first buyers", "who funded them", "the exits", "the deployer's sells", "the liquidity", "the holders", "the wallets' own trades", "the posts about it"];
+function Checking({ what }: { what: string }) {
+  return (
+    <div className="live-checking" aria-hidden>
+      <p className="live-checking-what">
+        <span className="live-scan-dot" /> on {what}
+      </p>
+      <ol>
+        {TOKEN_CHECKS.map((c, i) => (
+          <li key={c} style={{ animationDelay: `${i * 0.6}s` }}>
+            {c}
+          </li>
+        ))}
+      </ol>
+      <div className="live-scanbar">
+        <span />
+      </div>
+    </div>
   );
 }
 
@@ -224,6 +249,19 @@ export function Live({ initial, account }: { initial: Progress; account: string 
         </div>
       ) : null}
 
+      {running && mounted && p.steps.length ? (
+        <div className="live-pulse" aria-live="off">
+          <span className="live-scan-dot" />
+          <span>
+            the agent is working · last word {since(p.steps[p.steps.length - 1].at)} ago · {num(st.transfers ?? 0) !== "0" ? `${num(st.transfers)} transfers · ` : ""}
+            {p.wallets.length} wallets · {num(st.posts_total ?? 0) !== "0" ? `${num(st.posts_total)} posts` : `${(p.posts ?? []).length} posts`}
+          </span>
+          <div className="live-scanbar">
+            <span />
+          </div>
+        </div>
+      ) : null}
+
       <ol className="live-stations mt-6">
         {STATIONS.map(([k, label], i) => (
           <li key={k} className={i < phaseIdx ? "done" : i === phaseIdx ? (running ? "now" : "done") : ""}>
@@ -236,7 +274,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
       {/* ---- scene A: the record ---------------------------------------------------------- */}
       <section className="live-section">
         <Head n="A" title="The record" count={st.posts_total ? `${num(st.posts_read)} of ${num(st.posts_total)} read · ${num(st.typed)} typed` : posts.length ? `${posts.length} shown` : running ? "reading" : "none"} />
-        <Narration step={last(record)} running={running && phaseIdx <= 1} idle={phaseIdx > 1 ? "the whole record read and typed" : running ? "pulling every post the API allows, back to the first" : "nothing read"} />
+        <Narration mounted={mounted} step={last(record)} running={running && phaseIdx <= 1} idle={phaseIdx > 1 ? "the whole record read and typed" : running ? "pulling every post the API allows, back to the first" : "nothing read"} />
         {postPct !== null ? (
           <div className="live-bar" aria-hidden>
             <span style={{ width: `${postPct}%` }} />
@@ -274,7 +312,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
       {/* ---- scene B: the wallets ----------------------------------------------------------- */}
       <section className="live-section">
         <Head n="B" title="The wallets" count={p.wallets.length ? `${p.wallets.length} found · ${p.wallets.filter((w) => w.tier === "claimed").length} claimed · ${p.wallets.filter((w) => w.via).length} never admitted` : running ? "looking" : "none"} />
-        <Narration step={last(walletSteps)} running={running && phaseIdx === 2} idle={running ? "the handle's own posts, the registry, Arkham's files, then the money between wallets" : "none"} />
+        <Narration mounted={mounted} step={last(walletSteps)} running={running && phaseIdx === 2} idle={running ? "the handle's own posts, the registry, Arkham's files, then the money between wallets" : "none"} />
         <Hud
           items={[
             ["wallets", String(p.wallets.length)],
@@ -309,7 +347,9 @@ export function Live({ initial, account }: { initial: Progress; account: string 
       {/* ---- scene C: the replay and the findings --------------------------------------------- */}
       <section className="live-section">
         <Head n="C" title="The replay and the findings" count={`${num(st.tokens ?? replay.filter((s) => s.text.startsWith("replaying")).length)} tokens · ${p.findings.length} findings`} />
-        <Narration step={last(replay)} running={running && phaseIdx >= 3} idle={running ? "every token the posts talk about, and every launch the wallets paid for, set against the posts" : "none"} />
+        <Narration mounted={mounted} step={last(replay)} running={running && phaseIdx >= 3} idle={running ? "every token the posts talk about, and every launch the wallets paid for, set against the posts" : "none"} />
+        {running && phaseIdx >= 3 && last(replay)?.text.startsWith("replaying ") ? <Checking what={last(replay)!.text.slice(10).split(":")[0]} /> : null}
+        {running && phaseIdx >= 3 && /asking X|called out|deleted/.test(last(replay)?.text ?? "") ? <Checking what="what X says about the handle" /> : null}
         <div className="grid gap-6 md:grid-cols-[1fr_300px]">
           <Stream steps={replay} running={running} />
           <div>
