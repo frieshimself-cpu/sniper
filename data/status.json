@@ -1,8 +1,8 @@
 {
   "state": "idle",
   "mode": "live",
-  "last_run_at": "2026-10-25T23:14:49Z",
-  "next_run_at": "2026-10-26T05:14:49Z",
-  "last_case": 3,
-  "message": "Archive pruned to 3 cases that meet the publish rule."
+  "last_run_at": "2026-10-26T03:50:53Z",
+  "next_run_at": "2026-10-26T09:50:53Z",
+  "last_case": 2,
+  "message": "Case 0002 opened on $BabyBTC: 2 findings, 1 wallets attributed, 0 leads."
 }

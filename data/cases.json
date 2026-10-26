@@ -1,194 +1,24 @@
 {
-  "generated_at": "2026-10-25T23:08:04Z",
+  "generated_at": "2026-10-26T03:50:53Z",
   "agent": "C.R.I.M.E.",
   "version": 1,
   "cases": [
     {
       "n": 1,
       "id": "0001",
-      "opened_at": "2026-10-25T22:42:42Z",
+      "opened_at": "2026-10-26T03:50:25Z",
       "status": "open",
       "severity": "high",
-      "score": 67,
-      "token": {
-        "symbol": "Chunkee",
-        "name": "Chunkee the Manatee",
-        "mint": "GkrpmRvhNdyubgHfqW5f58kfvkBtF6TbmwQEtHGnpump"
-      },
-      "subjects": [],
-      "headline": "Wallet ABNL…muyf funded 3 wallets before $Chunkee launched. They bought in the first ninety seconds. They sold within the half hour.",
-      "charge": "Early wallets funded from one source",
-      "findings": [
-        {
-          "code": "F-01",
-          "title": "3 early wallets funded from one source",
-          "detail": "3 of the first buyers received SOL from ABNL…muyf in the 24 hours before launch. They bought in the same slot. Combined, 7% of supply."
-        },
-        {
-          "code": "F-02",
-          "title": "Coordinated exit",
-          "detail": "3 of the 3 wallets sold 1 minute after launch."
-        },
-        {
-          "code": "F-03",
-          "title": "Deployer sold",
-          "detail": "The deployer wallet sold 6% of supply across 44 transactions, the first 1 minute after launch."
-        }
-      ],
-      "evidence": [
-        {
-          "kind": "tx",
-          "ref": "4imtz2E7T2pCyvLdbPZj1YzYe7WBSHBdFki9tUpKaMkqmsdmVFx3dTTBZNbNvv1zFezLscAo2H1Y1mSnpYHEVSqn",
-          "wallet": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
-          "amount": "0.18 SOL",
-          "at": "2026-10-24T23:09:40.000Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "dLHEYfrTxoB8UdJK9AZXzRVyBMT83us5NapP6fz7T2tvuR65rDRNJo6bvtkhD3s68o6PyyP4w2shCVrv9AbX11P",
-          "wallet": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
-          "amount": "0.18 SOL",
-          "at": "2026-10-24T23:13:21.000Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "2U66j7in3gdAtjExbP7y7P3uDRn11aEVrqVyxJZiNBY28o7gESA15Kh7f7KpFa6hKte9AY4F4UW3mbr4ipbm43EG",
-          "wallet": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
-          "amount": "0.18 SOL",
-          "at": "2026-10-24T23:25:27.000Z",
-          "note": "Funding transfer"
-        },
-        {
-          "kind": "tx",
-          "ref": "5NvakgZtTBEFMzJygVvuPQGYsHfBBLb3gzcbyxUPpHe6FBQqi6QukmdbsKgcqCEZsjmkVSa64ucWqYoqqNKHGWzu",
-          "wallet": "43eJQvDbyhgjfVjMbn4eMhSQeBhnrwFeZrx2rkP1yJdR",
-          "amount": "1,058,707 Chunkee",
-          "at": "2026-10-25T00:19:34.000Z",
-          "note": "Launch, deployer's opening buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "4s1v1feyUfKD4GspRBkPCPRfF91CNudDgXfncNfwULFAzj24gy76f6y1ywXxfSDK6qAPQ4aS3rHY3wKzn16aBe86",
-          "wallet": "43eJQvDbyhgjfVjMbn4eMhSQeBhnrwFeZrx2rkP1yJdR",
-          "amount": "44,205,196 Chunkee",
-          "at": "2026-10-25T00:19:34.000Z",
-          "note": "Launch buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "4s1v1feyUfKD4GspRBkPCPRfF91CNudDgXfncNfwULFAzj24gy76f6y1ywXxfSDK6qAPQ4aS3rHY3wKzn16aBe86",
-          "wallet": "43eJQvDbyhgjfVjMbn4eMhSQeBhnrwFeZrx2rkP1yJdR",
-          "amount": "22,679,954 Chunkee",
-          "at": "2026-10-25T00:19:34.000Z",
-          "note": "Launch buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "5MjXBQWGoW1avhZ9Nr6K1D99Tmg1NoftPp5F3GKkjUfXG1cXhmcuYxC6iRMDrdf4kA5BvpMy1cBQgK5PZAm3h4ij",
-          "wallet": "43eJQvDbyhgjfVjMbn4eMhSQeBhnrwFeZrx2rkP1yJdR",
-          "amount": "3,169,625 Chunkee",
-          "at": "2026-10-25T00:19:34.000Z",
-          "note": "Launch buy"
-        },
-        {
-          "kind": "tx",
-          "ref": "53rC17YYQF946J3qgk9qJVfhw1q3p7XC1Dg8Qretav4fAU9yQoBGzTHCJCwKbPiFYyiUpAr8miXzNgjP9mnzsipS",
-          "wallet": "4a6RAiXSef4yZrz18DmpxtnfD338G1nFinNdseU1bHgM",
-          "amount": "45,660 Chunkee",
-          "at": "2026-10-25T00:20:08.000Z",
-          "note": "Deployer sell"
-        },
-        {
-          "kind": "tx",
-          "ref": "4AG5sS3K6pvP4pnTpoRGYMhVgmPa9nv9oiG9yYfUXTx57EFEU9t1PxL4j1ovhiouLoW1PKn7H7gcPiVVHBTMiaNx",
-          "wallet": "CPHkWDEXHC251UHYm5gERR31AQhN2LuotzvageyZjmGx",
-          "amount": "31,012 Chunkee",
-          "at": "2026-10-25T00:20:17.000Z",
-          "note": "Sell into launch volume"
-        },
-        {
-          "kind": "tx",
-          "ref": "372CsZz6szbxauSNB63FAkKeNrbfZz7nmdT4kFNZvFD7zLwKzGFPXU7JY8uG6o2yiASDBXVnENK9tU529Zfju6DV",
-          "wallet": "FUt7xm8GSfi3Vra6yESbSk4WgnkyR2pqmqXzH6sLy5qz",
-          "amount": "17,477 Chunkee",
-          "at": "2026-10-25T00:20:20.000Z",
-          "note": "Sell into launch volume"
-        },
-        {
-          "kind": "tx",
-          "ref": "4d2sQ6gNjU1QG4XaSoCAZJBvtLqHQuQry5YK81K6dnLfBggeSmiXSUMnnGtBvfrsUxtEa6ZCf6dC5d7NYkHMhx7h",
-          "wallet": "7q4UFfn4Fk3bvxctD5HdEimkz4VKnK7ioZb1nhq2cniR",
-          "amount": "2,306 Chunkee",
-          "at": "2026-10-25T00:20:31.000Z",
-          "note": "Sell into launch volume"
-        },
-        {
-          "kind": "tx",
-          "ref": "28N1As1m7kjnYu2zmQxf1Wd82aSUNq1Wt2AqfYrKw1KXdpkBTXiQBDL169GQtiEM4Qucj9gLvNxRT481xobw8MGU",
-          "wallet": "4a6RAiXSef4yZrz18DmpxtnfD338G1nFinNdseU1bHgM",
-          "amount": "1,476,739 Chunkee",
-          "at": "2026-10-25T00:26:22.000Z",
-          "note": "Deployer sell"
-        },
-        {
-          "kind": "tx",
-          "ref": "3yWeba8Kx1dBtw2GGEsxBBtvZN9igQ4w7VLu3Z4mi6j3Vn5xrWsxM2Xc2wRavvND5w64tiBEYgQvZVNJExcHmQpm",
-          "wallet": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
-          "amount": "376 SOL",
-          "at": "2026-10-25T18:33:57.000Z",
-          "note": "Proceeds leave"
-        },
-        {
-          "kind": "tx",
-          "ref": "2PQzVHyUzdfG4WTUjwA1NDvYg6oZRnB8FeoEJ2qZ9ybZGNQp5gzAPkuTTZg8cosHB3JitNB7B9B6AZqMZkTy22Q7",
-          "wallet": "HnPMuiaryZrsBX6hKUjGCB1UuHA5kSj2HsKLiVNQhp9V",
-          "amount": "411 SOL",
-          "at": "2026-10-25T18:52:56.000Z",
-          "note": "Hop"
-        }
-      ],
-      "money_trail": [
-        {
-          "label": "funder",
-          "address": "ABNL41SwMLVRaCq6okEWsWyvLwm56nazUNwMrTHgmuyf",
-          "amount": "376 SOL"
-        },
-        {
-          "label": "hop 1",
-          "address": "HnPMuiaryZrsBX6hKUjGCB1UuHA5kSj2HsKLiVNQhp9V",
-          "amount": "411 SOL"
-        },
-        {
-          "label": "hop 2",
-          "address": "6D1AVtDyfTokxWrtf4D2q34c3hJk8Gv5SeCLB1zc8s6c",
-          "amount": ""
-        }
-      ],
-      "narrative": [
-        "$Chunkee (Chunkee the Manatee) was picked by discovery (top boosted, 100 boosts). The pool opened 2026-10-25 00:19Z.",
-        "3 of the first buyers received SOL from ABNL…muyf in the 24 hours before launch. They bought in the same slot. Combined, 7% of supply. 3 of the 3 wallets sold 1 minute after launch. The deployer wallet sold 6% of supply across 44 transactions, the first 1 minute after launch.",
-        "376 SOL left funder ABNL…muyf after launch. The trail ends at hop 2 6D1A…8s6c.",
-        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
-        "Convictions: 0."
-      ],
-      "png": "case-0001.png"
-    },
-    {
-      "n": 2,
-      "id": "0002",
-      "opened_at": "2026-10-25T22:44:51Z",
-      "status": "open",
-      "severity": "medium",
-      "score": 45,
+      "score": 60,
       "token": {
         "symbol": "GATO",
         "name": "GTA6CAT",
         "mint": "HsprHxBRgiVaQdRf3TnKNuZZtaX9JUSPgMFdAkk6pump"
       },
-      "subjects": [],
-      "headline": "The $GATO deployer 5MVn…BLJm sold into its own pool.",
+      "subjects": [
+        "@hazymarlin60444"
+      ],
+      "headline": "The $GATO deployer, @hazymarlin60444, sold into its own pool.",
       "charge": "Deployer bought at creation",
       "findings": [
         {
@@ -234,43 +64,11 @@
         },
         {
           "kind": "tx",
-          "ref": "2ShhFaXrR4Ygvbw2xQdteraqebUy17NW7n9WFr8TaPk6RRWKUAcpP24ygqfmh9EnNPupmipFCn6YBCPoLjLdTg2f",
-          "wallet": "BB81cC1cS1DGBqyEPGHNnhPFQ3YWdfJWQ3JGuruuNZhv",
-          "amount": "21.00 SOL",
-          "at": "2026-10-21T01:03:59.000Z",
-          "note": "Hop"
-        },
-        {
-          "kind": "tx",
-          "ref": "t196rhrnLDJTYWsmZepTS4c8u3uLEV3My3NB6kRFFRCpN8thd47duu46ZdCtk7xo3N9U8rS2SLac85Hhac8jvVQ",
-          "wallet": "FcYBdKzh1Pjh26MJTrFpu1QrCcuG34GyBjJe7pTQBXs3",
-          "amount": "58.00 SOL",
-          "at": "2026-10-22T20:10:17.000Z",
-          "note": "Hop"
-        },
-        {
-          "kind": "tx",
-          "ref": "3iPoxnvNMFiMbBNKZ2NRdsnKntxS3YjaYWw44i9tATY8BqisUj3DY9BUdu45GJYPPYiu7F4ijc2Zt9362VDy3mJv",
-          "wallet": "HhGS6tZMxcNb4JdfeMcvr8yiaFDYNGyfT17ix7pM1iC9",
-          "amount": "17.60 SOL",
-          "at": "2026-10-22T20:41:16.000Z",
-          "note": "Hop"
-        },
-        {
-          "kind": "tx",
           "ref": "ZVeCZJkjSn4xohiP9o7LeLiz3LoHWu3RtPVLd4vVSJXWVrv5rYqddrA887HL5pntkMXB27gti16wWkfwG6ptGKJ",
           "wallet": "5MVneCfDge5vtf4C7QZmczCJbBB8vfvDbMqvopvkBLJm",
           "amount": "100 SOL",
           "at": "2026-10-23T16:00:58.000Z",
           "note": "Proceeds leave"
-        },
-        {
-          "kind": "tx",
-          "ref": "26dqN4BcfSdncX3CeCwzfwu7ja8tsiRMPvqxkavCCY2aweDwNf4LxF6LKcjgrpxnAHt4QFhvnb7ZQCiwAuhQ6gXA",
-          "wallet": "EPtmLUzuQK3TPEcW6xbVjGCLiT3JCBjSTNBt2bwynSZx",
-          "amount": "23.00 SOL",
-          "at": "2026-10-24T19:26:43.000Z",
-          "note": "Hop"
         },
         {
           "kind": "tx",
@@ -287,6 +85,22 @@
           "amount": "5,000,000 GATO",
           "at": "2026-10-25T22:16:25.000Z",
           "note": "Deployer transfer out"
+        },
+        {
+          "kind": "tx",
+          "ref": "4c99BcjknGA99tJD6hYEKvvbj6MPKruhtQboHxh6kRq4aq1Gmrsb1ALZBVq4c8UAhT9hbB46EhJhqYdP3u6gkvFX",
+          "wallet": "FcYBdKzh1Pjh26MJTrFpu1QrCcuG34GyBjJe7pTQBXs3",
+          "amount": "77.00 SOL",
+          "at": "2026-10-26T02:05:19.000Z",
+          "note": "Hop"
+        },
+        {
+          "kind": "tx",
+          "ref": "4aUgDUV83RykQFJAccuB6uBawQv1Cv7QKMJ6ebxzTsHPp6xCnyHCUvwMwwnPC6VcdJcsvAQ17FvSA79VNZkdW9yL",
+          "wallet": "2W3DuS6aESGbbSRc1zhhjn9A5BZw1WaiEcou1vtAYFoj",
+          "amount": "51.00 SOL",
+          "at": "2026-10-26T02:35:35.000Z",
+          "note": "Hop"
         }
       ],
       "money_trail": [
@@ -298,52 +112,44 @@
         {
           "label": "hop 1",
           "address": "FcYBdKzh1Pjh26MJTrFpu1QrCcuG34GyBjJe7pTQBXs3",
-          "amount": "58.00 SOL"
+          "amount": "77.00 SOL"
         },
         {
           "label": "hop 2",
-          "address": "EPtmLUzuQK3TPEcW6xbVjGCLiT3JCBjSTNBt2bwynSZx",
-          "amount": "23.00 SOL"
+          "address": "2W3DuS6aESGbbSRc1zhhjn9A5BZw1WaiEcou1vtAYFoj",
+          "amount": "51.00 SOL"
         },
         {
           "label": "hop 3",
-          "address": "HhGS6tZMxcNb4JdfeMcvr8yiaFDYNGyfT17ix7pM1iC9",
-          "amount": "17.60 SOL"
-        },
-        {
-          "label": "hop 4",
-          "address": "BB81cC1cS1DGBqyEPGHNnhPFQ3YWdfJWQ3JGuruuNZhv",
-          "amount": "21.00 SOL"
-        },
-        {
-          "label": "hop 5",
-          "address": "9DfuscfG2prLcTvLokgf2aMxwrJdFgnSuZfzoScPmx46",
+          "address": "EuKhmTPQ9CLyPnC4ByDcn18CUu9DYrpqPziGt2gAoZv1",
           "amount": ""
         }
       ],
       "narrative": [
-        "$GATO (GTA6CAT) was picked by discovery (top boosted, 100 boosts). The pool opened 2026-08-25 12:25Z.",
+        "$GATO (GTA6CAT) was picked by argument. The pool opened 2026-08-25 12:25Z.",
         "The deployer wallet took 15% of supply in the launch transaction. The deployer wallet sold 5% of supply across 3 transactions, the first 27 minutes after launch. 6% of supply left the deployer wallet to 11 other wallets without a swap.",
-        "100 SOL left deployer 5MVn…BLJm after launch. The trail ends at hop 5 9Dfu…mx46.",
-        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
+        "100 SOL left deployer 5MVn…BLJm after launch. The trail ends at hop 3 EuKh…oZv1.",
+        "@hazymarlin60444 is on the record for the wallets above, with sources. Disputes are honoured at once.",
         "Convictions: 0."
       ],
-      "png": "case-0002.png"
+      "png": "case-0001.png"
     },
     {
-      "n": 3,
-      "id": "0003",
-      "opened_at": "2026-10-25T23:08:04Z",
+      "n": 2,
+      "id": "0002",
+      "opened_at": "2026-10-26T03:50:53Z",
       "status": "open",
       "severity": "medium",
-      "score": 55,
+      "score": 51,
       "token": {
         "symbol": "BabyBTC",
         "name": "Baby BTC",
         "mint": "D2MSYa6LnnhJ7WdqAfux4DAK7stmYig7DaeuEeKVpump"
       },
-      "subjects": [],
-      "headline": "The $BabyBTC deployer DmU6…hpGi sold into its own pool.",
+      "subjects": [
+        "@bcrypto01"
+      ],
+      "headline": "The $BabyBTC deployer, @bcrypto01, sold into its own pool.",
       "charge": "Deployer bought at creation",
       "findings": [
         {
@@ -354,7 +160,7 @@
         {
           "code": "F-02",
           "title": "Deployer sold",
-          "detail": "The deployer wallet sold 15% of supply across 3 transactions, the first 0 minutes after launch."
+          "detail": "The deployer wallet sold 11% of supply across 4 transactions, the first under a minute after launch."
         }
       ],
       "evidence": [
@@ -368,49 +174,49 @@
         },
         {
           "kind": "tx",
-          "ref": "5oiBNfDCgjPFFEPdakwUNWxJZhdPsCEKqGudGqhrrrtoLSuEHatdzUm8E8rK4wnCKWTJ5XCxV739wikCzpLsebYr",
-          "wallet": "DmU63HGYfbETeJFzffusft8nycQ1vCH2tDo5qAZdhpGi",
-          "amount": "133,981,404 BabyBTC",
-          "at": "2026-10-25T19:27:20.000Z",
+          "ref": "gPjzcQEtSTqMyyiRycruV2oSwGidyepnhLxQJbz9HpKmJH1jcA5QHptW9ZPaSmt7CrpP8UYrEKTgFnUdRRFxNGu",
+          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
+          "amount": "20,880,250 BabyBTC",
+          "at": "2026-10-25T19:27:40.000Z",
           "note": "Deployer sell"
         },
         {
           "kind": "tx",
-          "ref": "2CWEhY2nWdgVXrq2kFVrgWpJE2Z3vbEovXAwjnu9jxu4Jm1iMgbv78Y3QSR6EPKmt4hGhgSEriEY1xgPgAVk9izm",
-          "wallet": "DmU63HGYfbETeJFzffusft8nycQ1vCH2tDo5qAZdhpGi",
-          "amount": "2,641,297 BabyBTC",
-          "at": "2026-10-25T19:52:40.000Z",
+          "ref": "3uR7dj8Z9qD1UAd7qVY9xNjEjojtjZbnUvLy9VykU4zvqwxbcnY1x7ec2NnoTXYWBthtjxbyP4kkQsac49d9RUzS",
+          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
+          "amount": "16,704,200 BabyBTC",
+          "at": "2026-10-25T19:27:42.000Z",
           "note": "Deployer sell"
         },
         {
           "kind": "tx",
-          "ref": "34eNvh4wB8wn1zVB5Zcpp4ywTN8QjK2WkadnrX7aCkS5WqC6DHkagscGAyk93xyMeNjFAyYHnEn33AVEkrpf6b5N",
-          "wallet": "DmU63HGYfbETeJFzffusft8nycQ1vCH2tDo5qAZdhpGi",
-          "amount": "0.53 SOL",
-          "at": "2026-10-25T19:53:00.000Z",
+          "ref": "4MF2sYmz2Qj1UdwGDWUjqs7Aw2KDu2jUuhcex6HKbWwVYN19TcWh5sj1ZJ7KUhuN83BZiP34G7Lt44uAahRo6bh3",
+          "wallet": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
+          "amount": "1.49 SOL",
+          "at": "2026-10-26T02:17:58.000Z",
           "note": "Proceeds leave"
         }
       ],
       "money_trail": [
         {
           "label": "deployer",
-          "address": "DmU63HGYfbETeJFzffusft8nycQ1vCH2tDo5qAZdhpGi",
-          "amount": "0.53 SOL"
+          "address": "28MJrJr2Pu2GPicLj8631nApwzXUAh9vkx2J6VgLPz3y",
+          "amount": "1.49 SOL"
         },
         {
           "label": "hop 1",
-          "address": "4fXGpLesobQ7SDN2mBH7sXDds373Pw3QspHhgjpnvAnu",
+          "address": "4ojTnRxhH4xws23nUWDhtXLSonxX8zU3xbCqjHkcAC7V",
           "amount": ""
         }
       ],
       "narrative": [
-        "$BabyBTC (Baby BTC) was picked by discovery (boosted, 10 boosts). The pool opened 2026-10-25 19:27Z.",
-        "The deployer wallet took 21% of supply in the launch transaction. The deployer wallet sold 15% of supply across 3 transactions, the first 0 minutes after launch.",
-        "0.53 SOL left deployer DmU6…hpGi after launch. The trail ends at hop 1 4fXG…vAnu.",
-        "No handle is on the record for these wallets. Attribution leads, if any, are queued for review.",
+        "$BabyBTC (Baby BTC) was picked by argument. The pool opened 2026-10-25 19:27Z.",
+        "The deployer wallet took 21% of supply in the launch transaction. The deployer wallet sold 11% of supply across 4 transactions, the first under a minute after launch.",
+        "1.49 SOL left deployer 28MJ…Pz3y after launch. The trail ends at hop 1 4ojT…AC7V.",
+        "@bcrypto01 is on the record for the wallets above, with sources. Disputes are honoured at once.",
         "Convictions: 0."
       ],
-      "png": "case-0003.png"
+      "png": "case-0002.png"
     }
   ]
 }
