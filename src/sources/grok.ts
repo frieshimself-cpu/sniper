@@ -22,29 +22,53 @@ export class Grok {
     this.key = key;
   }
 
+  /**
+   * X search through xAI's Responses API (the agent tools). Returns the model's text and the status ids it cited.
+   * A claim is kept only when its post id is among the citations: the model never gets to invent a URL.
+   */
+  async search(prompt: string, opts: { handles?: string[]; exclude?: string[] } = {}): Promise<{ text: string; cited: Set<string> }> {
+    const tool: Record<string, unknown> = { type: "x_search" };
+    if (opts.handles?.length) tool.allowed_x_handles = opts.handles.map((h) => h.replace(/^@/, ""));
+    if (opts.exclude?.length) tool.excluded_x_handles = opts.exclude.map((h) => h.replace(/^@/, ""));
+    const r = await fetch(`${this.base}/responses`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
+      body: JSON.stringify({
+        model: this.model,
+        temperature: 0,
+        input: [
+          { role: "system", content: "You are a retrieval tool. You output JSON only. You never guess an author or a URL." },
+          { role: "user", content: prompt },
+        ],
+        tools: [tool],
+      }),
+      signal: AbortSignal.timeout(180_000),
+    });
+    if (!r.ok) throw new Error(`xai ${r.status}`);
+    type Out = { type: string; content?: Array<{ type: string; text?: string; annotations?: Array<{ type: string; url?: string }> }> };
+    const j = (await r.json()) as { output?: Out[] };
+    let text = "";
+    const cited = new Set<string>();
+    for (const o of j.output ?? []) {
+      if (o.type !== "message") continue;
+      for (const c of o.content ?? []) {
+        if (c.text) text += c.text;
+        for (const a of c.annotations ?? []) {
+          const id = statusId(a.url ?? "");
+          if (id) cited.add(id);
+        }
+      }
+    }
+    return { text, cited };
+  }
+
   async claims(address: string): Promise<Claim[]> {
     const prompt = [
       `Search X for posts that contain the exact Solana address ${address}.`,
       `Return ONLY a JSON array. Each item: {"handle": "<author handle without @>", "url": "<full x.com status URL>", "quote": "<the sentence containing the address>", "self": <true if the author presents the address as their own wallet, else false>, "about": "<handle the post attributes the address to, without @, or null>"}.`,
       `Only include posts you actually found. If none, return [].`,
     ].join("\n");
-    const r = await fetch(`${this.base}/chat/completions`, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
-      body: JSON.stringify({
-        model: this.model,
-        temperature: 0,
-        messages: [
-          { role: "system", content: "You are a retrieval tool. You output JSON only. You never guess an author or a URL." },
-          { role: "user", content: prompt },
-        ],
-        ...(this.canSearch ? { search_parameters: { mode: "on", return_citations: true, sources: [{ type: "x" }] } } : {}),
-      }),
-    });
-    if (!r.ok) throw new Error(`xai ${r.status}`);
-    const j = (await r.json()) as { choices?: Array<{ message?: { content?: string } }>; citations?: string[] };
-    const text = j.choices?.[0]?.message?.content ?? "[]";
-    const citations = new Set((j.citations ?? []).map(norm));
+    const { text, cited } = await this.search(prompt);
     let items: Array<Record<string, unknown>> = [];
     try {
       const m = text.match(/\[[\s\S]*\]/);
@@ -60,7 +84,7 @@ export class Grok {
       const m = url.match(/^https?:\/\/(?:x|twitter)\.com\/([A-Za-z0-9_]{1,15})\/status\/\d+/);
       if (!m || m[1].toLowerCase() !== handle) continue; // author must own the URL
       if (!quote.includes(address)) continue; // the address must be in the post
-      if (citations.size && !citations.has(norm(url))) continue; // and Grok must have actually cited it
+      if (!cited.has(statusId(url))) continue; // and Grok must have actually cited it
       const about = typeof it.about === "string" && it.about ? "@" + it.about.replace(/^@/, "").toLowerCase() : undefined;
       out.push({ handle: "@" + handle, address, url, quote: quote.slice(0, 280), self: it.self === true, about });
     }
@@ -100,16 +124,8 @@ export async function extractClaims(this: Grok, handle: string, posts: Array<{ i
       `Return ONLY a JSON array of {"id": "<post id>", "type": "<type>", "token": "<$SYMBOL or mint if named, else null>", "quote": "<the exact words, max 200 chars>"}. Skip posts with no token claim. Never invent a post id.`,
       ...slice.map((p) => JSON.stringify({ id: p.id, at: p.at, text: p.text.slice(0, 400) })),
     ].join("\n");
-    const r = await fetch(`${this.base}/chat/completions`, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
-      body: JSON.stringify({ model: this.model, temperature: 0, messages: [{ role: "system", content: "You classify posts. JSON only." }, { role: "user", content: prompt }] }),
-      signal: AbortSignal.timeout(120_000),
-    });
-    if (!r.ok) throw new Error(`xai ${r.status}`);
-    const j = (await r.json()) as { choices?: Array<{ message?: { content?: string } }> };
-    const text = j.choices?.[0]?.message?.content ?? "[]";
-    let items: Array<Record<string, unknown>> = [];
+    const { text, cited } = await this.search(prompt, { exclude: [h] });
+  let items: Array<Record<string, unknown>> = [];
     try {
       const m = text.match(/\[[\s\S]*\]/);
       items = m ? (JSON.parse(m[0]) as Array<Record<string, unknown>>) : [];
@@ -134,25 +150,18 @@ export async function searchHistory(this: Grok, handle: string): Promise<Array<{
   if (!this.canSearch) return [];
   const h = handle.replace(/^@/, "");
   const prompt = `Search X for posts quoting, screenshotting or replying to crypto token promotions by @${h} that @${h} later deleted. Return ONLY a JSON array of {"url": "<x.com status URL of the citing post>", "quote": "<what the deleted post said, as quoted>", "about": "<$SYMBOL or token named>"}. Only include posts you actually found.`;
-  const r = await fetch(`${this.base}/chat/completions`, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${this.key}` },
-    body: JSON.stringify({ model: this.model, temperature: 0, messages: [{ role: "system", content: "You are a retrieval tool. JSON only. Never guess a URL." }, { role: "user", content: prompt }], ...(this.canSearch ? { search_parameters: { mode: "on", return_citations: true, sources: [{ type: "x" }] } } : {}) }),
-    signal: AbortSignal.timeout(120_000),
-  });
-  if (!r.ok) throw new Error(`xai ${r.status}`);
-  const j = (await r.json()) as { choices?: Array<{ message?: { content?: string } }>; citations?: string[] };
-  const cites = new Set((j.citations ?? []).map(norm));
+  const { text, cited } = await this.search(prompt, { exclude: [h] });
   let items: Array<Record<string, unknown>> = [];
   try {
-    const m = (j.choices?.[0]?.message?.content ?? "[]").match(/\[[\s\S]*\]/);
+    const m = text.match(/\[[\s\S]*\]/);
     items = m ? (JSON.parse(m[0]) as Array<Record<string, unknown>>) : [];
   } catch {
     return [];
   }
   return items
-    .filter((it) => typeof it.url === "string" && /^https?:\/\/(x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d+/.test(it.url as string) && (!cites.size || cites.has(norm(it.url as string))))
+    .filter((it) => typeof it.url === "string" && /^https?:\/\/(x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d+/.test(it.url as string) && cited.has(statusId(it.url as string)))
     .map((it) => ({ url: it.url as string, quote: String(it.quote ?? "").slice(0, 280), about: String(it.about ?? "") }));
 }
 
-const norm = (u: string) => u.replace(/^https?:\/\/(?:www\.)?(?:twitter|x)\.com/, "x").replace(/[?#].*$/, "").replace(/\/$/, "");
+/** The post id in an x.com or twitter.com status URL; citations come back as x.com/i/status/<id>. */
+const statusId = (u: string) => u.match(/\/status\/(\d+)/)?.[1] ?? "";
