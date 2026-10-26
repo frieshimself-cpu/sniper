@@ -59,7 +59,7 @@ export function Counter({ initial, compact = false, poll = 20_000 }: { initial: 
       {items.map(([label, value, red]) => (
         <div key={label} className="min-w-0">
           <dt className="label label-dark">{label}</dt>
-          <dd className={`${big} leading-none font-semibold tracking-tight ${red ? "text-stamp" : ""}`}>
+          <dd className={`${big} leading-none font-semibold tracking-tight ${red ? "text-stamp abr-soft" : "abr abr-live"}`}>
             {value.toLocaleString("en-US")}
           </dd>
         </div>

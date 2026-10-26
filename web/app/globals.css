@@ -1,12 +1,20 @@
 @import "tailwindcss";
 
+/*
+  The palette comes from a black square with a ghost drawn on it in pale lines, the edges split into blue
+  and red. Everything here is that: near-black, bone, one red, and a fringe of blue where the eye lingers.
+  The old names stay (manila, ink) so the files still read as files, now dark dossiers instead of paper.
+*/
 @theme {
-  --color-page: #0e0e10;
-  --color-manila: #ece3cc;
-  --color-ink: #141414;
+  --color-page: #070708;
+  --color-manila: #e8e4da; /* bone: body text on the page */
+  --color-ink: #e2ddd1; /* the dossier's foreground: borders, labels, type on a file */
   --color-stamp: #b3121b;
-  --color-line: #2a2a2e;
-  --color-mute: #9c9686;
+  --color-line: #232327;
+  --color-mute: #8a8a92;
+  --color-fringe: #5f8fd8; /* the blue edge of the drawing */
+  --color-fringe-2: #c4344a; /* the red edge */
+  --color-hum: #d9c66b;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
 }
@@ -22,8 +30,8 @@ html {
 body {
   background: var(--color-page);
   background-image:
-    radial-gradient(ellipse at top, rgba(179, 18, 27, 0.07), transparent 55%),
-    radial-gradient(ellipse at bottom, rgba(0, 0, 0, 0.55), transparent 60%);
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(95, 143, 216, 0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 50% 110%, rgba(179, 18, 27, 0.07), transparent 60%);
   background-attachment: fixed;
   color: var(--color-manila);
   font-family: var(--font-mono);
@@ -34,36 +42,80 @@ body {
 }
 
 h1, h2, h3, .headline {
-  font-family: var(--font-sans);
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-weight: 600;
   letter-spacing: -0.01em;
-  line-height: 1.08;
+  line-height: 1.12;
 }
 
 a { text-underline-offset: 3px; }
+::selection { background: var(--color-stamp); color: var(--color-manila); }
 
-/* The manila case file: double border, ink text. */
+/* The split edge: pale type with a blue and a red fringe, like the drawing. Display sizes only. */
+.abr {
+  color: #f1eee6;
+  text-shadow:
+    -1.5px 0 0 rgba(95, 143, 216, 0.85),
+    1.5px 0 0 rgba(196, 52, 74, 0.8),
+    0 1.5px 0 rgba(217, 198, 107, 0.28);
+}
+.abr-soft {
+  text-shadow:
+    -1px 0 0 rgba(95, 143, 216, 0.55),
+    1px 0 0 rgba(196, 52, 74, 0.5);
+}
+@keyframes abr-drift {
+  0%, 100% { text-shadow: -1.5px 0 0 rgba(95, 143, 216, 0.85), 1.5px 0 0 rgba(196, 52, 74, 0.8), 0 1.5px 0 rgba(217, 198, 107, 0.28); }
+  50% { text-shadow: -2.5px 0.5px 0 rgba(95, 143, 216, 0.7), 2.5px -0.5px 0 rgba(196, 52, 74, 0.7), 0 1px 0 rgba(217, 198, 107, 0.2); }
+}
+.abr-live { animation: abr-drift 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .abr-live { animation: none; } }
+
+/* The dossier. Dark panel, a pale rule, a second rule inside, corner ticks. */
 .file {
   position: relative;
-  background: var(--color-manila);
+  background: #0d0d10;
   color: var(--color-ink);
-  border: 2px solid var(--color-ink);
+  border: 1px solid rgba(226, 221, 209, 0.28);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 30px 60px -30px rgba(0, 0, 0, 0.9);
 }
 .file::before {
   content: "";
   position: absolute;
   inset: 5px;
-  border: 1px solid var(--color-ink);
+  border: 1px solid rgba(226, 221, 209, 0.12);
   pointer-events: none;
 }
-.file > * { position: relative; }
+.file::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--color-ink), var(--color-ink)) top left / 10px 1px no-repeat,
+    linear-gradient(var(--color-ink), var(--color-ink)) top left / 1px 10px no-repeat,
+    linear-gradient(var(--color-ink), var(--color-ink)) top right / 10px 1px no-repeat,
+    linear-gradient(var(--color-ink), var(--color-ink)) top right / 1px 10px no-repeat,
+    linear-gradient(var(--color-ink), var(--color-ink)) bottom left / 10px 1px no-repeat,
+    linear-gradient(var(--color-ink), var(--color-ink)) bottom left / 1px 10px no-repeat,
+    linear-gradient(var(--color-ink), var(--color-ink)) bottom right / 10px 1px no-repeat,
+    linear-gradient(var(--color-ink), var(--color-ink)) bottom right / 1px 10px no-repeat;
+  opacity: 0.7;
+}
+.file > * { position: relative; z-index: 1; }
+a.file { transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+a.file:hover {
+  border-color: rgba(226, 221, 209, 0.7);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 32px -8px rgba(95, 143, 216, 0.35), 0 30px 60px -30px rgba(0, 0, 0, 0.9);
+  transform: translateY(-1px);
+}
 
 .label {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.65;
+  opacity: 0.6;
 }
 .label-dark { opacity: 1; color: var(--color-mute); }
 
@@ -78,25 +130,28 @@ a { text-underline-offset: 3px; }
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
+  background: rgba(13, 13, 16, 0.6);
 }
-.pill-ink { border-color: var(--color-ink); color: var(--color-ink); }
+.pill-ink { border-color: rgba(226, 221, 209, 0.35); color: var(--color-ink); }
 .pill-red { background: var(--color-stamp); border-color: var(--color-stamp); color: var(--color-manila); }
 .pill-dot { width: 6px; height: 6px; background: currentColor; display: inline-block; }
+.pill-red .pill-dot { box-shadow: 0 0 8px 1px rgba(255, 255, 255, 0.5); }
 
 .rule { border-top: 1px solid var(--color-line); }
 
 table.data { width: 100%; border-collapse: collapse; font-size: 12px; }
-table.data th { text-align: left; font-weight: 600; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; padding: 8px 10px; border-bottom: 2px solid currentColor; white-space: nowrap; }
-table.data td { padding: 8px 10px; border-bottom: 1px solid color-mix(in srgb, currentColor 25%, transparent); vertical-align: top; white-space: nowrap; }
+table.data th { text-align: left; font-weight: 600; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid currentColor; white-space: nowrap; opacity: 0.8; }
+table.data td { padding: 8px 10px; border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent); vertical-align: top; white-space: nowrap; }
 table.data tr:last-child td { border-bottom: 0; }
+table.data tbody tr:hover td { background: rgba(255, 255, 255, 0.025); }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 2px solid currentColor;
-  padding: 8px 14px;
+  border: 1px solid currentColor;
+  padding: 9px 14px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -104,35 +159,48 @@ table.data tr:last-child td { border-bottom: 0; }
   cursor: pointer;
   background: transparent;
   color: inherit;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
 }
-.btn:disabled { opacity: 0.4; cursor: default; }
+.btn:hover { box-shadow: inset 0 0 0 1px currentColor, 0 0 18px -6px currentColor; }
+.btn:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
 .btn-red { color: var(--color-stamp); }
-.btn-solid { background: var(--color-ink); color: var(--color-manila); border-color: var(--color-ink); }
+.btn-solid { background: var(--color-ink); color: #0d0d10; border-color: var(--color-ink); }
+.btn-solid:hover { background: #fff; }
 
 .input {
   width: 100%;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--color-line);
   padding: 10px 12px;
   font: inherit;
   color: inherit;
   outline: none;
 }
-.input:focus { border-color: var(--color-manila); }
-.input-ink { border-color: var(--color-ink); color: var(--color-ink); }
+.input:focus { border-color: var(--color-fringe); box-shadow: 0 0 0 3px rgba(95, 143, 216, 0.15); }
+.input-ink { border-color: rgba(226, 221, 209, 0.3); color: var(--color-ink); }
 
-.tally { height: 6px; background: color-mix(in srgb, currentColor 18%, transparent); }
-.tally > span { display: block; height: 100%; background: var(--color-stamp); transition: width 400ms ease; }
+.tally { height: 6px; background: color-mix(in srgb, currentColor 14%, transparent); }
+.tally > span { display: block; height: 100%; background: var(--color-stamp); box-shadow: 0 0 10px rgba(179, 18, 27, 0.6); transition: width 400ms ease; }
 
-/* film grain over the dark page; stays off the manila files */
+/* film grain and faint scanlines over the page */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.045;
+  opacity: 0.05;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='1'/></svg>");
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0, 0, 0, 0.18) 3px 4px);
+  mix-blend-mode: multiply;
 }
 body > * { position: relative; z-index: 1; }
 
@@ -146,9 +214,40 @@ body > * { position: relative; z-index: 1; }
   opacity: 0.85;
 }
 
-/* the clerk's typewriter: labels tap in */
-.label { font-feature-settings: "tnum"; }
-
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
+/* the nav, lowercase, the current page boxed */
+.nav-link {
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  color: var(--color-mute);
+  transition: color 120ms ease, border-color 120ms ease;
 }
+.nav-link:hover { color: var(--color-manila); }
+.nav-link[aria-current="page"] { color: var(--color-manila); border-color: rgba(226, 221, 209, 0.35); background: rgba(13, 13, 16, 0.8); }
+
+/* the ticker line under the header */
+.ticker { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-mute); }
+.ticker b { color: var(--color-manila); font-weight: 600; }
+.ticker .red { color: var(--color-stamp); }
+
+/* a slow scanning bar for the investigation board */
+@keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
+.scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 80px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(95, 143, 216, 0.06), transparent);
+  animation: scan 9s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) { .scan { animation: none; display: none; } }
+
+/* the wallet graph's flow */
+@keyframes flow { to { stroke-dashoffset: -24; } }
+.flow { animation: flow 1.6s linear infinite; }
+@keyframes pulse { 0% { r: 0; opacity: 0.7; } 100% { r: 46; opacity: 0; } }
+.pulse { animation: pulse 2.8s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .flow, .pulse { animation: none; } }
+
+.label { font-feature-settings: "tnum"; }

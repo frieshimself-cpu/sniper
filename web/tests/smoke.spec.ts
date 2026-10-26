@@ -25,9 +25,9 @@ test.beforeAll(() => {
 test("/ shows the counter, pills, ballot and latest cases", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Cases opened")).toBeVisible();
-  await expect(page.getByText("Crimes found")).toBeVisible();
+  await expect(page.getByText("Crimes found", { exact: true })).toBeVisible();
   await expect(page.getByText("Convictions", { exact: true })).toBeVisible();
-  await expect(page.getByText("Agent watching")).toBeVisible();
+  await expect(page.getByText("Agent watching", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "This hour's ballot" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Vote" })).toHaveCount(4);
   await expect(page.getByRole("heading", { name: "Latest cases" })).toBeVisible();

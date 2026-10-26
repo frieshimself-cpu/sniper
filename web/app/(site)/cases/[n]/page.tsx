@@ -122,7 +122,7 @@ export default async function CasePage({ params }: Props) {
           </div>
         </dl>
 
-        <h1 className="mt-8 text-3xl md:text-4xl max-w-3xl">{c.headline}</h1>
+        <h1 className="mt-8 text-3xl md:text-4xl max-w-3xl abr">{c.headline}</h1>
         <p className="mt-3 text-[12px] font-semibold uppercase tracking-[0.14em]">{c.charge}</p>
 
         <h2 className="mt-10 text-xl">Findings</h2>
@@ -152,7 +152,7 @@ export default async function CasePage({ params }: Props) {
         <div className="mt-3">
           <MoneyTrail hops={c.money_trail} />
         </div>
-        <div className="mt-4 -mx-5 md:-mx-8 border-y-2 border-ink bg-page text-manila p-2 md:p-3">
+        <div className="mt-4 -mx-5 md:-mx-8 border-y border-ink/40 bg-page text-manila p-2 md:p-3 relative overflow-hidden">
           <WalletGraph graph={caseGraph(c)} />
         </div>
 

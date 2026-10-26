@@ -1,32 +1,60 @@
 import Link from "next/link";
 import { Stamp } from "@/components/Stamp";
+import { NavLink } from "@/components/NavLink";
 import { apiUrl, withBase } from "@/lib/dyn";
+import { getStats, getAgentStatus } from "@/lib/data";
+import { until } from "@/lib/format";
+import { dyn } from "@/lib/request";
 
 const NAV = [
-  ["/cases", "Cases"],
-  ["/persons", "Persons"],
-  ["/nominate", "Nominate"],
-  ["/ballot", "Ballot"],
-  ["/stamp", "Stamp"],
-  ["/embed", "Embed"],
-  ["/rules", "Rules"],
-  ["/about", "About"],
+  ["/cases", "cases"],
+  ["/persons", "persons"],
+  ["/nominate", "nominate"],
+  ["/ballot", "ballot"],
+  ["/stamp", "stamp"],
+  ["/embed", "embed"],
+  ["/rules", "rules"],
+  ["/about", "about"],
 ] as const;
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  await dyn();
+  const stats = getStats();
+  const agent = getAgentStatus();
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b border-line">
+      <div className="border-b border-line bg-black/40">
+        <div className="mx-auto max-w-6xl px-4 py-1.5 ticker flex flex-wrap gap-x-5 gap-y-0.5">
+          <span>
+            cases <b>{stats.cases_opened}</b>
+          </span>
+          <span>
+            crimes found <b>{stats.crimes_found}</b>
+          </span>
+          <span>
+            convictions <b className="red">0</b>
+          </span>
+          <span className="ml-auto hidden sm:inline">
+            agent <b>{agent.state === "idle" ? "watching" : agent.state}</b>
+            {agent.next_run_at ? (
+              <>
+                {" "}· next case <b>{until(agent.next_run_at)}</b>
+              </>
+            ) : null}
+          </span>
+        </div>
+      </div>
+      <header className="border-b border-line sticky top-0 z-20 backdrop-blur bg-page/80">
         <div className="mx-auto max-w-6xl px-4 py-3 sm:h-14 sm:py-0 flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-4 gap-y-2">
           <Link href="/" className="flex items-center gap-3 no-underline">
             <Stamp size={13} sub={false} blend={false} />
-            <span className="headline text-base tracking-wide">C.R.I.M.E.</span>
+            <span className="headline abr text-base tracking-[0.18em]">C.R.I.M.E.</span>
           </Link>
-          <nav aria-label="Primary" className="w-full sm:w-auto flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap">
+          <nav aria-label="Primary" className="w-full sm:w-auto -mx-2 sm:mx-0 flex flex-wrap gap-x-1 gap-y-1 text-[12px] tracking-[0.08em] whitespace-nowrap">
             {NAV.map(([href, label]) => (
-              <Link key={href} href={href} className="py-1 sm:py-2 hover:text-stamp">
+              <NavLink key={href} href={href}>
                 {label}
-              </Link>
+              </NavLink>
             ))}
           </nav>
         </div>
