@@ -60,8 +60,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </header>
       <Marquee
         items={[
-          `${stats.cases_opened} cases opened`,
-          `${stats.crimes_found} crimes found`,
+          `${stats.cases_opened} case${stats.cases_opened === 1 ? "" : "s"} opened`,
+          `${stats.crimes_found} crime${stats.crimes_found === 1 ? "" : "s"} found`,
           "convictions 0",
           ...latestCases(6).map((c) => `No. ${c.id} · ${c.headline}`),
           `agent ${agent.state === "idle" ? "watching" : agent.state}`,
