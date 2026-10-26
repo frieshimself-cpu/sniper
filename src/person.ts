@@ -109,16 +109,26 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
 
   // ---- the record ---------------------------------------------------------
   await progress.step("record", `reading the record of ${handle}`);
+  const walletsP = src.wallets(handle).catch(() => []); // Arkham, while X is read
   const posts = await src.posts(handle);
+  const postUrl = (p: Post) => `https://x.com/${handle.replace(/^@/, "")}/status/${p.id}`;
+  await progress.posts(posts.slice(0, 40).map((p) => ({ at: p.at, text: p.text, url: postUrl(p) })));
   await progress.step("record", `${posts.length} post${posts.length === 1 ? "" : "s"} read, back to ${posts[posts.length - 1]?.at.slice(0, 10) ?? "nothing"}`);
+  const early = await walletsP;
+  if (early.length || known.length) {
+    const seen = new Set<string>();
+    await progress.wallets([...known.map((w) => ({ address: w.address, tier: w.tier as string })), ...early.map((w) => ({ address: w.address, tier: "probable" }))].filter((w) => !seen.has(w.address) && seen.add(w.address)));
+    await progress.step("wallets", `${seen.size} wallet${seen.size === 1 ? "" : "s"} on file while the posts are typed`);
+  }
   const claims = await src.claims(handle, posts);
+  await progress.posts([...claims.map((c) => ({ at: c.at, text: c.quote, url: c.url, type: c.type })), ...posts.map((p) => ({ at: p.at, text: p.text, url: postUrl(p) }))].slice(0, 40));
   log.push(`${posts.length} posts, ${claims.length} claims`);
   await progress.step("record", `${claims.length} claim${claims.length === 1 ? "" : "s"} about tokens in the posts`);
 
   // ---- the wallets --------------------------------------------------------
   const wallets = new Map<string, PersonInvestigation["wallets"][number]>();
   for (const c of claims) if (c.type === "wallet" && c.address) wallets.set(c.address, { address: c.address, tier: "claimed", source: c.url });
-  for (const w of await src.wallets(handle)) if (!wallets.has(w.address)) wallets.set(w.address, { address: w.address, tier: "probable", source: w.url, platform: w.platform });
+  for (const w of early) if (!wallets.has(w.address)) wallets.set(w.address, { address: w.address, tier: "probable", source: w.url, platform: w.platform });
   // already on the record, with a source link: the registry is evidence too
   for (const w of known) if (w.source && !wallets.has(w.address)) wallets.set(w.address, { address: w.address, tier: w.tier, source: w.source, platform: w.platform });
   // only accounts a person signs with: a token mint or a token account filed under the entity is not a wallet

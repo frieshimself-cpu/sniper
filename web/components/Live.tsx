@@ -76,6 +76,7 @@ export function Live({ initial, account }: { initial: Progress; account: string 
   const phaseIdx = STATIONS.findIndex(([k]) => k === phase);
   const subject = p.subject && !p.subject.startsWith("poll ") ? p.subject : null;
   const graph = liveGraph(p);
+  const posts = p.posts ?? [];
 
   if (p.state === "idle" || (!running && !subject && !p.poll_id)) {
     return (
@@ -124,10 +125,32 @@ export function Live({ initial, account }: { initial: Progress; account: string 
         ))}
       </ol>
 
-      {graph ? (
-        <div className="mt-6 border-y border-ink/30 bg-page -mx-4 px-2 md:mx-0 md:px-3 py-2 relative overflow-hidden live-graph" key={p.wallets.length}>
-          <p className="label label-dark px-1 pt-1">The wallets, drawn · {p.wallets.length} so far</p>
-          <WalletGraph graph={graph} />
+      {graph || posts.length ? (
+        <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+          {graph ? (
+            <div className="border-y border-ink/30 bg-page -mx-4 px-2 md:mx-0 md:px-3 py-2 relative overflow-hidden live-graph" key={p.wallets.length}>
+              <p className="label label-dark px-1 pt-1">The wallets, drawn · {p.wallets.length} so far</p>
+              <WalletGraph graph={graph} />
+            </div>
+          ) : (
+            <div className="border-y border-ink/30 bg-page -mx-4 px-4 md:mx-0 py-6 text-[11px] text-mute uppercase tracking-[0.2em]">the wallets come next</div>
+          )}
+          <div className="live-record">
+            <p className="label label-dark">The record, read · {posts.length} shown</p>
+            <ol className="live-posts" aria-live="polite">
+              {posts.map((t, i) => (
+                <li key={`${t.url}-${i}`} className={t.type ? "typed" : ""}>
+                  <span className="live-post-at">
+                    {t.at.slice(0, 10)}
+                    {t.type ? <b className="live-post-type">{t.type.replace(/_/g, " ")}</b> : null}
+                  </span>
+                  <a href={t.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:underline">
+                    {t.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       ) : null}
 

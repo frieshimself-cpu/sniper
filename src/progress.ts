@@ -27,6 +27,7 @@ export interface Progress {
   updated_at: string;
   steps: ProgressStep[];
   wallets: Array<{ address: string; tier: string; via?: string; peer?: string }>;
+  posts: Array<{ at: string; text: string; url: string; type?: string }>;
   findings: Array<{ title: string; score?: number }>;
   case_n?: number;
   message?: string;
@@ -37,7 +38,7 @@ const FILE = join(ROOT, "data", "progress.json");
 const PUSH = (process.env.PROGRESS_PUSH ?? "off").toLowerCase() === "on";
 const iso = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 
-let cur: Progress = { state: "idle", updated_at: iso(), steps: [], wallets: [], findings: [] };
+let cur: Progress = { state: "idle", updated_at: iso(), steps: [], wallets: [], posts: [], findings: [] };
 let lastPush = 0;
 
 function git(args: string[], cwd = ROOT): string {
@@ -88,7 +89,7 @@ export const progress = {
     return cur;
   },
   async begin(subject: string, poll?: { id: string; url: string }): Promise<void> {
-    cur = { state: "running", subject, poll_id: poll?.id, poll_url: poll?.url, started_at: iso(), updated_at: iso(), steps: [], wallets: [], findings: [] };
+    cur = { state: "running", subject, poll_id: poll?.id, poll_url: poll?.url, started_at: iso(), updated_at: iso(), steps: [], wallets: [], posts: [], findings: [] };
     await save(true);
   },
   async step(phase: ProgressStep["phase"], text: string): Promise<void> {
@@ -101,6 +102,11 @@ export const progress = {
   async wallets(list: Array<{ address: string; tier: string; via?: string; peer?: string }>): Promise<void> {
     if (cur.state !== "running") return;
     cur.wallets = list.slice(0, 40);
+    await save();
+  },
+  async posts(list: Array<{ at: string; text: string; url: string; type?: string }>): Promise<void> {
+    if (cur.state !== "running") return;
+    cur.posts = list.slice(0, 40).map((p) => ({ ...p, text: p.text.replace(/\s+/g, " ").trim().slice(0, 180) }));
     await save();
   },
   async findings(list: Array<{ title: string; score?: number }>): Promise<void> {
@@ -121,7 +127,7 @@ export const progress = {
     await save(true);
   },
   async idle(message?: string): Promise<void> {
-    cur = { state: "idle", updated_at: iso(), steps: [], wallets: [], findings: [], message };
+    cur = { state: "idle", updated_at: iso(), steps: [], wallets: [], posts: [], findings: [], message };
     await save(true);
   },
 };

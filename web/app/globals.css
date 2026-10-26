@@ -474,3 +474,10 @@ body > * { position: relative; z-index: 1; }
 @media (max-width: 639px) { .live { padding: 18px 14px 20px; } .live-log { font-size: 11px; } .live-log li { grid-template-columns: 50px 56px minmax(0, 1fr); gap: 6px; } }
 @media (prefers-reduced-motion: reduce) { .live-dot.on, .live-log li.fresh, .live-wallet, .live-finding, .live-cursor .blink { animation: none; } }
 .live-graph { animation: live-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.live-record { border: 1px solid rgba(226, 221, 209, 0.14); background: rgba(5, 5, 7, 0.9); padding: 10px 12px; min-width: 0; }
+.live-posts { margin-top: 8px; max-height: 480px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; font-size: 11px; line-height: 1.5; color: var(--color-mute); scrollbar-width: thin; scrollbar-color: rgba(226, 221, 209, 0.3) transparent; }
+.live-posts li { border-left: 1px solid rgba(226, 221, 209, 0.18); padding-left: 10px; animation: live-in 480ms ease both; }
+.live-posts li.typed { border-left-color: var(--color-stamp); color: var(--color-manila); }
+.live-post-at { display: flex; gap: 8px; align-items: baseline; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(226, 221, 209, 0.45); font-variant-numeric: tabular-nums; }
+.live-post-type { color: var(--color-stamp); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .live-posts li { animation: none; } }
