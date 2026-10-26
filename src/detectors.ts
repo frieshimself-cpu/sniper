@@ -6,6 +6,9 @@ import type { Evidence, Finding, Hop, Severity } from "./types.js";
 import type { Holder, Label, Sources, TokenInfo, Transfer } from "./sources/types.js";
 import { bondingCurve, isPumpMint, isWallet } from "./sources/pumpfun.js";
 
+/** Exchanges, swap services, bridges and protocols: money passes through them, they coordinate nothing. */
+export const isService = (l: Label | null | undefined) => !!l && (l.type === "cex" || l.type === "bridge" || l.type === "protocol" || l.type === "fund");
+
 export interface Investigation {
   token: TokenInfo;
   launch_at: string | null;
@@ -136,7 +139,14 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
         .sort((a, b) => b.amount - a.amount)[0];
       if (inflow) funders.set(inflow.from, [...(funders.get(inflow.from) ?? []), w]);
     }
-    const [top] = [...funders.entries()].sort((a, b) => b[1].length - a[1].length);
+    const ranked = [...funders.entries()].sort((a, b) => b[1].length - a[1].length);
+    // Many strangers withdraw from the same exchange hot wallet. That is not a bundle.
+    const funderLabels = await src.labels(ranked.slice(0, 3).map(([a]) => a));
+    for (const [a] of ranked.slice(0, 3)) {
+      const l = funderLabels.get(a);
+      if (isService(l)) log.push(`funder ${short(a)} is ${l!.entity ?? l!.type}: not treated as a bundle source`);
+    }
+    const top = ranked.find(([a]) => !isService(funderLabels.get(a)));
     if (top && top[1].length >= 3) {
       funder = top[0];
       bundle = top[1];
@@ -255,10 +265,18 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
   // ---- money trail --------------------------------------------------------
   const start = funder ?? deployer;
   const trail: Hop[] = [];
+  const trailLabels = new Map<string, Label>();
   if (start && launch_at) {
     let cur = start;
     const seen = new Set([cur]);
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
+      const l = (await src.labels([cur])).get(cur);
+      if (l) trailLabels.set(cur, l);
+      if (i > 0 && isService(l)) {
+        // The money reached an exchange, bridge or protocol. The trail ends here, by name.
+        trail.push({ label: `${l!.type}${l!.entity ? ` · ${l!.entity}` : ""}`, address: cur, amount: "" });
+        break;
+      }
       const tx = i === 0 && funder ? await src.transfers(funder, 200) : await src.transfers(cur, 100);
       const out = tx
         .filter((t) => t.kind === "sol" && t.from === cur && !seen.has(t.to) && t.to !== pool && Date.parse(t.at) >= Date.parse(launch_at))
@@ -268,7 +286,7 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
       evidence.push(ev(out, i === 0 ? "Proceeds leave" : "Hop"));
       cur = out.to;
       seen.add(cur);
-      if (i === 4) trail.push({ label: "hop 5", address: cur, amount: "" });
+      if (i === 5) trail.push({ label: "hop 6", address: cur, amount: "" });
     }
     if (trail.length && trail[trail.length - 1].address !== cur) trail.push({ label: "end", address: cur, amount: "" });
   }
@@ -276,10 +294,7 @@ export async function investigate(mint: string, src: Sources, hints: Hints = {})
   // ---- labels for every wallet we mention ---------------------------------
   const addrs = uniq([...trail.map((h) => h.address), ...evidence.map((e) => e.wallet ?? ""), deployer ?? "", funder ?? ""].filter(Boolean));
   const labels = await src.labels(addrs);
-  for (const h of trail) {
-    const l = labels.get(h.address);
-    if (l?.type === "cex" || l?.type === "bridge") h.label = `${l.type}${l.entity ? ` · ${l.entity}` : ""}`;
-  }
+  for (const [k, v] of trailLabels) labels.set(k, v);
 
   const severity: Severity = score >= 85 ? "critical" : score >= 60 ? "high" : score >= 35 ? "medium" : "low";
   const charge = findings[0].title.replace(/^\d+ /, "").toLowerCase().replace(/^./, (c) => c.toUpperCase());

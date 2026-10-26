@@ -67,9 +67,11 @@ export class Arkham {
     const out = new Map<string, Label>();
     const uniq = [...new Set(addresses)].slice(0, 1000);
     if (!uniq.length) return out;
-    const j = await this.post<Record<string, ArkAddr> | ArkAddr[]>("/intelligence/address/batch", { addresses: uniq, chain: "solana" });
+    const j = await this.post<{ addresses?: Record<string, ArkAddr> } | Record<string, ArkAddr> | ArkAddr[]>("/intelligence/address/batch", { addresses: uniq, chain: "solana" });
     if (!j) return out;
-    const entries: Array<[string, ArkAddr]> = Array.isArray(j) ? j.map((a) => [a.address ?? "", a]) : Object.entries(j);
+    // Live shape: { addresses: { "<addr>": {...} } }. Older docs show a flat map or an array; accept all three.
+    const body = !Array.isArray(j) && j && typeof j === "object" && "addresses" in j && j.addresses && typeof j.addresses === "object" ? (j.addresses as Record<string, ArkAddr>) : j;
+    const entries: Array<[string, ArkAddr]> = Array.isArray(body) ? body.map((a) => [a.address ?? "", a]) : Object.entries(body as Record<string, ArkAddr>);
     for (const [addr, a] of entries) {
       const l = toLabel(addr || a.address || "", a);
       if (l) out.set(l.address, l);
@@ -119,9 +121,17 @@ export function toLabel(address: string, a: ArkAddr): Label | null {
   const lbl = a.arkhamLabel ?? null;
   if (!ent?.name && !lbl?.name && !ent?.twitter) return null;
   const predicted = a.predicted === true || ent?.predicted === true || lbl?.predicted === true;
-  const type = mapType(ent?.type ?? "");
-  const handle = ent?.twitter ? "@" + ent.twitter.replace(/^@/, "").replace(/^.*\//, "").toLowerCase() : null;
+  let type = mapType(ent?.type ?? "");
+  let handle = ent?.twitter ? "@" + ent.twitter.replace(/^@/, "").replace(/^.*\//, "").toLowerCase() : null;
+  let platform: string | undefined;
+  // Arkham names pump.fun accounts as `"username" on Pump.fun`. A username is a handle, not a person.
+  const pf = (ent?.name ?? lbl?.name ?? "").match(/^"([^"]{1,40})" on Pump\.fun$/i);
+  if (pf && !handle) {
+    handle = "@" + pf[1].toLowerCase().replace(/[^a-z0-9_.]/g, "");
+    platform = "pump.fun";
+    type = type ?? "other";
+  }
   // A person's name never leaves this function. Handles and organisations only.
-  const entity = type === "individual" || (!type && !ent?.type && handle) ? null : ent?.name ?? lbl?.name ?? null;
-  return { address, entity, handle, type, url: `https://intel.arkm.com/explorer/address/${address}`, predicted };
+  const entity = pf ? null : type === "individual" || (!type && !ent?.type && handle) ? null : ent?.name ?? lbl?.name ?? null;
+  return { address, entity, handle, type, url: `https://intel.arkm.com/explorer/address/${address}`, predicted, platform };
 }

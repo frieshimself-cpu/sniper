@@ -191,11 +191,11 @@ async function attribute(inv: Investigation, src: Sources, registry: Registry, c
   const added: Attribution["added"] = [];
   const leads: Lead[] = [];
   const subjects = new Set<string>();
-  const put = (handle: string, address: string, tier: "probable" | "claimed", source: string) => {
+  const put = (handle: string, address: string, tier: "probable" | "claimed", source: string, platform?: string) => {
     const h = normalizeHandle(handle);
     let e = registry.entries.find((x) => normalizeHandle(x.handle) === h);
     if (!e) {
-      e = { handle: h, wallets: [] } satisfies RegistryEntry;
+      e = { handle: h, wallets: [], ...(platform ? { note: `${platform} username` } : {}) } satisfies RegistryEntry;
       registry.entries.push(e);
     }
     if (!e.wallets.some((w) => w.address === address)) {
@@ -214,7 +214,7 @@ async function attribute(inv: Investigation, src: Sources, registry: Registry, c
     const label: Label | null = inv.labels.get(address) ?? (await src.label(address));
     if (label?.handle) {
       if (label.predicted) lead(label.handle, address, "probable", label.url, "Arkham entity prediction, not a verified label.");
-      else put(label.handle, address, "probable", label.url);
+      else put(label.handle, address, "probable", label.url, label.platform);
     }
     const claims: Claim[] = await src.claims(address);
     for (const c of claims) {

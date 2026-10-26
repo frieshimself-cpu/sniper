@@ -39,6 +39,8 @@ export interface Label {
   url: string; // public page a reader can open
   /** true for a programmatic prediction rather than a verified label */
   predicted?: boolean;
+  /** where the handle lives when it is not X, e.g. "pump.fun" */
+  platform?: string;
 }
 
 export interface Claim {
