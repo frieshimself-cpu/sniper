@@ -33,7 +33,9 @@ test("/ is one page: counters, who gets exposed first, under investigation, the 
   await expect(page.getByRole("link", { name: "The poll on X" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Read case 0001" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Under investigation" })).toBeVisible();
-  await expect(page.locator(".live-log li").first()).toContainText("poll closed");
+  await expect(page.locator(".live-log li", { hasText: "poll closed" })).toBeVisible();
+  await expect(page.locator(".live-narration").first()).toBeVisible();
+  await expect(page.locator(".live-posts li.typed").first()).toBeVisible();
   await expect(page.locator(".live-finding")).toHaveCount(3);
   await expect(page.locator(".live-wallet")).toHaveCount(4);
   await expect(page.getByRole("heading", { name: "The files" })).toBeVisible();

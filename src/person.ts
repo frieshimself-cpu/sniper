@@ -22,7 +22,7 @@ import { progress } from "./progress.js";
 
 export interface PersonSources {
   posts(handle: string): Promise<Post[]>;
-  claims(handle: string, posts: Post[]): Promise<PostClaim[]>;
+  claims(handle: string, posts: Post[], onBatch?: (done: number, total: number, fresh: PostClaim[], byRule: boolean) => Promise<void>): Promise<PostClaim[]>;
   deleted(handle: string): Promise<Array<{ url: string; quote: string; about: string }>>;
   /** what others said about the handle on X: accusations with the post that made them */
   said(handle: string): Promise<Array<{ url: string; quote: string; about: string }>>;
@@ -76,10 +76,10 @@ export function livePersonSources(chain: Sources): PersonSources {
       const u = await x.userByUsername(handle);
       return u ? x.userPosts(u.id, MAX_POSTS, u.username) : [];
     },
-    async claims(handle, posts) {
+    async claims(handle, posts, onBatch) {
       if (!posts.length) return [];
       if (!grok) return ruleClaims(handle, posts);
-      return grok.extractClaims(handle, posts).catch((e) => {
+      return grok.extractClaims(handle, posts, onBatch).catch((e) => {
         process.stderr.write(`grok failed (${(e as Error).message}); reading posts by rule\n`);
         return ruleClaims(handle, posts);
       });
@@ -131,7 +131,15 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   const walletsP = src.wallets(handle).catch(() => []); // Arkham, while X is read
   const posts = await src.posts(handle);
   const postUrl = (p: Post) => `https://x.com/${handle.replace(/^@/, "")}/status/${p.id}`;
-  const claimsP = src.claims(handle, posts); // Grok types the posts while they are shown being read
+  const typed: PostClaim[] = []; // what Grok has typed so far, shown as it lands
+  await progress.stats({ posts_total: posts.length, posts_read: 0, typed: 0 });
+  const claimsP = src.claims(handle, posts, async (done, total, fresh, byRule) => {
+    typed.push(...fresh);
+    await progress.stats({ typed: typed.length, posts_typed: done });
+    const by = new Map<string, number>();
+    for (const c of fresh) by.set(c.type, (by.get(c.type) ?? 0) + 1);
+    await progress.step("record", `posts ${Math.max(1, done - 59).toLocaleString("en-US")}–${done.toLocaleString("en-US")} of ${total.toLocaleString("en-US")} typed${byRule ? " by rule" : ""}: ${by.size ? [...by.entries()].map(([k, n]) => `${n} ${k.replace(/_/g, " ")}`).join(", ") : "nothing claimed"}`);
+  }); // Grok types the posts while they are shown being read
   const early = await walletsP;
   if (early.length || known.length) {
     const seen = new Set<string>();
@@ -139,7 +147,8 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     await progress.step("wallets", `${seen.size} wallet${seen.size === 1 ? "" : "s"} already on file: the handle's own, the registry, Arkham's entity`);
   }
   await drip(posts, 0.3, 60, async (sofar, i, chunks) => {
-    await progress.posts(sofar.slice(-40).reverse().map((p) => ({ at: p.at, text: p.text, url: postUrl(p) })));
+    await progress.posts([...typed.slice(-12).reverse().map((c) => ({ at: c.at, text: c.quote, url: c.url, type: c.type })), ...sofar.slice(-30).reverse().map((p) => ({ at: p.at, text: p.text, url: postUrl(p) }))]);
+    await progress.stats({ posts_read: sofar.length });
     const last = sofar[sofar.length - 1];
     await progress.step("record", `${sofar.length.toLocaleString("en-US")} of ${posts.length.toLocaleString("en-US")} posts read, back to ${last?.at.slice(0, 10) ?? "nothing"}${i === chunks - 1 ? ". The whole record." : ""}`);
   });
@@ -180,6 +189,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
     const inflow = sum(tx.filter((t) => t.kind === "sol" && t.to === w).map((t) => t.amount));
     const outflow = sum(tx.filter((t) => t.kind === "sol" && t.from === w).map((t) => t.amount));
     await progress.step("wallets", `${short(w)} (${wallets.get(w)?.tier}): ${sigs.toLocaleString("en-US")} transactions read${swaps ? `, ${swaps} swaps` : ""}${pools ? `, ${pools} launch${pools === 1 ? "" : "es"}` : ""}; ${fmt(inflow)} SOL in, ${fmt(outflow)} SOL out`);
+    await progress.stats({ wallets: wallets.size, wallets_read: sofar.length, transfers: sum([...history.values()].map((h) => h.length)), sol_in: Math.round(sum([...history.entries()].map(([a, h]) => sum(h.filter((t) => t.kind === "sol" && t.to === a).map((t) => t.amount))))), sol_out: Math.round(sum([...history.entries()].map(([a, h]) => sum(h.filter((t) => t.kind === "sol" && t.from === a).map((t) => t.amount))))) });
   });
   log.push(`${sum([...history.values()].map((h) => h.length))} transfers on ${wallets.size} wallet${wallets.size === 1 ? "" : "s"}`);
   await progress.step("wallets", `${sum([...history.values()].map((h) => h.length)).toLocaleString("en-US")} transfers pulled; following the money between wallets`);
@@ -258,6 +268,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
       added++;
     }
     if (launched.size) log.push(`${launched.size} launches found on the wallets, ${added} added to the list`);
+    await progress.stats({ tokens: mentioned.size, launches: launched.size });
     await progress.step("replay", `${mentioned.size} token${mentioned.size === 1 ? "" : "s"} to replay${launched.size ? `, ${launched.size} of them launched from the wallets themselves` : ""}; posts set next to transactions`);
   }
   const resolveMint = async (m: { token: string; mint?: string }): Promise<string | null> => {
@@ -405,6 +416,7 @@ export async function investigatePerson(handleRaw: string, src: PersonSources, k
   // worst first: the rap sheet reads down from the heaviest finding
   findings.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   findings.forEach((f, i) => (f.code = `F-${String(i + 1).padStart(2, "0")}`));
+  await progress.stats({ findings: findings.length, score });
   await progress.findings(findings.map((f) => ({ title: f.title, score: f.score })));
   await progress.step("findings", findings.length ? `${findings.length} finding${findings.length === 1 ? "" : "s"}, worst first: ${findings[0].title}` : "nothing met the bar");
   evidence.sort((a, b) => (a.at || "").localeCompare(b.at || ""));

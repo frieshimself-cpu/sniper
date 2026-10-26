@@ -27,6 +27,7 @@ export interface Progress {
   wallets: Array<{ address: string; tier: string; via?: string; peer?: string }>;
   posts?: Array<{ at: string; text: string; url: string; type?: string }>;
   findings: Array<{ title: string; score?: number }>;
+  stats?: Record<string, number>;
   case_n?: number;
   message?: string;
 }

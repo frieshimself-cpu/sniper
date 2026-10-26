@@ -27,7 +27,7 @@ export class Grok {
    * X search through xAI's Responses API (the agent tools). Returns the model's text and the status ids it cited.
    * A claim is kept only when its post id is among the citations: the model never gets to invent a URL.
    */
-  async search(prompt: string, opts: { handles?: string[]; exclude?: string[] } = {}): Promise<{ text: string; cited: Set<string> }> {
+  async search(prompt: string, opts: { handles?: string[]; exclude?: string[] } = {}, attempt = 0): Promise<{ text: string; cited: Set<string> }> {
     const tool: Record<string, unknown> = { type: "x_search" };
     if (opts.handles?.length) tool.allowed_x_handles = opts.handles.map((h) => h.replace(/^@/, ""));
     if (opts.exclude?.length) tool.excluded_x_handles = opts.exclude.map((h) => h.replace(/^@/, ""));
@@ -45,6 +45,10 @@ export class Grok {
       }),
       signal: AbortSignal.timeout(180_000),
     });
+    if ((r.status === 429 || r.status >= 500) && attempt < 4) {
+      await new Promise((res) => setTimeout(res, 4000 * 2 ** attempt)); // a rate limit passes; a read is safe to ask again
+      return this.search(prompt, opts, attempt + 1);
+    }
     if (!r.ok) throw new Error(`xai ${r.status}`);
     type Out = { type: string; content?: Array<{ type: string; text?: string; annotations?: Array<{ type: string; url?: string }> }> };
     const j = (await r.json()) as { output?: Out[] };
@@ -109,7 +113,12 @@ export interface PostClaim {
 const SOL_ADDR = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
 
 /** Posts to claims. Cheap part first (regex), Grok on top for the reading comprehension. */
-export async function extractClaims(this: Grok, handle: string, posts: Array<{ id: string; text: string; at: string }>): Promise<PostClaim[]> {
+export async function extractClaims(
+  this: Grok,
+  handle: string,
+  posts: Array<{ id: string; text: string; at: string }>,
+  onBatch?: (done: number, total: number, fresh: PostClaim[], byRule: boolean) => Promise<void>,
+): Promise<PostClaim[]> {
   const h = handle.replace(/^@/, "");
   const url = (id: string) => `https://x.com/${h}/status/${id}`;
   const claims: PostClaim[] = [];
@@ -125,8 +134,21 @@ export async function extractClaims(this: Grok, handle: string, posts: Array<{ i
       `Return ONLY a JSON array of {"id": "<post id>", "type": "<type>", "token": "<$SYMBOL or mint if named, else null>", "quote": "<the exact words, max 200 chars>"}. Skip posts with no token claim. Never invent a post id.`,
       ...slice.map((p) => JSON.stringify({ id: p.id, at: p.at, text: p.text.slice(0, 400) })),
     ].join("\n");
-    const { text, cited } = await this.search(prompt, { exclude: [h] });
-  let items: Array<Record<string, unknown>> = [];
+    let text = "";
+    let byRule = false;
+    try {
+      text = (await this.search(prompt, { exclude: [h] })).text;
+    } catch (e) {
+      // one batch lost to the model is read by rule; the rest go on
+      process.stderr.write(`grok batch ${i / batch + 1} failed (${(e as Error).message}); that batch by rule\n`);
+      byRule = true;
+    }
+    const fresh: PostClaim[] = [];
+    if (byRule) {
+      const { ruleClaims } = await import("./claims.js");
+      fresh.push(...ruleClaims(handle, slice).filter((c) => c.type !== "wallet"));
+    }
+    let items: Array<Record<string, unknown>> = [];
     try {
       const m = text.match(/\[[\s\S]*\]/);
       items = m ? (JSON.parse(m[0]) as Array<Record<string, unknown>>) : [];
@@ -140,8 +162,10 @@ export async function extractClaims(this: Grok, handle: string, posts: Array<{ i
       const type = String(it.type ?? "other") as ClaimType;
       if (!["shill", "holding", "lp_locked", "sold", "launch"].includes(type)) continue;
       const token = typeof it.token === "string" && it.token ? it.token.trim() : undefined;
-      claims.push({ post_id: p.id, url: url(p.id), at: p.at, type, token, mint: token && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(token) ? token : undefined, quote: String(it.quote ?? p.text).slice(0, 280) });
+      fresh.push({ post_id: p.id, url: url(p.id), at: p.at, type, token, mint: token && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(token) ? token : undefined, quote: String(it.quote ?? p.text).slice(0, 280) });
     }
+    claims.push(...fresh);
+    if (onBatch) await onBatch(Math.min(posts.length, i + batch), posts.length, fresh, byRule).catch(() => {});
   }
   return claims;
 }

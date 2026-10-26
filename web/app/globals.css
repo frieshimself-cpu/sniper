@@ -492,3 +492,17 @@ body > * { position: relative; z-index: 1; }
 .live-wallets { display: flex; flex-direction: column; gap: 4px; font-size: 11px; max-height: 480px; overflow-y: auto; scrollbar-width: thin; }
 .live-clock { font-family: "Anton", sans-serif; font-size: 26px; line-height: 1; letter-spacing: 0.04em; color: var(--color-manila); font-variant-numeric: tabular-nums; }
 .live-clock-label { font-family: "IBM Plex Mono", monospace; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--color-stamp); margin-right: 6px; vertical-align: 4px; }
+.live-narration { display: flex; gap: 12px; align-items: baseline; font-size: 13px; line-height: 1.5; color: var(--color-manila); margin: 2px 0 10px; animation: live-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.live-narration-at { font-size: 10px; letter-spacing: 0.18em; color: rgba(226, 221, 209, 0.45); font-variant-numeric: tabular-nums; }
+.live-hud { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 12px; }
+.live-hud dt { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-mute); }
+.live-hud dd { font-family: "Anton", sans-serif; font-size: 22px; line-height: 1.1; letter-spacing: 0.02em; color: var(--color-manila); font-variant-numeric: tabular-nums; }
+.live-bar { height: 2px; background: rgba(226, 221, 209, 0.12); margin: 0 0 12px; }
+.live-bar span { display: block; height: 100%; background: var(--color-stamp); box-shadow: 0 0 10px rgba(179, 18, 27, 0.7); transition: width 900ms ease; }
+.live-posts li.new { animation: live-post-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes live-post-in { 0% { opacity: 0; transform: translateY(8px); filter: blur(2px); } 60% { color: var(--color-manila); } 100% { opacity: 1; transform: none; filter: none; } }
+.live-posts { margin-bottom: 14px; }
+.live-wallet.reading { color: var(--color-manila); }
+.live-reading { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-stamp); animation: caret-blink 1s step-end infinite; }
+.live-section .live-log { margin-top: 12px; max-height: 260px; }
+@media (prefers-reduced-motion: reduce) { .live-narration, .live-posts li.new { animation: none; } }

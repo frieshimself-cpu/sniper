@@ -26,7 +26,7 @@ export function mockPersonSources(handle = "@wen_moon_wendy"): PersonSources {
     async posts() {
       return posts;
     },
-    async claims() {
+    async claims(_handle: string, _posts: unknown, _onBatch?: unknown) {
       return claims;
     },
     async deleted() {

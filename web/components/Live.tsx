@@ -3,19 +3,20 @@
 /**
  * The investigation under way, shown as it happens. Reads /api/progress every ten seconds.
  * Idle: nothing but the next poll. Running: the subject written large, the hour counting down, the six
- * stations with the current one lit, then three places: the record (every post as it is read and typed),
- * the wallets (drawn, and listed), and the thinking (every step as the agent reports it, the findings as
- * they are weighed). Done: the file, with a link. Nothing here can act; it reads.
+ * stations with the current one lit, then three scenes, each with its own narration and its own stream of
+ * thought: the record (posts arriving as they are read, typed as Grok types them), the wallets (drawn as
+ * they are found, a line for every one pulled), the replay and the findings (every token set against the
+ * posts, the findings weighed). Done: the file, with a link. Nothing here can act; it reads.
  */
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { apiUrl } from "@/lib/dyn";
-import type { Progress } from "@/lib/progress";
+import type { Progress, ProgressStep } from "@/lib/progress";
 import type { CaseGraph } from "@/lib/graph";
 import { GlitchText } from "./GlitchText";
 import { WalletGraph } from "./WalletGraph";
 
-const STATIONS: Array<[Progress["steps"][number]["phase"], string]> = [
+const STATIONS: Array<[ProgressStep["phase"], string]> = [
   ["poll", "the poll"],
   ["record", "the record"],
   ["wallets", "the wallets"],
@@ -41,6 +42,7 @@ function left(startIso: string, minutes: number) {
 }
 
 const short = (a: string) => (a.length > 12 ? `${a.slice(0, 4)}…${a.slice(-4)}` : a);
+const num = (n?: number) => (n === undefined ? "·" : n.toLocaleString("en-US"));
 
 /** The wallets found so far, drawn: the handle in the middle, its wallets around it, the links between them. */
 function liveGraph(p: Progress): CaseGraph | null {
@@ -68,10 +70,50 @@ function Head({ n, title, count }: { n: string; title: string; count?: string })
   );
 }
 
+/** The latest line of a scene, said out loud. */
+function Narration({ step, running, idle }: { step?: ProgressStep; running: boolean; idle: string }) {
+  return (
+    <p className="live-narration" key={step?.at ?? "idle"}>
+      <span className="live-narration-at">{step ? step.at.slice(11, 19) : "--:--:--"}</span>
+      <span>{step ? step.text : idle}</span>
+      {running ? <span className="blink text-stamp">▌</span> : null}
+    </p>
+  );
+}
+
+/** Every line of a scene, oldest first, the last few lit. */
+function Stream({ steps, running }: { steps: ProgressStep[]; running: boolean }) {
+  if (!steps.length) return null;
+  return (
+    <ol className="live-log" aria-live="polite">
+      {steps.map((s, i) => (
+        <li key={`${s.at}-${i}`} className={running && i >= steps.length - 2 ? "fresh" : ""}>
+          <span className="live-at">{s.at.slice(11, 19)}</span>
+          <span className="live-k">{s.phase}</span>
+          <span>{s.text}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function Hud({ items }: { items: Array<[string, string]> }) {
+  return (
+    <dl className="live-hud">
+      {items.map(([k, v]) => (
+        <div key={k}>
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function Live({ initial, account }: { initial: Progress; account: string }) {
   const [p, setP] = useState<Progress>(initial);
   const [, tick] = useState(0);
-  const seen = useRef(initial.steps.length);
+  const seenPosts = useRef<Set<string>>(new Set((initial.posts ?? []).map((t) => t.url)));
   useEffect(() => {
     const id = setInterval(async () => {
       try {
@@ -87,9 +129,12 @@ export function Live({ initial, account }: { initial: Progress; account: string 
       clearInterval(clock);
     };
   }, []);
+  // posts that arrived with this reading cascade in; the ones already seen sit still
+  const fresh = new Set<string>();
+  for (const t of p.posts ?? []) if (!seenPosts.current.has(t.url)) fresh.add(t.url);
   useEffect(() => {
-    seen.current = p.steps.length;
-  }, [p.steps.length]);
+    for (const t of p.posts ?? []) seenPosts.current.add(t.url);
+  });
 
   const running = p.state === "running";
   const phase = p.steps.length ? p.steps[p.steps.length - 1].phase : null;
@@ -98,6 +143,15 @@ export function Live({ initial, account }: { initial: Progress; account: string 
   const graph = liveGraph(p);
   const posts = p.posts ?? [];
   const budget = p.budget_minutes ?? 60;
+  const st = p.stats ?? {};
+  const of = (phases: ProgressStep["phase"][]) => p.steps.filter((s) => phases.includes(s.phase));
+  const record = of(["record"]);
+  const walletSteps = of(["wallets"]);
+  const replay = of(["poll", "replay", "findings", "file"]);
+  const last = (xs: ProgressStep[]) => (xs.length ? xs[xs.length - 1] : undefined);
+  const reading = last(walletSteps)?.text.match(/^([1-9A-HJ-NP-Za-km-z]{4})…([1-9A-HJ-NP-Za-km-z]{4}) /);
+  const readingNow = reading ? p.wallets.find((w) => w.address.startsWith(reading[1]) && w.address.endsWith(reading[2]))?.address : undefined;
+  const postPct = st.posts_total ? Math.min(100, Math.round(((st.posts_read ?? 0) / st.posts_total) * 100)) : null;
 
   if (p.state === "idle" || (!running && !subject && !p.poll_id)) {
     return (
@@ -153,31 +207,57 @@ export function Live({ initial, account }: { initial: Progress; account: string 
         ))}
       </ol>
 
-      {/* ---- the record: the posts, as they are read and typed ---------------------------- */}
+      {/* ---- scene A: the record ---------------------------------------------------------- */}
       <section className="live-section">
-        <Head n="A" title="The record" count={posts.length ? `${posts.length} posts shown · ${posts.filter((t) => t.type).length} typed` : running ? "reading" : "none"} />
+        <Head n="A" title="The record" count={st.posts_total ? `${num(st.posts_read)} of ${num(st.posts_total)} read · ${num(st.typed)} typed` : posts.length ? `${posts.length} shown` : running ? "reading" : "none"} />
+        <Narration step={last(record)} running={running && phaseIdx <= 1} idle={running ? "pulling every post the API allows, back to the first" : "nothing read"} />
+        {postPct !== null ? (
+          <div className="live-bar" aria-hidden>
+            <span style={{ width: `${postPct}%` }} />
+          </div>
+        ) : null}
+        <Hud
+          items={[
+            ["posts", num(st.posts_total)],
+            ["read", num(st.posts_read)],
+            ["typed", num(st.typed)],
+            ["shills", String(posts.filter((t) => t.type === "shill").length)],
+          ]}
+        />
         {posts.length ? (
           <ol className="live-posts" aria-live="polite">
-            {posts.map((t, i) => (
-              <li key={`${t.url}-${i}`} className={t.type ? "typed" : ""}>
-                <span className="live-post-at">
-                  {t.at.slice(0, 10)}
-                  {t.type ? <b className="live-post-type">{t.type.replace(/_/g, " ")}</b> : null}
-                </span>
-                <a href={t.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:underline">
-                  {t.text}
-                </a>
-              </li>
-            ))}
+            {posts.map((t, i) => {
+              const k = fresh.has(t.url) ? [...fresh].indexOf(t.url) : -1;
+              return (
+                <li key={`${t.url}-${i}`} className={`${t.type ? "typed" : ""} ${k >= 0 ? "new" : ""}`} style={k >= 0 ? { animationDelay: `${k * 120}ms` } : undefined}>
+                  <span className="live-post-at">
+                    {t.at.slice(0, 10)}
+                    {t.type ? <b className="live-post-type">{t.type.replace(/_/g, " ")}</b> : null}
+                  </span>
+                  <a href={t.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:underline">
+                    {t.text}
+                  </a>
+                </li>
+              );
+            })}
           </ol>
-        ) : (
-          <p className="live-empty">{running ? "pulling every post the API allows, back to the first" : "nothing read"}</p>
-        )}
+        ) : null}
+        <Stream steps={record.slice(-8)} running={running} />
       </section>
 
-      {/* ---- the wallets: drawn, and listed ----------------------------------------------- */}
+      {/* ---- scene B: the wallets ----------------------------------------------------------- */}
       <section className="live-section">
         <Head n="B" title="The wallets" count={p.wallets.length ? `${p.wallets.length} found · ${p.wallets.filter((w) => w.tier === "claimed").length} claimed · ${p.wallets.filter((w) => w.via).length} never admitted` : running ? "looking" : "none"} />
+        <Narration step={last(walletSteps)} running={running && phaseIdx === 2} idle={running ? "the handle's own posts, the registry, Arkham's files, then the money between wallets" : "none"} />
+        <Hud
+          items={[
+            ["wallets", String(p.wallets.length)],
+            ["pulled", num(st.wallets_read)],
+            ["transfers", num(st.transfers)],
+            ["sol in", num(st.sol_in)],
+            ["sol out", num(st.sol_out)],
+          ]}
+        />
         {graph ? (
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
             <div className="border-y border-ink/30 bg-page -mx-4 px-2 md:mx-0 md:px-3 py-2 relative overflow-hidden live-graph" key={p.wallets.length}>
@@ -185,41 +265,27 @@ export function Live({ initial, account }: { initial: Progress; account: string 
             </div>
             <ul className="live-wallets">
               {p.wallets.map((w) => (
-                <li key={w.address} className="live-wallet">
+                <li key={w.address} className={`live-wallet ${w.address === readingNow ? "reading" : ""}`}>
                   <a href={`https://solscan.io/account/${w.address}`} target="_blank" rel="noopener noreferrer" className="underline">
                     {short(w.address)}
                   </a>
                   <span className="live-tier">{w.tier}</span>
+                  {w.address === readingNow && running ? <span className="live-reading">reading</span> : null}
                   {w.via ? <span className="text-mute"> · {w.via}</span> : null}
                 </li>
               ))}
             </ul>
           </div>
-        ) : (
-          <p className="live-empty">{running ? "the handle's own posts, the record, Arkham's files, then the money between wallets" : "none"}</p>
-        )}
+        ) : null}
+        <Stream steps={walletSteps.slice(-14)} running={running} />
       </section>
 
-      {/* ---- the thinking: every step, and the findings as they are weighed ------------------ */}
+      {/* ---- scene C: the replay and the findings --------------------------------------------- */}
       <section className="live-section">
-        <Head n="C" title="The thinking" count={`${p.steps.length} steps · ${p.findings.length} findings`} />
-        <div className="grid gap-6 md:grid-cols-[1fr_280px]">
-          <ol className="live-log" aria-live="polite">
-            {p.steps.map((s, i) => (
-              <li key={`${s.at}-${i}`} className={i >= seen.current - 1 && running ? "fresh" : ""}>
-                <span className="live-at">{s.at.slice(11, 19)}</span>
-                <span className="live-k">{s.phase}</span>
-                <span>{s.text}</span>
-              </li>
-            ))}
-            {running ? (
-              <li className="live-cursor" aria-hidden>
-                <span className="live-at">{" "}</span>
-                <span className="live-k">{" "}</span>
-                <span className="blink">▌</span>
-              </li>
-            ) : null}
-          </ol>
+        <Head n="C" title="The replay and the findings" count={`${num(st.tokens ?? replay.filter((s) => s.text.startsWith("replaying")).length)} tokens · ${p.findings.length} findings`} />
+        <Narration step={last(replay)} running={running && phaseIdx >= 3} idle={running ? "every token the posts talk about, and every launch the wallets paid for, set against the posts" : "none"} />
+        <div className="grid gap-6 md:grid-cols-[1fr_300px]">
+          <Stream steps={replay} running={running} />
           <div>
             <p className="label label-dark">Findings, worst first</p>
             <ol className="mt-2 flex flex-col gap-1 text-[11px]">

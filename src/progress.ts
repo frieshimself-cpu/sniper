@@ -30,6 +30,7 @@ export interface Progress {
   wallets: Array<{ address: string; tier: string; via?: string; peer?: string }>;
   posts: Array<{ at: string; text: string; url: string; type?: string }>;
   findings: Array<{ title: string; score?: number }>;
+  stats?: Record<string, number>; // running counters: posts_total, posts_read, posts_typed, typed, wallets, wallets_read, transfers, sol_in, sol_out, tokens, findings
   case_n?: number;
   message?: string;
 }
@@ -103,6 +104,11 @@ export const progress = {
   async wallets(list: Array<{ address: string; tier: string; via?: string; peer?: string }>): Promise<void> {
     if (cur.state !== "running") return;
     cur.wallets = list.slice(0, 40);
+    await save();
+  },
+  async stats(patch: Record<string, number>): Promise<void> {
+    if (cur.state !== "running") return;
+    cur.stats = { ...(cur.stats ?? {}), ...patch };
     await save();
   },
   async posts(list: Array<{ at: string; text: string; url: string; type?: string }>): Promise<void> {
