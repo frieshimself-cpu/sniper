@@ -76,7 +76,7 @@ curtain() {
   local sha
   sha=$(git rev-parse HEAD)
   curl -s -X POST "https://api.vercel.com/v13/deployments?teamId=$TEAM&forceNew=1" -H "Authorization: Bearer $VERCEL_TOKEN" -H "content-type: application/json" \
-    -d "{\"name\":\"crime\",\"project\":\"$PROJECT\",\"target\":\"production\",\"gitSource\":{\"type\":\"github\",\"repoId\":\"${VERCEL_REPO_ID:-}\",\"ref\":\"$BRANCH\",\"sha\":\"$sha\"}}" | node -e "
+    -d "{\"name\":\"crime\",\"project\":\"$PROJECT\",\"target\":\"production\",\"gitSource\":{\"type\":\"github\",\"repoId\":\"${VERCEL_REPO_ID:-1298492421}\",\"ref\":\"$BRANCH\",\"sha\":\"$sha\"}}" | node -e "
     let s=''; process.stdin.on('data', (d) => (s += d)).on('end', () => { const j = JSON.parse(s); console.log('redeploy:', j.id ? j.id + ' ' + j.readyState : JSON.stringify(j.error || j).slice(0, 200)); });"
 }
 

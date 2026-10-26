@@ -23,3 +23,18 @@ First on the block: Kimchi.
 
 crime.tech
 CA: 7ZkskJVeNzDeCU3SZyvd78gfv6FLWG6MKudMf9Tqpump
+
+## The launch post, in the account's register
+
+$CRIME is LIVE.
+
+You vote. We expose. Every hour.
+
+Every post they ever made. Every wallet they ever touched. The trades set next to the tweets, to the minute. KOLs, devs, influencers. Nobody is too big to read.
+
+This is the justice the trenches deserve.
+
+First on the block: Kimchi.
+
+crime.tech
+7ZkskJVeNzDeCU3SZyvd78gfv6FLWG6MKudMf9Tqpump
