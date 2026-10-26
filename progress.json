@@ -1,6 +1,9 @@
 {
-  "state": "idle",
-  "updated_at": "2026-10-26T17:44:08Z",
+  "state": "running",
+  "subject": "@kimchi1x",
+  "started_at": "2026-10-26T17:44:27Z",
+  "budget_minutes": 60,
+  "updated_at": "2026-10-26T17:44:27Z",
   "steps": [],
   "wallets": [],
   "posts": [],
